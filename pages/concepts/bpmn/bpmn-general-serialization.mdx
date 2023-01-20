@@ -36,6 +36,7 @@ https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd"` for schema validation
 
 {/* PROCEED specific attributes */}
 {/* - `proceed:version` contains the version of the process as a date in milliseconds. It changes if something changes in the process. [See here](versioning)
+
 - `proceed:versionBasedOn` if the process was created from another one, it references the version of the original process */}
 
 - `proceed:originalId`: (optional) if the process was imported into PROCEED's
@@ -58,8 +59,8 @@ https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd"` for schema validation
 
 - `id`: unique id like it is generated in bpmn-js (e.g. `Process_1wqd8fv`)
 - `name`: name of the pool (aka participant name), if no pool default: `"PROCEED
-  Main Process"`
-{/* - `processType`: 'Private'  */}
+Main Process"`
+  {/* - `processType`: 'Private' */}
 - `isExecutable`: true
 - `proceed:deploymentMethod`: attribute for changing the deployment method. Can
   have the values `static` or `dynamic` for the [respective methods](concepts/deployment/_index)
@@ -177,8 +178,7 @@ Process artifacts (User Task, Scripts, etc.) will be versioned with the attribut
 
 ## Monitoring
 
-
- */}
+*/}
 
 ### Example
 
@@ -254,7 +254,7 @@ Process artifacts (User Task, Scripts, etc.) will be versioned with the attribut
                     <proceed:timePlannedEnd>2020-07-01T00:00:00+01:00</proceed:timePlannedEnd>
                     <proceed:timePlannedDuration>P2M10D</proceed:timePlannedDuration>
                     <proceed:costsPlanned unit="Euro">3000.50</proceed:costsPlanned>
-                    <proceed:overviewImage>https://docs.proceed-labs.org/images/favicon.png</proceed:overviewImage>
+                    <proceed:overviewImage>https://docs.proceed-labs.org/docs/images/favicon.png</proceed:overviewImage>
                     <proceed:property name="editor">VSCode</proceed:property>
                 </proceed:meta>
 

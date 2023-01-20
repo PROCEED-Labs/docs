@@ -5,4 +5,6 @@ const withNextra = require("nextra")({
   staticImage: true,
 });
 
-module.exports = withNextra();
+module.exports = withNextra({
+  images: { unoptimized: true },
+});

@@ -6,7 +6,7 @@ const config: DocsThemeConfig = {
   project: {
     link: "https://github.com/PROCEED-Labs",
   },
-  docsRepositoryBase: "https://github.com/PROCEED-Labs/docs",
+  docsRepositoryBase: "https://github.com/PROCEED-Labs/docs/tree/main",
   footer: {
     text: "PROCEED Project Documentation",
   },

@@ -58,6 +58,7 @@ jobs:
           #
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
+      # REMOVED because it didn't respect changes to the menu structure.
       #- name: Restore cache
       #  uses: actions/cache@v3
       #  with:

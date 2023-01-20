@@ -1,0 +1,5 @@
+{
+  "dynamic_deployment": "Dynamic Deployment",
+  "execution_constraints": { "display": "hidden" },
+  "static_deployment": { "display": "hidden" }
+}

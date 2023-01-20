@@ -1,0 +1,382 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema 
+  elementFormDefault="qualified" 
+  attributeFormDefault="unqualified"
+  xmlns="https://docs.proceed-labs.org/BPMN"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  targetNamespace="https://docs.proceed-labs.org/BPMN">
+
+
+  <!-- for extension in the BPMN 'definition' element -->
+  <xsd:attribute name="creatorEnvironmentId" type="xsd:string" />
+  <xsd:attribute name="creatorEnvironmentName" type="xsd:string" />
+  <xsd:attribute name="creatorId" type="xsd:string" />
+  <xsd:attribute name="creatorName" type="xsd:string" />
+  <!-- for extension in the BPMN 'definition' element for process imports -->
+  <xsd:attribute name="originalId" type="xsd:ID" />
+  <xsd:attribute name="originalExporter" type="xsd:string" />
+  <xsd:attribute name="originalExporterVersion" type="xsd:string" />
+  <xsd:attribute name="originalTargetNamespace" type="xsd:anyURI" />
+
+  <!-- for extension in the BPMN 'process' element -->
+  <xsd:attribute name="deploymentMethod" type="tDeploymentMethod" />
+  <xsd:simpleType name="tDeploymentMethod">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="static" />
+      <xsd:enumeration value="dynamic" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <!-- for extension in every BPMN flow node element -->
+  <!-- Engine assignments -->
+  <xsd:attribute name="machineId" type="xsd:string" />
+  <xsd:attribute name="machineAddress" type="xsd:string" />
+  <!-- indicates if a flow node is executed in an external system -->
+  <xsd:attribute name="external" type="xsd:boolean" />
+
+  <!-- for extending a userTask: fileName and Milestones -->
+  <xsd:attribute name="fileName" type="xsd:string" />
+
+  <xsd:element name="milestones" type="tMilestones" />
+  <xsd:complexType name="tMilestones">
+    <xsd:sequence>
+      <xsd:element ref="milestone" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="milestone" type="tMilestone" />
+  <xsd:complexType name="tMilestone">
+    <xsd:sequence>
+      <xsd:element name="id" type="xsd:string" minOccurs="1" maxOccurs="1" />
+      <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
+      <xsd:element name="description" type="xsd:string" minOccurs="1" maxOccurs="1" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+
+
+
+  <!-- The material/tools used in a task -->
+  <xsd:element name="resources" type="tResources" />
+  <xsd:complexType name="tResources">
+    <xsd:sequence>
+      <xsd:element name="consumableMaterial" type="tResource" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="tool" type="tResource" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="inspectionInstrument" type="tResource" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="tResource">
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+    <!-- http://www.datypic.com/sc/xsd/t-xsd_NMTOKEN.html -->
+    <xsd:attribute name="id" type="xsd:NMTOKEN" use="optional"/>
+    <xsd:attribute name="shortName" type="xsd:token" use="optional"/>
+    <xsd:attribute name="longName" type="xsd:normalizedString" use="optional"/>
+    <xsd:attribute name="manufacturer" type="xsd:string" use="optional"/>
+    <xsd:attribute name="manufacturerSerialNumber" type="xsd:string" use="optional"/>
+    <xsd:attribute name="unit" type="xsd:string" use="optional"/>
+    <xsd:attribute name="quantity" type="xsd:decimal" use="optional" default="1"/>
+  </xsd:complexType>
+
+
+  <!-- the possible locations where a task can be executed -->
+  <xsd:element name="locations" type="tLocations" />
+  <xsd:complexType name="tLocations">
+    <xsd:sequence>
+      <!-- multiple same entries are allowed which indicate an OR connection -->
+      <xsd:element name="workingPlace" type="tLocation" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="area" type="tLocation" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="building" type="tLocation" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="factory" type="tLocation" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="company" type="tLocation" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="tLocation">
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+    <!-- http://www.datypic.com/sc/xsd/t-xsd_NMTOKEN.html -->
+    <xsd:attribute name="id" type="xsd:NMTOKEN" use="optional"/>
+    <xsd:attribute name="shortName" type="xsd:token" use="optional"/>
+    <xsd:attribute name="longName" type="xsd:normalizedString" use="optional"/>
+    <!-- References to create the company structure -->
+    <xsd:attribute name="buildingRef" type="xsd:NMTOKEN" use="optional"/>
+    <xsd:attribute name="areaRef" type="xsd:NMTOKEN" use="optional"/>
+    <xsd:attribute name="factoryRef" type="xsd:NMTOKEN" use="optional"/>
+    <xsd:attribute name="companyRef" type="xsd:NMTOKEN" use="optional"/>
+  </xsd:complexType>
+
+
+
+
+  <!-- TODO: VERSION for process and artifacts, extension in BPMN definition and every BPMN flow node -->
+  <!-- <xsd:attribute name="version" type="xsd:integer" />
+  <xsd:attribute name="versionBasedOn" type="xsd:integer" /> -->
+
+
+  <!-- Meta Information: cost, time, probability, property -->
+  <xsd:element name="meta" type="tMeta"/>
+  <xsd:complexType name="tMeta">
+    <xsd:sequence>
+      <!-- represents the id of an order, only used in "Projects" -->
+      <xsd:element name="orderNumber" type="xsd:token" minOccurs="0" maxOccurs="1" />
+      <!-- indicates the name of the order, only used in "Projects"
+      it is usually the same as the project name which is stored inside the 'name' attribute in definitions -->
+      <xsd:element name="orderName" type="xsd:string" minOccurs="0" maxOccurs="1" />
+      <!-- is a short Order/Project identifier, only used in "Projects" -->
+      <xsd:element name="orderCode" type="xsd:token" minOccurs="0" maxOccurs="1" />
+
+      <!-- represents the id of a customer, only used in "Projects" -->
+      <xsd:element name="customerId" type="xsd:token" minOccurs="0" maxOccurs="1" />
+      <!-- represents the name of a customer, only used in "Projects" -->
+      <xsd:element name="customerName" type="xsd:string" minOccurs="0" maxOccurs="1" />
+
+      <!-- date when a process or activity is planned to start 
+        only allowed in "Projects"
+        format given in ISO 8601, date and time required, timezone optional-->
+      <xsd:element name="timePlannedOccurrence" type="xsd:dateTime" minOccurs="0" maxOccurs="1" />
+
+      <!-- date when a process, activity or event is planned to end 
+        format given in ISO 8601, date and time required, timezone optional-->
+      <xsd:element name="timePlannedEnd" type="xsd:dateTime" minOccurs="0" maxOccurs="1" />
+
+      <!--  duration how long a process, activity or event is planned to need
+      format given in  ISO 8601, "P2M10D"-->
+      <xsd:element name="timePlannedDuration" type="xsd:duration" minOccurs="0" maxOccurs="1" />
+
+      <!-- states the planned costs of the process, activity or event  -->
+      <xsd:element ref="costsPlanned" minOccurs="0" maxOccurs="1" />
+
+      <!-- Should only be used inside a sequenceFlow after an XOR, OR and Event-based Gateway: for simulation-->
+      <xsd:element name="occurrenceProbability" type="xsd:integer" minOccurs="0" maxOccurs="1" />
+
+      <!-- A summary image for the FlowNode (to display in the MS) -->
+      <!-- should contain a base64-encoded data URI or absolute URL -->
+      <xsd:element name="overviewImage" type="xsd:anyURI" minOccurs="0" maxOccurs="1" />
+
+      <!-- For arbitrary data -->
+      <xsd:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+      <!-- for example, 'property' is used for plugin data like the 5th Industry connection, see https://gitlab.com/dBPMS-PROCEED/proceed/-/wikis/extensions/5thIndustry -->
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="costsPlanned" type="tCosts"/>
+  <xsd:complexType name="tCosts">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="unit" type="xsd:string" use="optional" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:element name="property" type="tProperty" />
+  <xsd:complexType name="tProperty">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="name" type="xsd:string" use="required" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+
+
+  <!--
+  __________________________________________
+  Definitions for capabilities
+  __________________________________________
+-->
+  <xsd:element name="capabilities" type="tCapabilities"/>
+	<xsd:complexType name="tCapabilities">
+    <xsd:sequence>
+      <xsd:element ref="capability" minOccurs="1" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+
+
+  <xsd:element name="capability" type="tCapability"/>
+  <xsd:complexType name="tCapability">
+    <xsd:sequence>
+      <xsd:element ref="cParameter" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element ref="cReturnValue" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+    <xsd:attribute name="capabilityShortName" type="xsd:string" use="optional"/>
+    <xsd:attribute name="capabilityURI" type="xsd:anyURI" use="required"/>
+  </xsd:complexType>
+
+  <xsd:element name="cParameter" type="tCValue" />
+  <xsd:element name="cReturnValue" type="tCValue" />
+  <xsd:element name="cObjectProperty" type="tCValue" />
+
+  <xsd:complexType name="tCValue">
+    <xsd:sequence>
+      <xsd:choice>
+        <xsd:element name="cValueURI" type="xsd:anyURI" minOccurs="0" />
+        <xsd:element name="cValueOwnName" type="xsd:token" minOccurs="0"  />
+      </xsd:choice>
+      <!-- if something is an object and contains more than one element - self reference -->
+      <xsd:element ref="cObjectProperty" minOccurs="0" maxOccurs="unbounded"/>
+      <!-- TODO: 
+        - DataType and Unit (optional) could be together
+        - OR use Encoding (already integratesDataType and Unit)  -->
+      <xsd:element name="cValueDataType" type="xsd:anyURI" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="cValueUnit" type="xsd:token" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="cValueEncoding" type="xsd:token" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+    <!-- Parameters can be optional -->
+    <!-- TODO: only relevant for cParameter -->
+    <xsd:attribute name="optional" type="xsd:boolean" use="optional"/>
+  </xsd:complexType>
+
+
+  <!-- Alessandro: Users and Roles -->
+  <xsd:element name="roles" type="tRoles"/>
+  <xsd:complexType name="tRoles">
+    <xsd:sequence>
+      <xsd:element name="role" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="users" type="tUsers"/>
+  <xsd:complexType name="tUsers">
+    <xsd:sequence>
+      <xsd:element ref="user" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="user" type="tUser" />
+  <xsd:complexType name="tUser">
+    <xsd:sequence>
+      <xsd:element type="xsd:string" name="name"/>
+      <xsd:element type="xsd:int" name="id"/>
+      <xsd:element type="xsd:string" name="password"/>
+      <xsd:element type="xsd:string" name="clientid"/>
+      <xsd:element type="xsd:string" name="clientsecret"/>
+      <xsd:element type="xsd:anyURI" name="provider"/>
+      <xsd:element type="xsd:string" name="origin"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+
+  <!--
+    __________________________________________
+    Definitions for hard and soft constraints 
+    __________________________________________
+  -->
+  <xsd:element name="processConstraints" type="tConstraints" />
+  <xsd:complexType name="tConstraints">
+    <xsd:sequence>
+      <xsd:element ref="hardConstraints" minOccurs="0" maxOccurs="1" />
+      <xsd:element ref="softConstraints" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+    <xsd:attribute name="version" type="xsd:integer" use="optional"/>
+  </xsd:complexType>
+
+  <xsd:element name="hardConstraints" type="tHardConstraints" />
+  <xsd:complexType name="tHardConstraints">
+    <xsd:sequence>
+      <xsd:element ref="hardConstraint" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element ref="constraintGroup" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="softConstraints" type="tSoftConstraints" />
+  <xsd:complexType name="tSoftConstraints">
+    <xsd:sequence>
+      <xsd:element ref="softConstraint" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+
+
+  <xsd:element name="hardConstraint" type="tHardConstraint" />
+  <xsd:complexType name="tHardConstraint">
+    <xsd:sequence>
+      <xsd:element ref="name" minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="condition" type="tConditionHardConstraint" minOccurs="1" maxOccurs="1" />
+      <xsd:element ref="values" minOccurs="1" maxOccurs="1"/>
+      <xsd:element ref="hardConstraints" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+    <xsd:attribute name="timeout" type="xsd:integer" default="10" use="optional"/>
+  </xsd:complexType>
+
+  <xsd:element name="softConstraint" type="tSoftConstraint" />
+  <xsd:complexType name="tSoftConstraint">
+    <xsd:sequence>
+      <xsd:element ref="name" />
+      <xsd:element name="condition" type="tConditionSoftConstraint" />
+    </xsd:sequence>
+    <xsd:attribute name="weight" type="tWeight" default="1" use="optional" />
+    <xsd:attribute name="timeout" type="xsd:integer" default="10" use="optional"/>
+  </xsd:complexType>
+
+  <xsd:simpleType name="tWeight">
+    <xsd:restriction base="xsd:integer">
+      <xsd:minInclusive value="1" />
+      <xsd:maxInclusive value="10" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+
+  <xsd:element name="name" type="xsd:string" />
+
+  <xsd:simpleType name="tConditionHardConstraint">
+    <xsd:restriction base="xsd:string">
+      <!-- > and < characters have to be escaped as they are prohibited in XML -->
+      <xsd:pattern value="&gt;|&gt;=|&lt;|&lt;=|==|!=|===|!==" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="tConditionSoftConstraint">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="min" />
+      <xsd:enumeration value="max" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="values" type="tValues" />
+  <xsd:complexType name="tValues">
+    <xsd:sequence>
+      <xsd:element ref="value" minOccurs="1" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="conjunction" type="tConjunction" default="OR" use="optional" />
+  </xsd:complexType>
+
+  <xsd:element name="value" type="tValue" />
+  <xsd:complexType name="tValue">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="unit" type="xsd:string" use="optional" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:simpleType name="tConjunction">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="AND" />
+      <xsd:enumeration value="OR" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+
+  <xsd:element name="constraintGroup" type="tConstraintGroup" />
+  <xsd:complexType name="tConstraintGroup">
+    <xsd:sequence>
+      <xsd:element ref="hardConstraint" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element ref="constraintGroupRef" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" use="required" />
+    <xsd:attribute name="name" type="xsd:string" use="optional"/>
+    <xsd:attribute name="conjunction" type="tConjunction" default="OR" use="optional" />
+  </xsd:complexType>
+
+  <xsd:element name="constraintGroupRef" type="tConstraintGroupRef" />
+  <xsd:complexType name="tConstraintGroupRef">
+    <xsd:attribute name="ref" type="xsd:IDREF" use="required" />
+  </xsd:complexType>
+  
+</xsd:schema>

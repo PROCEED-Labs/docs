@@ -1,0 +1,30 @@
+import { Callout } from "nextra-theme-docs";
+
+<Callout type="info">
+  Process variables and objects are **not** yet serialized in the BPMN files of
+  PROCEED. There is no `itemDefinition`, `dataObject` or `ioSpecification`
+  considered during execution of the process.
+</Callout>
+
+## Behavior of Process Data
+
+Process objects are currently created within _user_ or _script tasks_. The [user
+guide](/user-guide/modelling/process-data) describes how to do it. Created process
+objects are stored within a named variable. The value of the variable is a [JSON
+data
+type](https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf),
+which is either a `string, number, boolean, null/empty, object`, or `array`.
+
+A process object is accessible within the process level and all of its
+sub-processes or tasks. If two activities write in parallel to the same
+variable, the latest executions wins and overrides the value. This is a little
+bit different with a running _call activity_, because it is started as a
+completely separated process. Therefore, the current process variables are
+copied into the call activity execution at its start. After its execution, all
+_changed_ or _new_ variables from the call activity process are copied into the
+parent process. So, this maybe overrides a process variable at the end of the
+execution.
+
+Moreover, within PROCEED it can happen that parts of the process are executed on
+another Machine. When two parts are _merged_ on one Machine, newer variables
+changes override older values.

@@ -1,0 +1,997 @@
+A machine that is chosen to execute a task within a process often has to meet certain criteria that make the execution possible, facilitate it or make it more efficient. To include this information into the BPMN representation of a process, PROCEED uses _constraints_ that can apply to a whole process or to an individual task.
+
+#### `processConstraints`
+
+|                     |                                                                              |
+| ------------------- | ---------------------------------------------------------------------------- |
+| **Description**     | contains a list of constraint elements of different types (list below)       |
+| **Attributes**      | `version` date in milliseconds (optional)                                    |
+| **Constraints**     | --                                                                           |
+| **Parent Elements** | `extensionElements`                                                          |
+| **Child elements**  | [`hardConstraints`](#hardconstraints), [`softConstraints`](#softconstraints) |
+
+There are different categories of constraints to be covered below.
+
+Note: _Capabilities_ of a machine and _Roles_ for user tasks can also be viewed as constraints. They are defined within the respective sections.
+
+## Hard vs. Soft Constraints
+
+### Hard Constraints
+
+If a constraint absolutely needs to be fulfilled in order for the task to be completed, it is called a _hard constraint_. Hard constraints are binary, meaning they are either fulfilled or not. Each `hardConstraint` is represented by one element within a list element `hardConstraints` of a task or process.
+
+#### `hardConstraints`
+
+|                     |                                                                              |
+| ------------------- | ---------------------------------------------------------------------------- |
+| **Description**     | contains one or more `hardConstraint`                                        |
+| **Attributes**      | -                                                                            |
+| **Constraints**     | -                                                                            |
+| **Parent Elements** | [`processConstraints`](#processconstraints)                                  |
+| **Child elements**  | [`hardConstraint`](#hardconstraint) or [`constraintGroup`](#constraintgroup) |
+
+#### `hardConstraint`
+
+|                     |                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Description**     | represents one hard constraint                                                                          |
+| **Attributes**      | `timeout` (optional, max time to retrieve a value on a machine, default: 10sec)                         |
+| **Constraints**     | -                                                                                                       |
+| **Parent Elements** | [`hardConstraints`](#hardconstraints) or [`constraintGroup`](#constraintgroup)                          |
+| **Child elements**  | [`name`](#name),[`condition`](#condition), [`values`](#values) or [`hardConstraints`](#hardconstraints) |
+
+### Soft Constraints
+
+_Soft constraints_ are parameters that can make the task execution or process more efficient or secure for example. Contrary to a _hard constraint_, its absence will not prevent a task from being executed. Besides, soft constraints are non-binary, they can be optimized during task distribution, so that a machine with a favorable combination of hard and soft constraints is chosen.
+
+The creator of the process can assign a weight between 1 and 10 to the constraint to express that certain soft constraints are more important than others.
+
+#### `softConstraints`
+
+|                     |                                             |
+| ------------------- | ------------------------------------------- |
+| **Description**     | contains one or more `softConstraint`       |
+| **Attributes**      | -                                           |
+| **Constraints**     | -                                           |
+| **Parent Elements** | [`processConstraints`](#processconstraints) |
+| **Child elements**  | [`softConstraint`](#softconstraint)         |
+
+#### `softConstraint`
+
+|                     |                                                                                                                         |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Description**     | represents one soft constraint                                                                                          |
+| **Attributes**      | `weight`(values: 1-10; use: optional), `timeout` (optional, max time to retrieve a value on a machines, default: 10sec) |
+| **Constraints**     | -                                                                                                                       |
+| **Parent Elements** | [`softConstraints`](#softconstraints)                                                                                   |
+| **Child elements**  | [`name`](#name),[`condition`](#condition)                                                                               |
+
+## Process- vs. Task-Level Constraints
+
+Constraints can apply to all tasks within a given process. In this case, they are defined in the `extensionElements` tag within the `process` tag.
+
+```xml
+<bpmn2:definition>
+  <bpmn2:process>
+    <bpmn2:task>...</bpmn2:task>
+    <bpmn2:task>...</bpmn2:task>
+    <bpmn2:extensionElements>
+
+      <proceed:processConstraints version="1587405674321">
+
+        <proceed:hardConstraints>
+
+          <proceed:hardConstraint>
+            <proceed:name>machine.cpu.cores</proceed:name>
+            <proceed:condition>&lt;=</proceed:condition>
+            <proceed:values>
+              <proceed:value>4</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+
+        </proceed:hardConstraints>
+
+        <proceed:softConstraints>
+
+          <proceed:softConstraint weight="8">
+            <proceed:name>machine.mem.free</proceed:name>
+            <proceed:condition>max</proceed:condition>
+          </proceed:softConstraint>
+
+        </proceed:softConstraints>
+
+      </proceed:processConstraints>
+    </bpmn2:extensionElements>
+  </bpmn2:process>
+</bpmn2:definition>
+```
+
+If a constraint is to be applied to a single task within a process, it is defined within the `extensionElements` tag in the respective task tag.
+
+```xml
+<bpmn2:task id="Task_1pdn5o1">
+  <bpmn2:extensionElements>
+      <proceed:processConstraints version="1587405674321">
+
+        <proceed:hardConstraints>
+          <proceed:hardConstraint>
+            <proceed:name>machine.cpu.cores</proceed:name>
+            <proceed:condition>&lt;=</proceed:condition>
+            <proceed:values>
+              <proceed:value>4</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+        </proceed:hardConstraints>
+
+        <proceed:softConstraints>
+          <proceed:softConstraint weight="8">
+            <proceed:name>machine.mem.free</proceed:name>
+            <proceed:condition>max</proceed:condition>
+          </proceed:softConstraint>
+        </proceed:softConstraints>
+
+      </proceed:processConstraints>
+  </bpmn2:extensionElements>
+</bpmn2:task>
+```
+
+## Constraint Parameters
+
+#### `name`
+
+|                     |                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Description**     | the name of a property for a hard or soft constraint. Every constraint which value is a number, can also be a soft constraint |
+| **Attributes**      |                                                                                                                               |
+| **Constraints**     | -                                                                                                                             |
+| **Parent Elements** | [`hardConstraint`](#hard-constraints), [`softConstraint`](#soft-constraints)                                                  |
+| **Child elements**  | --                                                                                                                            |
+
+#### `condition`
+
+|                     |                                                                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Description**     | condition of a constraint                                                                                                  |
+| **Attributes**      | -                                                                                                                          |
+| **Constraints**     | hard constraints: `&gt;` (means: `>`) , `&gt;=`, `==`, `!=`, `&lt;` (means: `<`) , `&lt;=`; soft constraints: `max`, `min` |
+| **Parent Elements** | [`hardConstraint`](#hard-constraints), [`softConstraint`](#soft-constraints)                                               |
+| **Child elements**  | -                                                                                                                          |
+
+#### `values`
+
+|                     |                                                                          |
+| ------------------- | ------------------------------------------------------------------------ |
+| **Description**     | Contains one or multiple values either as an OR or as an AND combination |
+| **Attributes**      | `conjunction` (optional, values: "AND" or "OR", default: OR)             |
+| **Constraints**     |                                                                          |
+| **Parent Elements** | [`hardConstraint`](#hard-constraints)                                    |
+| **Child elements**  | only [`value`](#value) allowed                                           |
+
+#### `value`
+
+|                     |                            |
+| ------------------- | -------------------------- |
+| **Description**     | value of a hard constraint |
+| **Attributes**      | `unit` (optional)          |
+| **Constraints**     | -                          |
+| **Parent Elements** | [`values`](#values)        |
+| **Child elements**  | -                          |
+
+[Here is the Link to the complete PROCEED XSD file](/xsd/XSD-PROCEED.xsd)
+
+## Combining multiple constraints with AND
+
+If you want that multiple constraints need to be fulfilled, just list every of them in a separate `hardConstraint` or `softConstraint` element.
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:hardConstraint>
+          <proceed:name>machine.os.platform</proceed:name>
+          <proceed:condition>==</proceed:condition>
+          <proceed:values>
+            <proceed:value>linux</proceed:value>
+          </proceed:values>
+        </proceed:hardConstraint>
+
+        {/* AND */}
+        <proceed:hardConstraint>
+            <proceed:name>machine.cpu.currentLoad</proceed:name>
+            <proceed:condition>&lt;</proceed:condition>
+            <proceed:values>
+              <proceed:value>60</proceed:value>
+            </proceed:values>
+        </proceed:hardConstraint>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```
+
+## Combining multiple constraints with OR
+
+If you want that one of multiple constraints needs to be fulfilled, you need to use the `constraintGroup` element with the `conjunction` attribute set to "OR"
+
+#### `constraintGroup`
+
+|                     |                                                                                                                                                                  |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Description**     | Can contain multiple [`hardConstraint`](#hardconstraint) or [`constraintGroupReference`](#constraintgroupref) either as an OR or as an AND combination           |
+| **Attributes**      | `id` (required, "cg-" followed by 7 unique characters) <br /> `name` (optional, description) <br /> `conjunction` (optional, values: "AND" or "OR", default: OR) |
+| **Constraints**     |                                                                                                                                                                  |
+| **Parent Elements** | [`hardConstraints`](#hardconstraints)                                                                                                                            |
+| **Child elements**  | [`hardConstraint`](#hard-constraint) or [`constraintGroupRef`](#constraintgroupref)                                                                              |
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        {/* OR */}
+        <proceed:constraintGroup id="cg-987sdf1" name="platform constraints" conjunction="OR">
+
+          <proceed:hardConstraint>
+            <proceed:name>machine.os.platform</proceed:name>
+            <proceed:condition>==</proceed:condition>
+            <proceed:values>
+              <proceed:value>linux</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+
+          <proceed:hardConstraint>
+            <proceed:name>machine.os.distro</proceed:name>
+            <proceed:condition>==</proceed:condition>
+            <proceed:values>
+              <proceed:value>Ubuntu</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+
+        </proceed:constraintGroup>
+
+        {/* AND */}
+        <proceed:hardConstraint>
+            <proceed:name>machine.cpu.currentLoad</proceed:name>
+            <proceed:condition>&lt;</proceed:condition>
+            <proceed:values>
+              <proceed:value>60</proceed:value>
+            </proceed:values>
+        </proceed:hardConstraint>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```
+
+## Complex AND and OR Combinations
+
+For more complex combinations between constraints, e.g. (A AND B) || (C AND D), you can reference the IDs of constraint groups within a `constraintGroup`.
+
+#### `constraintGroupRef`
+
+|                     |                                                             |
+| ------------------- | ----------------------------------------------------------- |
+| **Description**     | reference the IDs of constraint groups                      |
+| **Attributes**      | `ref` (id of another [`constraintGroup`](#constraintgroup)) |
+| **Constraints**     |                                                             |
+| **Parent Elements** | [`constraintGroup`](#constraintgroup)                       |
+| **Child elements**  | no content or child elements allowed                        |
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:constraintGroup id="cg-ghj765w" name="platform constraints" conjunction="AND">
+          <proceed:hardConstraint>
+            <proceed:name>machine.os.platform</proceed:name>
+            <proceed:condition>==</proceed:condition>
+            <proceed:values>
+              <proceed:value>linux</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+
+          <proceed:hardConstraint>
+            <proceed:name>machine.os.distro</proceed:name>
+            <proceed:condition>==</proceed:condition>
+            <proceed:values>
+              <proceed:value>Ubuntu</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+        </proceed:constraintGroup>
+
+        <proceed:constraintGroup id="cg-nji6tf4" conjunction="AND">
+          <proceed:hardConstraint>
+            <proceed:name>machine.os.platform</proceed:name>
+            <proceed:condition>==</proceed:condition>
+            <proceed:values>
+              <proceed:value>linux</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+
+          <proceed:hardConstraint>
+            <proceed:name>machine.cpu.currentLoad</proceed:name>
+            <proceed:condition>&lt;</proceed:condition>
+            <proceed:values>
+              <proceed:value>60</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+        </proceed:constraintGroup>
+
+        <proceed:constraintGroup id="cg-wercft2" conjunction="OR">
+          <proceed:constraintGroupRef ref="cg-ghj765w" />
+          <proceed:constraintGroupRef ref="cg-nji6tf4" />
+        </proceed:constraintGroup>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```
+
+## Nesting of Constraints
+
+Some constraints can have additional, optional sub-constraints. For example, we can specify that a Machine needs to reach a remote server, but within a specific time. Therefore we can nest the constraints:
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:hardConstraint>
+          <proceed:name>machine.possibleConnectionTo</proceed:name>
+          <proceed:condition>==</proceed:condition>
+          <proceed:values>
+            <proceed:value>google.de</proceed:value>
+          </proceed:values>
+
+          {/* Nested Constraints */}
+          <proceed:hardConstraints>
+            <proceed:hardConstraint>
+                <proceed:name>latency</proceed:name>
+                <proceed:condition>&lt;</proceed:condition>
+                <proceed:values>
+                  <proceed:value unit="ms">50</proceed:value>
+                </proceed:values>
+            </proceed:hardConstraint>
+          </proceed:hardConstraints>
+
+        </proceed:hardConstraint>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```
+
+{/* ```xml
+<bpmn2:extensionElements>
+<proceed:processConstraints>
+<proceed:hardConstraints>
+
+<proceed:hardConstraint>
+<proceed:name>machine.possibleConnectionTo</proceed:name>
+<proceed:condition>==</proceed:condition>
+<proceed:value>google.de</proceed:value>
+<proceed:softConstraint>  
+ <proceed:name>latency</proceed:name>
+<proceed:condition>min</proceed:condition>
+</proceed:softConstraint>
+</proceed:hardConstraint>
+
+````*/}
+
+
+## Multiple values
+
+Usually it makes only sense, to list every constraint (the value in the _name_ element) only one time.
+E.g. `machine.os.platform` should only be used one time, because it is not possible to have the same Engine running on multiple OS concurrently.
+If constraint is listed multiple times, since it is a line parser, only the last occurence of the constraint will usually be considered.
+
+But there are some constraints that can have multiple values, like `machine.input`, `machine.output`, `machine.possibleConnectionTo`, `machine.network.*`, etc.
+For these there are two variants to use.
+The first one is often easier to read, but the last one has the possibility to nest other constraints.
+
+#### Compacted form with multiple `<value>` inside `<values>`
+
+It is possible to define different conjunctions: _AND_ and _OR_
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:hardConstraint>
+          <proceed:name>machine.output</proceed:name>
+          <proceed:condition>==</proceed:condition>
+
+          {/* Default: OR conjunction*/}
+          <proceed:values>
+            <proceed:value>Screen</proceed:value>
+            <proceed:value>Audio</proceed:value>
+          </proceed:values>
+
+        </proceed:hardConstraint>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+````
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:hardConstraint>
+          <proceed:name>machine.input</proceed:name>
+          <proceed:condition>==</proceed:condition>
+
+          {/* Explicit AND conjunction*/}
+          <proceed:values conjunction="AND">
+            <proceed:value>Touch</proceed:value>
+            <proceed:value>Keyboard</proceed:value>
+          </proceed:values>
+
+        </proceed:hardConstraint>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```
+
+#### Expanded form with multiple `hardConstraint`
+
+In comparison to the compacted method, two `<hardConstraint>` can also have the same constraint name. If this is given their `<value>` elements must be different. This form is useful because some things are not possible with the previous method, e.g. multiple values with _Nested Constraints_ can only be used in this form.
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:hardConstraint>
+          <proceed:name>machine.possibleConnectionTo</proceed:name>
+          <proceed:condition>==</proceed:condition>
+          <proceed:values>
+            <proceed:value>google.de</proceed:value>
+          </proceed:values>
+          <proceed:hardConstraints>
+            <proceed:hardConstraint>
+                <proceed:name>latency</proceed:name>
+                <proceed:condition>&lt;</proceed:condition>
+                <proceed:values>
+                  <proceed:value unit="ms">50</proceed:value>
+                </proceed:values>
+            </proceed:hardConstraint>
+          </proceed:hardConstraints>
+        </proceed:hardConstraint>
+
+        {/* AND */}
+        <proceed:hardConstraint>
+          <proceed:name>machine.possibleConnectionTo</proceed:name>
+          <proceed:condition>==</proceed:condition>
+          <proceed:values>
+            <proceed:value>1.1.1.1</proceed:value>
+          </proceed:values>
+          <proceed:hardConstraints>
+            <proceed:hardConstraint>
+                <proceed:name>latency</proceed:name>
+                <proceed:condition>&lt;</proceed:condition>
+                <proceed:values>
+                  <proceed:value unit="ms">30</proceed:value>
+                </proceed:values>
+            </proceed:hardConstraint>
+          </proceed:hardConstraints>
+        </proceed:hardConstraint>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```
+
+## Representation in JSON
+
+Open this to see the full JSON representation
+
+- empty properties don't need to be included, but they can
+
+```json
+{
+  "processConstraints": {
+    "hardConstraints": [
+      {
+        "_type": "hardConstraint",
+        "_attributes": {},
+        "name": "machine.os.platform",
+        "condition": "==",
+        "values": [{ "value": "linux", "_valueAttributes": {} }],
+        "_valuesAttributes": {}
+      },
+      {
+        "_type": "hardConstraint",
+        "_attributes": {},
+        "name": "machine.input",
+        "condition": "==",
+        "values": [
+          { "value": "Touch", "_valueAttributes": {} },
+          { "value": "Keyboard", "_valueAttributes": {} }
+        ],
+        "_valuesAttributes": {
+          "conjunction": "AND"
+        }
+      },
+      {
+        "_type": "hardConstraint",
+        "_attributes": {},
+        "name": "machine.possibleConnectionTo",
+        "condition": "==",
+        "values": [{ "value": "google.de", "_valueAttributes": {} }],
+        "_valuesAttributes": {},
+        "hardConstraints": [
+          {
+            "_type": "hardConstraint",
+            "_attributes": {},
+            "name": "latency",
+            "condition": "<",
+            "values": [{ "value": "50", "_valueAttributes": { "unit": "ms" } }],
+            "_valuesAttributes": {}
+          }
+        ]
+      },
+      {
+        "_type": "constraintGroup",
+        "_attributes": {
+          "id": "cg-987sdfq",
+          "name": "platform constraints",
+          "conjunction": "AND"
+        },
+        "constraintGroup": [
+          {
+            "_type": "hardConstraint",
+            "_attributes": {},
+            "name": "machine.os.platform",
+            "condition": "==",
+            "values": [{ "value": "linux", "_valueAttributes": {} }],
+            "_valuesAttributes": {}
+          },
+          {
+            "_type": "hardConstraint",
+            "_attributes": {},
+            "name": "machine.os.distro",
+            "condition": "==",
+            "values": [{ "value": "Ubuntu", "_valueAttributes": {} }],
+            "_valuesAttributes": {}
+          }
+        ]
+      },
+      {
+        "_type": "constraintGroup",
+        "_attributes": {
+          "id": "cg-6tf5rd3",
+          "conjunction": "AND"
+        },
+        "constraintGroup": [
+          {
+            "_type": "hardConstraint",
+            "_attributes": {},
+            "name": "machine.os.platform",
+            "condition": "==",
+            "values": [{ "value": "linux", "_valueAttributes": {} }],
+            "_valuesAttributes": {}
+          },
+          {
+            "_type": "hardConstraint",
+            "_attributes": {},
+            "name": "machine.cpu.currentLoad",
+            "condition": "<",
+            "values": [{ "value": "60", "_valueAttributes": {} }],
+            "_valuesAttributes": {}
+          }
+        ]
+      },
+      {
+        "_type": "constraintGroup",
+        "_attributes": {
+          "id": "cg-wercft2",
+          "conjunction": "OR"
+        },
+        "constraintGroup": [
+          {
+            "_type": "constraintGroupRef",
+            "_attributes": {
+              "ref": "cg-987sdfq"
+            }
+          },
+          {
+            "_type": "constraintGroupRef",
+            "_attributes": {
+              "ref": "cg-6tf5rd3"
+            }
+          }
+        ]
+      }
+    ],
+    "softConstraints": [
+      {
+        "_type": "softConstraint",
+        "_attributes": {
+          "weight": 8
+        },
+        "name": "machine.mem.free",
+        "condition": "max"
+      },
+      {
+        "_type": "softConstraint",
+        "_attributes": {},
+        "name": "machine.cpu.currentLoad",
+        "condition": "min"
+      }
+    ]
+  }
+}
+```
+
+And the corresponding XML
+
+- empty properties don't need to be included
+
+```xml
+<proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:hardConstraint>
+            <proceed:name>machine.os.platform</proceed:name>
+            <proceed:condition>==</proceed:condition>
+            <proceed:values>
+                <proceed:value>linux</proceed:value>
+            </proceed:values>
+        </proceed:hardConstraint>
+
+        <proceed:hardConstraint>
+            <proceed:name>machine.input</proceed:name>
+            <proceed:condition>==</proceed:condition>
+            <proceed:values conjunction="AND">
+                <proceed:value>Touch</proceed:value>
+                <proceed:value>Keyboard</proceed:value>
+            </proceed:values>
+        </proceed:hardConstraint>
+
+        <proceed:hardConstraint>
+            <proceed:name>machine.possibleConnectionTo</proceed:name>
+            <proceed:condition>==</proceed:condition>
+            <proceed:values>
+                <proceed:value>google.de</proceed:value>
+            </proceed:values>
+            <proceed:hardConstraints>
+                <proceed:hardConstraint>
+                    <proceed:name>latency</proceed:name>
+                    <proceed:condition>&lt;</proceed:condition>
+                    <proceed:values>
+                        <proceed:value unit="ms">50</proceed:value>
+                    </proceed:values>
+                </proceed:hardConstraint>
+            </proceed:hardConstraints>
+        </proceed:hardConstraint>
+
+        <proceed:constraintGroup id="cg-987sdfq" name="platform constraints" conjunction="AND">
+            <proceed:hardConstraint>
+                <proceed:name>machine.os.platform</proceed:name>
+                <proceed:condition>==</proceed:condition>
+                <proceed:values>
+                    <proceed:value>linux</proceed:value>
+                </proceed:values>
+            </proceed:hardConstraint>
+
+            <proceed:hardConstraint>
+                <proceed:name>machine.os.distro</proceed:name>
+                <proceed:condition>==</proceed:condition>
+                <proceed:values>
+                    <proceed:value>Ubuntu</proceed:value>
+                </proceed:values>
+            </proceed:hardConstraint>
+        </proceed:constraintGroup>
+
+        <proceed:constraintGroup id="cg-6tf5rd3" conjunction="AND">
+            <proceed:hardConstraint>
+                <proceed:name>machine.os.platform</proceed:name>
+                <proceed:condition>==</proceed:condition>
+                <proceed:values>
+                    <proceed:value>linux</proceed:value>
+                </proceed:values>
+            </proceed:hardConstraint>
+
+            <proceed:hardConstraint>
+                <proceed:name>machine.cpu.currentLoad</proceed:name>
+                <proceed:condition>&lt;</proceed:condition>
+                <proceed:values>
+                    <proceed:value>60</proceed:value>
+                </proceed:values>
+            </proceed:hardConstraint>
+        </proceed:constraintGroup>
+
+        <proceed:constraintGroup id="cg-wercft2"  conjunction="OR">
+            <proceed:constraintGroupRef ref="cg-987sdfq" />
+            <proceed:constraintGroupRef ref="cg-6tf5rd3" />
+        </proceed:constraintGroup>
+
+    </proceed:hardConstraints>
+
+    <proceed:softConstraints>
+
+        <proceed:softConstraint weight="8">
+            <proceed:name>machine.mem.free</proceed:name>
+            <proceed:condition>max</proceed:condition>
+        </proceed:softConstraint>
+
+        <proceed:softConstraint>
+            <proceed:name>machine.cpu.currentLoad</proceed:name>
+            <proceed:condition>min</proceed:condition>
+        </proceed:softConstraint>
+
+    </proceed:softConstraints>
+
+</proceed:processConstraints>
+```
+
+## Currently supported Constraints
+
+- the column "SC" means, if the constraint is usable as Soft Constraint
+- For further details on some of the _machine_ information data structure, see [NPM Package Systeminformation](https://systeminformation.io)
+- Many of the constraints can be stated multiple times in a constraint description, e.g. _machine.id_. The conjunction between them is stated in the XML/JSON representation (not with the data type, e.g. not with an array). Please check that no impossible connections are entered, e.g. to execute one activity on two machines -- this should always be an OR conjunction.
+- _Future_: The name of a constraint can also be a JavaScript function that returns a certain value for each device. This value can then be constrained by a condition and value. It can for example contain an API call.
+
+#### General Machine Constraints
+
+| Name (aka "Attribute") | Data Type        | SC  | Example Values                                                        | Explanation                                                                                                                                                                                                                                                                                     |
+| ---------------------- | ---------------- | --- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `machine.id`           | UUIDv4           |     | `"6bd9c3cf-8164-453a-a039-e8aaf138f192"`                              | The Machine with the _ID_ where the process/activity must be executed on.                                                                                                                                                                                                                       |
+| `machine.name`         | String           |     | `"Max Laptop"`                                                        | The Machine with the _Name_ where the process/activity must be executed on.                                                                                                                                                                                                                     |
+| `machine.hostname`     | String           |     | `"max-t480"`                                                          | The Machine with the _Hostname_ where the process/activity must be executed on.                                                                                                                                                                                                                 |
+| `machine.classes`      | Keywords/Strings |     | `"Portable"`, `"Static"`, `"Transportation"`, `... `                  | The Machine _class(es)_ where the process/activity must be executed on. The classes of a Machine can be set in its configuration. There are some predefined values (e.g. `"Portable"` or `"Static"`), but it can also contain self-defined keywords (e.g. `"Transportation"`, `"Drone"`, etc.). |
+| `machine.inputs`       | Keywords/Strings |     | `"TouchScreen"`, `"Microphone"`, `"Keyboard"`, `"Numpad"`, `"Camera"` | Specifies the input device(s) a Machine needs to have for running an activity/process                                                                                                                                                                                                           |
+| `machine.outputs`      | Keywords/Strings |     | `"Screen", "Speaker"`                                                 |                                                                                                                                                                                                                                                                                                 |
+
+#### Operating Systems Constraints
+
+| Name (aka "Attribute") | Data Type | SC  | Example Values | Explanation |
+| ---------------------- | --------- | --- | -------------- | ----------- |
+| `machine.os.platform`  | String    |     | "linux"        |             |
+| `machine.os.distro`    | String    |     | "Ubuntu"       |             |
+| `machine.os.release`   | String    |     | "19.04'"       |             |
+
+#### Processor Constraints
+
+| Name (aka "Attribute")              | Data Type         | SC                                             | Example Values     | Explanation |
+| ----------------------------------- | ----------------- | ---------------------------------------------- | ------------------ | ----------- |
+| `machine.cpu.cores`                 | Number            | <i class="fa fa-check" aria-hidden="true"></i> | 8                  |             |
+| `machine.cpu.physicalCores`         | Number            | <i class="fa fa-check" aria-hidden="true"></i> | 4                  |             |
+| `machine.cpu.processors`            | Number            | <i class="fa fa-check" aria-hidden="true"></i> | 1                  |             |
+| `machine.cpu.speed`                 | Number in GHz     | <i class="fa fa-check" aria-hidden="true"></i> | 3.40               |             |
+| `machine.cpu` `.currentLoad`        | Number in Percent | <i class="fa fa-check" aria-hidden="true"></i> | 14.799287681304344 |             |
+| `machine.cpu` `.loadLastMinute`     | Number in Percent | <i class="fa fa-check" aria-hidden="true"></i> | 14.799287681304344 |             |
+| `machine.cpu` `.loadLastTenMinutes` | Number in Percent | <i class="fa fa-check" aria-hidden="true"></i> | 14.799287681304344 |             |
+| `machine.cpu` `.loadLastHalfHour`   | Number in Percent | <i class="fa fa-check" aria-hidden="true"></i> | 14.799287681304344 |             |
+| `machine.cpu` `.loadLastHour`       | Number in Percent | <i class="fa fa-check" aria-hidden="true"></i> | 14.799287681304344 |             |
+| `machine.cpu` `.loadLastHalfDay`    | Number in Percent | <i class="fa fa-check" aria-hidden="true"></i> | 14.799287681304344 |             |
+| `machine.cpu` `.loadLastDay`        | Number in Percent | <i class="fa fa-check" aria-hidden="true"></i> | 14.799287681304344 |             |
+
+#### Memory Constraints
+
+| Name (aka "Attribute") | Data Type         | SC                                             | Example Values                              | Explanation |
+| ---------------------- | ----------------- | ---------------------------------------------- | ------------------------------------------- | ----------- |
+| `machine.mem.total`    | Number in Bytes   | <i class="fa fa-check" aria-hidden="true"></i> | 33474842624                                 |             |
+| `machine.mem.free`     | Number in Bytes   | <i class="fa fa-check" aria-hidden="true"></i> | 22056796160                                 |             |
+| `machine.mem.load`     | Number in Percent | <i class="fa fa-check" aria-hidden="true"></i> | Current memory load: `mem.free`/`mem.total` |             |
+
+#### Disk Constraints
+
+| Name (aka "Attribute") | Data Type         | SC                                             | Example Values         | Explanation |
+| ---------------------- | ----------------- | ---------------------------------------------- | ---------------------- | ----------- |
+| `machine.disk.type`    | String            |                                                | "HFS", "FAT32", "APFS" |             |
+| `machine.disk.total`   | Number in Bytes   | <i class="fa fa-check" aria-hidden="true"></i> | 10000                  |             |
+| `machine.disk.free`    | Number in Bytes   | <i class="fa fa-check" aria-hidden="true"></i> | 2000                   |             |
+| `machine.disk.used`    | Number in Percent | <i class="fa fa-check" aria-hidden="true"></i> | 20                     |             |
+
+There can be more than one disk on a machine.
+
+#### Network Constraints
+
+| Name (aka "Attribute")                                    | Data Type      | SC  | Example Values                                              | Explanation                                                                                                                                              |
+| --------------------------------------------------------- | -------------- | --- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `machine.online`                                          | Boolean        |     | true                                                        |                                                                                                                                                          |
+| `machine` `.possibleConnectionTo`                         | IP/DNS address |     | `maps.google.de` or `123.42.12.12`                          | IP-Addresses (also resolvable via DNS) of other Machines (Server, Websites, IoT devices, etc.) where one of them needs to be reachable for the execution |
+| => sub constraint: `latency` (for "possibleConnectionTo") | Number in ms   |     | `50`                                                        | the time a Machnine need for getting an answer from another system                                                                                       |
+| `machine.network.type`                                    | String         |     | Currently connected Network Interfaces: "wireless", "wired" |                                                                                                                                                          |
+| `machine.network.ip4`                                     | String         |     | "112.151.30.2"                                              |                                                                                                                                                          |
+| `machine.network.ip6`                                     | String         |     | "fe80::57b3:6e29:44d3:6566"                                 |                                                                                                                                                          |
+| `machine.network.mac`                                     | String         |     | "dc:8b:28:3d:ac:4b"                                         |                                                                                                                                                          |
+| `machine.network.netmaskv4`                               | String         |     | "255.255.255.0"                                             | SubNet mask                                                                                                                                              |
+| `machine.network.netmaskv6`                               | String         |     | ffff:ffff:ffff :ffff:0000:0000:0000:0000                    | SubNet mask                                                                                                                                              |
+
+{/* | `machine.wifi.ssid` | String | | "eduroam" | |
+| `machine.wifi.bssid` | String | | | |
+| `machine.wifi.signalLevel` | Number | <i class="fa fa-check" aria-hidden="true"></i> | | |
+| `machine.wifi.quality` | Number | <i class="fa fa-check" aria-hidden="true"></i> | | |
+| `machine.wifi.security` | String | | | | */}
+
+There can be more than one network adapter on a machine.
+
+#### Other Hardware Constraints
+
+| Name (aka "Attribute")          | Data Type | SC                                             | Example Values | Explanation |
+| ------------------------------- | --------- | ---------------------------------------------- | -------------- | ----------- |
+| `machine.battery.hasBattery`    | Boolean   |                                                | True           |             |
+| `machine.battery.percent`       | Number    | <i class="fa fa-check" aria-hidden="true"></i> | 98             |             |
+| `machine.battery.maxCapacity`   | Number    | <i class="fa fa-check" aria-hidden="true"></i> | 47500000       |             |
+| `machine.battery.isCharging`    | Boolean   |                                                | True           |             |
+| `machine.battery.timeRemaining` | Number    |                                                |                |             |
+| `machine.battery.acconnected`   | Boolean   |                                                | True           |             |
+|                                 |
+| `machine.display.currentResX`   | Number    | <i class="fa fa-check" aria-hidden="true"></i> | 1920           |             |
+| `machine.display.currentResY`   | Number    | <i class="fa fa-check" aria-hidden="true"></i> | 1200           |             |
+
+#### Process Execution Constraints
+
+| Name (aka "Attribute")  | Data Type         | SC  | Example Values | Explanation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ----------------------- | ----------------- | --- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sameMachine`           | Boolean           |     | `true\|false`  | Indicates if the complete Process or the Next Flow Node have to continue on the same machine                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `maxTime`               | Number in seconds |     | `-1`           | Max time a flow node or process is allowed to run on the local Engine. This can restrict a flow node (_Flow Node Constraint_) or the whole process (_Process Constraint_). <br /> If the execution time of the flow node or local process has exceeded this value, it then aborts the current token (_Flow Node Constraint_) or the whole process instance (_Process Constraint_).<br /> `-1` means no timeout,<br /> _Attention_: Constraints are evaluated after each execution of a flow node inside the _Process Router/Decider_ (for further information, [see the wiki](https://gitlab.com/dBPMS-PROCEED/proceed/-/wikis/Engine/Universal/Process/Process-Instance,-Tokens,-Datastructure-and-REST-Endpoint)). This means, it does not stop the token during execution of a flow node, e.g. an activity, event or waiting gateway - if this is wanted you can attach a BPMN timer event to activities. |
+| `maxTimeGlobal`         | Number in seconds |     | `-1`           | _**Only** Process Level:_ timeout of the global process execution over multiple Machines. It then aborts the whole process instance.<br />`-1` means no timeout                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `maxTokenStorageTime`   | Number in seconds |     | `-1`           | The time _management.js_ stores a process token for later re-evaluation until it is deleted. The timer is started when the token gets to the reevaluation storage the first time. It is then compared to the timeout value _before and after_ every reevaluation. The timer is reset for every flow node execution.<br />`-1` means no timeout, `0` means no token storage                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `maxTokenStorageRounds` | Number            |     | `-1`           | The times (rounds) _management.js_ stores a process token for later re-evaluation until it is deleted. A number is set to 1 when the token gets to the reevaluation storage the first time. It is then compared to the value after every reevaluation. The number is reset for every flow node execution.<br />`-1` means no rounds count, `0` means no token storage                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `maxMachineHops`        | Number            |     | `-1`           | The times (rounds) a process is transferred to a next Machine. With every reception the counter is set one up. So even the same Machine can count twice.<br />`-1` means no hops count, `0` means no process storage, `1` execution and storage only on one Machine                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+
+#### Process Participant Constraints
+
+| Name (aka "Attribute") | Data Type | SC  | Example Values | Explanation |
+| ---------------------- | --------- | --- | -------------- | ----------- |
+| `user.name`            | String    |     | "Max"          |             |
+| `user.id`              | Number    |     | "234640868"    |             |
+| `user.role`            | String    |     | "Admin"        |             |
+
+#### Location Constraints
+
+Location constraints allocate the process execution to a specific geographical location.
+They are already indirectly implied by other constraints, e.g. `machine.id/name/hostname`, `sameMachine`, `machine.network.ip4/ip6/mac/networkmaskv4/networkmaskv6`, `user.name/id/role`.
+The main location concept is a very flexible approach, adapted from the hierarchical topic names of MQTT.
+
+| Name (aka "Attribute")       | Data Type                                                                                                                                                                                                                                                                                                                                                                           | SC  | Example Values                                                                               | Explanation                                                                                                                  |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `machine.homeEnvironment`    | Id of Environment (String)                                                                                                                                                                                                                                                                                                                                                          |     | "Env-47430d83-66d6-4d6a-b0ef-2417f1fd3956"                                                   |                                                                                                                              |
+| `machine.currentEnvironment` | Id of Environment (String)                                                                                                                                                                                                                                                                                                                                                          |     | "snetPROCEEDEnvironment"                                                                     |                                                                                                                              |
+| `machine.domain`             | Hierarchical level of domain name (String)<br /> not case-sensitive, allowed characters for the name: a-z, A-Z, 0-9, `-_` (no spaces)<br /> Special _Characters with meaning_:<br /> `/` separates the domain levels (not as a leading character on the first place)<br /> `+` placeholder for exactly one level<br /> `#` placeholder for all following levels (always at the end) |     | "max-office/cupboard/motion-sensor"<br /> "max-office/+/motion-sensor" <br /> "max-office/#" | Sets the location domain the process/activity can be further executed. This is configured for every machine in its settings. |
+
+There is not yet a constraint for direct location identification like GPS coordinates, because this would require the availability of a location sensor.
+Although it would be possible to easily ignore this constraint if the information can not be queried, it would mislead designers to the assumption that it is widely available.
+On demand it can be added later.
+
+## Error Detection: Rules for Composing multiple Constraints
+
+There are several rules which have to be respected when combining constraints.
+It is often not possible to combine some constraints or it is not allowed that a constraint has multiple values.
+
+In addition there are some recommendations for constraints which should not be combined.
+They are not mandatory because in some specific use cases it is possible that are combined with purpose.
+
+#### Constraint combination Errors
+
+- For the constraints `machine.id/name/hostname` it is not allowed to contain multiple values with an _AND_ conjunction. This would mean that the process should be deployed to a Machine which has multiple IDs. But this is not possible for an engine to have multiple ids, names or hostnames. E.g.:
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:hardConstraint>
+          <proceed:name>machine.id</proceed:name>
+          <proceed:condition>==</proceed:condition>
+
+          {/* Not allowed: AND conjunction for constraint with machine.id*/}
+          <proceed:values conjunction="AND">
+            <proceed:value>6bd9c3cf-8164-453a-a039-e8aaf138f192</proceed:value>
+            <proceed:value>cdb63720-9628-5ef6-bbca-2e5ce6094f3c</proceed:value>
+          </proceed:values>
+
+        </proceed:hardConstraint>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```
+
+- When defining constraint groups, there must not appear circular dependencies. These occur when groups reference each other.
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:constraintGroup id="cg-ghj765w" name="platform constraints" conjunction="AND">
+        <proceed:constraintGroupRef ref="cg-nji6tf4" />
+
+          <proceed:hardConstraint>
+            <proceed:name>machine.os.platform</proceed:name>
+            <proceed:condition>==</proceed:condition>
+            <proceed:values>
+              <proceed:value>linux</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+        </proceed:constraintGroup>
+
+        <proceed:constraintGroup id="cg-nji6tf4" conjunction="AND">
+        {/* Not allowed: referencing group cg-ghj765w in which this group was referenced */}
+          <proceed:constraintGroupRef ref="cg-ghj765w" />
+
+          <proceed:hardConstraint>
+            <proceed:name>machine.cpu.currentLoad</proceed:name>
+            <proceed:condition>&lt;</proceed:condition>
+            <proceed:values>
+              <proceed:value>60</proceed:value>
+            </proceed:values>
+          </proceed:hardConstraint>
+        </proceed:constraintGroup>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```
+
+#### Constraint combination Warnings
+
+- It is not recommended to use the constraints `machine.id`, `machine.name` and `machine.hostname` together in one Constraint definition with an AND conjunction, because this is often just a duplicate and can limit the number of appropriate Machines
+  - however, if used intentional, it can specify a very specific Machine
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:hardConstraint>
+          <proceed:name>machine.id</proceed:name>
+          <proceed:condition>==</proceed:condition>
+          <proceed:values>
+            <proceed:value>6bd9c3cf-8164-453a-a039-e8aaf138f192</proceed:value>
+          </proceed:values>
+        </proceed:hardConstraint>
+
+        {/* This is by an AND conjunction - Not recommended: machine.id would be enough */}
+        <proceed:hardConstraint>
+          <proceed:name>machine.hostname</proceed:name>
+          <proceed:condition>==</proceed:condition>
+          <proceed:values>
+            <proceed:value>max-mustermann-machine</proceed:value>
+          </proceed:values>
+        </proceed:hardConstraint>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```
+
+- It is not recommended to use the constraints `machine.network.ip4`, `machine.network.ip6` and `machine.network.mac` together in one Constraint definition with an AND conjunction, because this is often just a duplicate and can limit the number of appropriate Machines
+
+  - however, if used intentional, it can specify a very specific Machine
+
+- It is not recommended to use multiple values for the constraints `machine.network.ip4/ip6` or `mac` with an AND conjunction.
+  - however, if used intentional, it can specify a very specific Machine which has multiple network interfaces and is able to have multiple values
+
+```xml
+<bpmn2:extensionElements>
+  <proceed:processConstraints>
+    <proceed:hardConstraints>
+
+        <proceed:hardConstraint>
+          <proceed:name>machine.network.ip4</proceed:name>
+          <proceed:condition>==</proceed:condition>
+
+          {/* Not recommended: AND conjunction means a Machine with multiple network interfaces*/}
+          <proceed:values conjunction="AND">
+            <proceed:value>192.168.100.3</proceed:value>
+            <proceed:value>72.56.24.98</proceed:value>
+          </proceed:values>
+
+        </proceed:hardConstraint>
+
+    </proceed:hardConstraints>
+  </proceed:processConstraints>
+</bpmn2:extensionElements>
+```

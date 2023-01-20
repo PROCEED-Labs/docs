@@ -1,0 +1,64 @@
+{/* ### Requirements
+The management-system should be capable of creating such relationships between processes and displaying them in a proper way. The export and import should also handle these relationships and provide an option to export/import all referenced processes. There are four different parts to concentrate on:
+
+The **Editor View** already has the capability to add the BPMN elements, like Call-Activities and Sub-Processes. However, it is necessary to link these activities to actual processes or create new processes. Additionally, it should be possible to edit the actual BPMN-file of the process, to add the linking. Furthermore, there should be the functionality to open the Editor View for a sub-processor Call-Activity in another tab.
+
+The **Process Overview** should present the created relationships between the processes. So first of all, the overview shouldn’t include any subprocesses, just the top-level processes and processes, which are used as Call-Activities in other processes, should be highlighted. Subprocesses should be displayed in a way that the relation to the parent process is visible, for example in the expanded state in the table or card view of the process overview. But all processes including subprocesses should be searchable, even if they are not displayed in the first place.
+
+The **Export** should be extended in a way that suitable formats provide the option to export included subprocesses as well, maybe even to select the subprocesses (and their subprocesses) which should be exported. For example the export of the actual BPMN-File or the pdf export.
+
+The **Import** should be capable to import processes, which are related, and integrate them properly into the system. (Even for exported archives from other BPMN-Modelers)
+
+### Use Cases
+
+- A complex process has various subprocesses, which need to be edited at the same time. To reduce complexity, the process should not necessarily show all subprocesses.
+- It is desired to find/edit a subprocess without knowing the process.
+- A process has multiple subprocesses shown in one view, with all subprocesses expanded. While editing the process, it is not necessary to know the details of the subprocesses. It should still be possible to review the subprocess when needed though.
+- A process contains a Call Activity that can be used in other processes as well.
+- Another user should have only access to a certain part of a process. → outsource to a Subprocess */}
+
+### Questions
+
+#### Process Overview
+
+- How to visualize subprocess (nested subprocess)?
+
+#### Editor View
+
+- How to create a subprocess?
+  - Add a new one
+  - Link to an existing subprocess
+- How to ensure that a subprocess is only linked to one process and not linked multiple times?
+- How to create a global Call Activity?
+
+#### How are subprocesses created?
+
+- for a call activity: must the process already exist? or can it be created dynamically
+
+#### How is a process and its subprocesses displayed in the MS?
+
+#### Requirements of subprocesses
+
+- embedded: only one empty start event
+- call activity: at least one empty start event
+
+#### Export/Import
+
+- How are processes with subprocesses exported/imported
+
+## Implementation (Ideas)
+
+#### Process Overview
+
+- A New Modal (popup) displaying all subprocesses in a global process, as all subprocesses could be displayed in a tree view, and on selecting the node of the tree (which is a subprocess) it should render its BPMN diagram. An export button for the selected subprocess and additional information regarding the selected subprocess could be added as well. Using a separate popup would help to treat popup as a separate window for only subprocesses and distinguish parent process and a subprocess in a clear manner. This Modal (popup) would be generated from a button placed against every parent process that contains a subprocess.
+- A switch button adjacent to the search bar to differentiate a search between parent processes and sub-processes.
+- The icon in process details if it has a subprocess to generate the above-mentioned popup (in point 1).
+- Show only the main processes with a list of subprocesses in the expanded view (just the name) and editing these sub-processes by clicking on them to open them in the editor
+
+#### Process Editor
+
+- Change Sub-Process to Call Activity → create new Process
+- Show process and subprocesses in tabs
+- Creating Subprocess - Add subprocess-id to the parent process
+- Creating Call Activity - Create new global process or add existing global subprocess by linking them and add the subprocess-id to the parent process and creating a new parent process for the call activity which is shown in the process-view
+- Edit Call Activity - Click on the Call Activity will show a button on the top (Edit Process) -> by clicking on these buttons open a new tab with the process-editor for these call activity

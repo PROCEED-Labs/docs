@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions    
+    xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+    xmlns:proceed="https://docs.proceed-labs.org/BPMN"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
+    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    expressionLanguage="http://www.ecma-international.org/ecma-262/#sec-relational-operators"
+    typeLanguage="https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf"
+    xsi:schemaLocation="https://docs.proceed-labs.org/BPMN https://docs.proceed-labs.org/xsd/XSD-PROCEED.xsd
+                        http://www.omg.org/spec/BPMN/20100524/MODEL https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd"
+    id="_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8" 
+    name="My First PROCEED Process"
+    targetNamespace="https://docs.proceed-labs.org/_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8" 
+    exporter="PROCEED Management System" 
+    exporterVersion="1.0"
+    proceed:originalId="Definitions_0o1kcpw"
+    proceed:originalExporter="Camunda Modeler"
+    proceed:originalExporterVersion="4.4.0"
+    proceed:originalTargetNamespace="http://bpmn.io/schema/bpmn"
+    proceed:creatorEnvironmentId="Env-bbd545ad-31ac-479b-bbc3-d45155e5c212"
+    proceed:creatorEnvironmentName="SNET PROCEED Environment"
+    proceed:creatorId="Anon-1234"
+    proceed:creatorName="Max Mustermann"
+    >
+
+    <!-- 
+    For the local schema validation (with xmllint or xmlstarlet):
+        - the 'xsi:schemaLocation' will not be considered by the tools
+        - but it will be considered by VSCode Addon "Xml Complete": https://marketplace.visualstudio.com/items?itemName=rogalmic.vscode-xml-complete
+    -->
+<resource id="regionalManager" name="Regional Manager">
+    <extensionElements>
+       <proceed:roles>
+            <proceed:role>(cn=Administrator,ou=Groups,dc=example,dc=org)</proceed:role>
+        </proceed:roles>
+        <proceed:users>
+            <proceed:user>
+                <proceed:name>Testuser1</proceed:name>
+                <proceed:id>234640868</proceed:id>
+                <proceed:password>e1NTSEF9QjU0VXNmQWhJN1dQZ3FvbDVSQ1l5RHUzTlVqa1luVVhYV2ljbmc9PQ=</proceed:password>
+                <proceed:clientid>client1</proceed:clientid>
+                <proceed:clientsecret>27d4e246-0563-4e6c-8325-27bc6e596139</proceed:clientsecret>
+                <proceed:provider>http://localhost:8082/auth/realms/master/protocol/openid-connect/token</proceed:provider>
+                <proceed:origin>(uid=234640868,ou=People,dc=example,dc=org)</proceed:origin>
+            </proceed:user>
+            <proceed:user>
+                <proceed:name>TestUser2</proceed:name>
+                <proceed:id>635890982</proceed:id>
+                <proceed:password>e1NTSEF9QjU0VXNmQWhJN1dQZ3FvbDVSQ1l5RHUzTlVqa1luVVhYV2ljbmc9PQ=</proceed:password>
+                <proceed:clientid>client1</proceed:clientid>
+                <proceed:clientsecret>27d4e246-0563-4e6c-8325-27bc6e596139</proceed:clientsecret>
+                <proceed:provider>http://localhost:8082/auth/realms/master/protocol/openid-connect/token</proceed:provider>
+                <proceed:origin>(uid=635890982,ou=People,dc=example,dc=org)</proceed:origin>
+            </proceed:user>
+        </proceed:users>
+    </extensionElements>
+</resource>
+
+
+
+<process id="_09abb321-f819-480a-9827-66264d17b4df" name="PROCEED Main Process" processType="Private" isExecutable="true" proceed:deploymentMethod="static">
+
+    <extensionElements>
+        <proceed:meta>
+            <proceed:orderNumber>32029</proceed:orderNumber>
+            <proceed:orderName>My First PROCEED Process</proceed:orderName>
+            <proceed:orderCode>PROCEED-1</proceed:orderCode>
+            <proceed:customerId>1111</proceed:customerId>
+            <proceed:customerName>ACME company</proceed:customerName>
+            <proceed:overviewImage>data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAB3BAMAAAAeDIOYAAAAD1BMVEUAAABZWVlgYGBmZmZsbGy1A1kgAAAAAXRSTlMAQObYZgAAAAlwSFlzAAC4jAAAuIwBzPa7LwAAAWRJREFUaN7tmu0NgzAMRMPHAEAYAFoGCBsA+w/VDQqW41wSLv8tWSfn9ZHaudvTj+qzONXZ1Q14XQOtPoJD18GqbmCGR+DQESjHsFE3MOkaqOEmKiPo9BEEwogwIozKh9FJGNUAo4C+iRthtKAjIIwyhFH3uT3BFkayEgMYnbKS+GbUy0oM5HCXlcSHUScrMYDRKioxgFErKznRERjASBgBYWRgRoTRk8keCKOsYNQTRi81o29lMBp0ZmTwZrQTRjQjmtGTyfa2MEJrQXI3nOQzcJjOwAoegTb1JfCZkTA5CCfdHYz+dSL0gfg/hg8idZZG1KWG0Ph6CAXx/5K2b8ayACqAkJLChBAggM0UQhfahtEyXIAJeZqQ5deIEEIXGkKIAOo2oQd2Hfd5cMpNBApbZooPocJ2SC5wAPA9oiY6hArbJYOv9q6EEDYAQggdQFs+hWdCiBDCBkATogkRQlgR+AOhHxPPunGOG5/7AAAAAElFTkSuQmCC</proceed:overviewImage>
+            <proceed:property name="lastAuthor">Max Mustermann</proceed:property>
+        </proceed:meta>
+    </extensionElements>
+
+
+
+
+    <startEvent id="StartEvent_17d2o9q" proceed:machineId="6bd9c3cf-8164-453a-a039-e8aaf138f192">
+        <extensionElements>
+            <proceed:meta>
+                <proceed:timePlannedOccurrence>2020-07-01T00:00:00+01:00</proceed:timePlannedOccurrence>
+                <proceed:overviewImage>https://docs.proceed-labs.org/images/favicon.png</proceed:overviewImage>
+            </proceed:meta>
+        </extensionElements>
+        <outgoing>SequenceFlow_0mwtb46</outgoing>
+    </startEvent>
+    <sequenceFlow id="SequenceFlow_0mwtb46" sourceRef="StartEvent_17d2o9q" targetRef="ScriptTask_oey7oew"/>
+    
+    <intermediateCatchEvent id="Event_1pal5bn" name="1 years&#10;1 month&#10;2 days&#10;3 hours&#10;5 min&#10;8 sec">
+        <timerEventDefinition id="TimerEventDefinition_1xvk9zm">
+            <timeDuration xsi:type="tFormalExpression">P1Y1M2DT3H5M8S</timeDuration>
+        </timerEventDefinition>
+    </intermediateCatchEvent>
+
+    <intermediateCatchEvent id="Event_0ndy65v" name="25.02.2025 at 13:37">
+        <timerEventDefinition id="TimerEventDefinition_196e4hq">
+            <timeDate xsi:type="tFormalExpression">2025-02-25T13:37:00+01:00</timeDate>
+        </timerEventDefinition>
+    </intermediateCatchEvent>
+
+
+    <userTask id="Task_0pjwckr" name="Erstelle Welle" implementation="https://html.spec.whatwg.org/" proceed:fileName="User_Task_0991eu7">
+        <extensionElements>
+            <proceed:resources>
+                <proceed:consumableMaterial id="123" shortName="Punkt ABC 1" longName=" Ein etwas längerer Text" manufacturer="Meine kleine Firma gmBh" manufacturerSerialNumber="123" unit="" quantity="3" />
+                <proceed:consumableMaterial id="123" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3">
+                    <proceed:description></proceed:description>
+                </proceed:consumableMaterial>
+
+                <proceed:tool id="123" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3" />
+                <proceed:tool id="123" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3">
+                    <proceed:description></proceed:description>
+                </proceed:tool>
+
+                <proceed:inspectionInstrument id="123" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3" />
+                <proceed:inspectionInstrument id="123" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3">
+                    <proceed:description></proceed:description>
+                </proceed:inspectionInstrument>
+            </proceed:resources>
+
+            <proceed:locations>
+                <proceed:workingPlace id="123" shortName="" longName="" buildingRef="123" areaRef="123" />
+                <proceed:workingPlace id="123" shortName="" longName="" buildingRef="123" areaRef="123">
+                    <proceed:description></proceed:description>
+                </proceed:workingPlace>
+                <proceed:area id="123" shortName="" longName="" buildingRef="123" />
+                <proceed:area id="123" shortName="" longName="" buildingRef="123">
+                    <proceed:description></proceed:description>
+                </proceed:area>
+                <proceed:building id="123" shortName="" longName="" factoryRef="123" />
+                <proceed:building id="123" shortName="" longName="" factoryRef="123">
+                    <proceed:description></proceed:description>
+                </proceed:building>
+                <proceed:factory id="123" shortName="" longName="" companyRef="123" />
+                <proceed:factory id="123" shortName="" longName="" companyRef="123">
+                    <proceed:description></proceed:description>
+                </proceed:factory>
+                <proceed:company id="123" shortName="" longName="" />
+                <proceed:company id="123" shortName="" longName="">
+                    <proceed:description></proceed:description>
+                </proceed:company>
+            </proceed:locations>
+
+            <proceed:milestones>
+                <proceed:milestone>
+                    <proceed:id>m1</proceed:id>
+                    <proceed:name>Milestone 1</proceed:name>
+                    <proceed:description>First goal achieved</proceed:description>
+                </proceed:milestone>
+                <proceed:milestone>
+                    <proceed:id>m2</proceed:id>
+                    <proceed:name>Milestone 2</proceed:name>
+                    <proceed:description>Second goal achieved</proceed:description>
+                </proceed:milestone>
+            </proceed:milestones>
+            <proceed:processConstraints>
+                <proceed:hardConstraints>
+                    <proceed:hardConstraint>
+                    <proceed:name>machine.outputs</proceed:name>
+                    <proceed:condition>==</proceed:condition>
+                    <proceed:values>
+                        <proceed:value>Screen</proceed:value>
+                    </proceed:values>
+                    </proceed:hardConstraint>
+                    <proceed:hardConstraint>
+                    <proceed:name>machine.online</proceed:name>
+                    <proceed:condition>==</proceed:condition>
+                    <proceed:values>
+                        <proceed:value>true</proceed:value>
+                    </proceed:values>
+                    </proceed:hardConstraint>
+                </proceed:hardConstraints>
+            </proceed:processConstraints>
+        </extensionElements>
+        <potentialOwner>
+            <resourceRef>regionalManager</resourceRef>
+        </potentialOwner>
+
+    </userTask>
+
+
+    <scriptTask id="ScriptTask_oey7oew" proceed:external="true">
+        <extensionElements>
+            <proceed:meta>
+                <proceed:timePlannedEnd>2020-07-01T00:00:00+01:00</proceed:timePlannedEnd>
+                <proceed:timePlannedDuration>P2M10D</proceed:timePlannedDuration>
+                <proceed:costsPlanned unit="Euro">3000.50</proceed:costsPlanned>
+                <proceed:property name="editor">VSCode</proceed:property>
+            </proceed:meta>
+        </extensionElements>
+    </scriptTask>
+
+    <sequenceFlow id="SequenceFlow_094ur4d" sourceRef="ScriptTask_oey7oew" targetRef="Task_1pdn5o1"/>
+
+    <!-- the machineId has precedence -->
+    <task id="Task_1pdn5o1" proceed:machineId="6bd9c3cf-8164-453a-a039-e8aaf138f192" proceed:machineAddress="192.168.3.3">
+        <extensionElements>
+            <proceed:processConstraints>
+                <proceed:hardConstraints>
+
+                    <proceed:hardConstraint timeout="10">
+                        <proceed:name>machine.mem.free</proceed:name>
+                        <proceed:condition>&gt;=</proceed:condition>
+                        <proceed:values conjunction="OR">
+                            <proceed:value unit="GB">2</proceed:value>
+                        </proceed:values>
+                    </proceed:hardConstraint>
+
+                    <proceed:hardConstraint>
+                        <proceed:name>machine.possibleConnectionTo</proceed:name>
+                        <proceed:condition>==</proceed:condition>
+                        <proceed:values>
+                            <proceed:value>google.de</proceed:value>
+                        </proceed:values>
+
+                        <!-- Nested Constraints -->
+                        <proceed:hardConstraints>
+                            <proceed:hardConstraint>  
+                                <proceed:name>latency</proceed:name>
+                                <proceed:condition>&lt;</proceed:condition>
+                                <proceed:values>
+                                <proceed:value unit="ms">50</proceed:value>
+                                </proceed:values>
+                            </proceed:hardConstraint>
+                        </proceed:hardConstraints>
+
+                    </proceed:hardConstraint>
+
+                    <proceed:constraintGroup id="cg-ghj765w" name="platform constraints" conjunction="AND">
+                        <proceed:hardConstraint>
+                            <proceed:name>machine.os.platform</proceed:name>
+                            <proceed:condition>==</proceed:condition>
+                            <proceed:values>
+                            <proceed:value>linux</proceed:value>
+                            </proceed:values>
+                        </proceed:hardConstraint>
+
+                        <proceed:hardConstraint>
+                            <proceed:name>machine.os.distro</proceed:name>
+                            <proceed:condition>==</proceed:condition>
+                            <proceed:values>
+                            <proceed:value>Ubuntu</proceed:value>
+                            </proceed:values>
+                        </proceed:hardConstraint>
+                    </proceed:constraintGroup>
+
+                    <proceed:constraintGroup id="cg-nji6tf4" conjunction="AND">
+                    <proceed:hardConstraint>
+                        <proceed:name>machine.output</proceed:name>
+                        <proceed:condition>==</proceed:condition>
+
+                        <!-- Default: OR conjunction-->
+                        <proceed:values conjunction="AND">
+                            <proceed:value>Screen</proceed:value>
+                            <proceed:value>Audio</proceed:value>
+                        </proceed:values>
+                    </proceed:hardConstraint>
+
+                    <proceed:hardConstraint>
+                        <proceed:name>machine.cpu.currentLoad</proceed:name>
+                        <proceed:condition>&lt;</proceed:condition>
+                        <proceed:values>
+                        <proceed:value>60</proceed:value>
+                        </proceed:values>
+                    </proceed:hardConstraint>
+                    </proceed:constraintGroup>
+
+                    <proceed:constraintGroup id="cg-wercft2" conjunction="OR">
+                        <proceed:constraintGroupRef ref="cg-ghj765w" />
+                        <proceed:constraintGroupRef ref="cg-nji6tf43" />
+                    </proceed:constraintGroup>
+
+                    
+
+                </proceed:hardConstraints>
+
+
+
+
+
+                <proceed:softConstraints>
+                    <proceed:softConstraint weight="5">
+                        <proceed:name>machine.cpu.free</proceed:name>
+                        <proceed:condition>max</proceed:condition>
+                    </proceed:softConstraint>
+                </proceed:softConstraints>
+            </proceed:processConstraints>
+        </extensionElements>
+    </task>
+
+    <sequenceFlow id="SequenceFlow_uyrt9vc" sourceRef="Task_1pdn5o1" targetRef="ExclusiveGateway_1vj29a0"/>
+
+    <exclusiveGateway id="ExclusiveGateway_1vj29a0">
+
+    </exclusiveGateway>
+
+    <sequenceFlow id="SequenceFlow_kncvl51" sourceRef="SequenceFlow_uyrt9vc" targetRef="EndEvent_099f60v" >
+        <extensionElements>
+            <proceed:meta>
+                <proceed:occurrenceProbability>30</proceed:occurrenceProbability>
+            </proceed:meta>
+        </extensionElements>
+    </sequenceFlow>
+
+    <endEvent id="EndEvent_099f60v" proceed:machineAddress="[1fff:0:a88:85a3::ac1f]:33029">
+    </endEvent>
+
+    <sequenceFlow id="SequenceFlow_fsdo973" sourceRef="SequenceFlow_uyrt9vc" targetRef="EndEvent_xpco072" >
+        <extensionElements>
+            <proceed:meta>
+                <proceed:occurrenceProbability>70</proceed:occurrenceProbability>
+            </proceed:meta>
+        </extensionElements>
+    </sequenceFlow>
+    
+    <endEvent id="EndEvent_xpco072" proceed:machineAddress="[1fff:0:a88:85a3::ac1f]:33029">
+    </endEvent>
+
+</process>
+    
+</definitions>

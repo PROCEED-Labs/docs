@@ -1,0 +1,330 @@
+BPMN Script Tasks can be used in process diagrams for a PROCEED engine.
+
+## General Aspects
+
+You can use pure JavaScript to write functionalities for the process. Thereby,
+you also have access to a bunch of APIs for accessing process variables or
+trigger network requests (see [API](#api)).
+
+At the end of the script there can be a `return`, ending the script. The
+`return` may return an object with properties/value pairs which will update the
+process variable. A Script Task can also end by a semantic error, which will be
+caught by an attached boundary _Error_ or _Escalation_ event. This is done by
+throwing an `BpmnError` or an `BpmnEscalation`.
+
+If an error is thrown but not caught within the BPMN process, or if the script
+itself has an error (e.g. syntax error), the token will end its execution..
+(This only stops the running token, not the whole process.)
+
+The code of a script task is usually executed within a sandboxed JavaScript
+environment, so that it is not able to influence the PROCEED Engine.  
+The supported ECMAScript version depends on the used Node.js version which runs
+the PROCEED Engine, but at least ECMAScript Version 8 is supported.
+
+## Example
+
+The following example is a BPMN process describing the workflow of an online
+shop which offers to ship products to their customers: The process starts with a
+received order, then the order gets processed and finally shipped to a customer.
+
+Using the attached boundary elements _Error_ and _Escalation_, the process can
+handle exceptional behavior when processing the order: If there is an escalation
+triggered because of an unusual high amount of ordered products, the customer
+will be informed of a late shipment. If there occurs an error while processing,
+the customer is informed that the order got canceled.
+
+![BPMN Order Process](/images/bpmn/BPMN_Boundary_Process.png)
+
+#### Example Script Code
+
+```xml
+<bpmn2:scriptTask id="Task_1pdn5o1" scriptFormat="application/javascript">
+    <bpmn2:script>
+        <![CDATA[
+            const amount = variable.get('amount'); // amount of the ordered products
+            const cost = variable.get('cost'); // cost of the ordered products
+
+            if (cost < 50) {
+                // update the costs
+                try {
+                    // add shipping costs to total cost
+                    variable.set('cost', cost+5);
+                } catch(err) {
+                    log.info('Error occured while processing order: ' + err);
+                    throw new BpmnError('A severe error occured while processing');
+                }
+            }
+
+            if (amount > 100) {
+                // execute alternative flow to the attached escalation boundary-event
+                throw new BpmnEscalation('late shipment', 'The order is too much');
+            }
+        ]]>
+    </bpmn2:script>
+</bpmn2:scriptTask>
+```
+
+## API
+
+#### `variable`
+
+In a Script Task it is possible to read and modify the process variables. This
+can be done via the object `variable`.
+
+When setting variables, it is required to use only _data types_ which are
+supported by _JSON_. Variables are not allowed to contain `undefined`, functions
+or cyclical objects. Not following these requirements, the Script Task will
+throw an error. Due to this, setting of a variable should be done in a try-catch
+block.
+
+| API                         | Access to the process variables.                      |
+| --------------------------- | ----------------------------------------------------- |
+| `.set( "<name>", <value> )` | Updates the value of a variable                       |
+| `.get( "<name>" )`          | Returns the value of a variable                       |
+| `.getAll()`                 | Returns an object containing all variables and values |
+
+#### `log`
+
+Logging in the PROCEED Engine can be done via the object `log`. Depending on the
+log level and the Engine configuration, the logged message will maybe shown in
+the console.
+
+| API                     | Write a message to the logging system of the Engine. |
+| ----------------------- | ---------------------------------------------------- |
+| `.trace( "<message>" )` |                                                      |
+| `.debug( "<message>" )` |                                                      |
+| `.info( "<message>" )`  |                                                      |
+| `.warn( "<message>" )`  |                                                      |
+| `.error( "<message>" )` |                                                      |
+
+#### `console`
+
+Logging can also done via the object `console`. Using this way, the message will
+be redirected to the logging system of the engine and potentially shown in the
+console. Furthermore, `console` supports a few other functions:
+
+| API                     | Write a message to the logging system of the Engine.                       |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `.log( "<message>" )`   |                                                                            |
+| `.trace( "<message>" )` |                                                                            |
+| `.debug( "<message>" )` |                                                                            |
+| `.info( "<message>" )`  |                                                                            |
+| `.warn( "<message>" )`  |                                                                            |
+| `.error( "<message>" )` |                                                                            |
+| `.time( "<label>" )`    | Starts a timer containing label parameter                                  |
+| `.timeEnd( "<label>" )` | Ends a timer with given label parameter and displays the result in console |
+
+#### `setProgress(<number between 0 - 100>)`
+
+The engine holds information about the current progress of a flow Node. Inside
+of a Script Task, the current progress can be set via the function
+`setProgress`, which accepts a value between 0 and 100 describing the
+percentage.
+
+| API                       |                                                           |
+| ------------------------- | --------------------------------------------------------- |
+| `setProgress(<progress>)` | Set progress of a Script Task, progress between 0 and 100 |
+
+#### `await setIntervalAsync( <clb>, <number in milliseconds> )`
+
+An interval function which repeatedly calls a _callback_ function after a
+timeout. It is similar to the conventional _setInterval()_, which is not
+available in a Script Task. The `setIntervalAsync` function returns a `Promise`,
+so you need to call it with `await`.
+
+There are three possibilities for `setIntervalAsync` after the callback was
+executed:
+
+- The interval continues, if the callback function returns with `false` (any
+  falsy value).
+- The interval ends, if the callback function returns with `true`.
+- Interval ends with an `Error` (use `try-catch`), if the callback function
+  throws an error.
+
+| API                                                       |                                                                                                                                                                                                          |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `await setIntervalAsync(<clb>, <number in milliseconds>)` | `clb`: callback function which can return `false` (continue interval), `true` (stop interval), or throws an `Error` (stop with error). <br /> Interval timeout in milliseconds before re-executing `clb` |
+
+#### `await setTimeoutAsync( <clb>, <number in milliseconds> )`
+
+An timeout function which executes a _callback_ function after a timeout expired. It is similar to the conventional _setTimeout()_, which is not available in a Script Task.
+The `setTimeoutAsync` function returns a `Promise`, so you need to call it with `await`.
+
+| API                                                      |                                                                                             |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `await setTimeoutAsync(<clb>, <number in milliseconds>)` | `clb` function is executed after timeout expired. Returns the result of the `clb` function. |
+
+### Services
+
+There are special functionalities for accessing system resources. They can be
+accessed via _services_ by calling `getService( 'service' )`. Services are
+provided by the PROCEED Engine. The following services are currently offered:
+
+#### `getService('capabilities')`
+
+| API                                                                                                                                       | Access to the systems capabilities                                                                                                                                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.startCapability( „<Capability-Name>“, [<{ Parameter-Object }>], [<clb function>] )`<br /> Return value: `if clb then null else Promise` | Call the capability Function and give a list of parameters.                                                                                                                                                                                |
+| E.g.<br />`await startCapability( „PhotographAction“, { height: 80, width: 80 } )`                                                        |                                                                                                                                                                                                                                            |
+| E.g. Variant 1:<br />`await startCapability( „PhotographAction“, { height: { value: 80, unit: “px” } )`                                   | Needed for the Management System to determine the correct Capability Description if there are multiple Description of the same Capability kind (e.g. two times "PhotoAction") with different Parameter units, e.g. "cm" and "pt"           |
+| E.g. Variant 2:<br />`await startCapability( „https://schema.org/PhotographAction“, { “https://schema.org/height”: 80 } )`                | Only needed for the Management System to determine the correct Capability Description if there are multiple descriptions of the same capability kind or its parameter (e.g. "height" from "schema.org/height" and from "vocab.org/height") |
+
+#### `getService('network')`
+
+Inside of a Script Task it is possible to send HTTP requests to a given URL. The
+network functions are asynchronous, meaning a Promise is returned.
+**Attention:** The `async/await` pattern should be used to handle this, **not**
+the `.then()` and `.catch()`.
+
+| API                                                                      | Send network requests                                       |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `.get( "<url>", [<{options}>])` _(async)_                                | Send GET-Request to a URL                                   |
+| `.post( "<url>", <{body}>, ["<content-type>"], [<{options}>])` _(async)_ | Send POST-Request to a URL with a `body` (Object or String) |
+| `.put( "<url>", <{body}>, ["<content-type>"], [<{options}>])` _(async)_  | Send PUT-Request to URL with a `body` (Object or String)    |
+| `.delete( "<url>", [<{options}>])` _(async)_                             | Send DELETE-Request to URL with given options               |
+| `.head( "<url>", [<{options}>])` _(async)_                               | Send HEAD-Request to URL with given options                 |
+
+The `content-type` is an optional string parameter. It sets the correct [Mime
+type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
+for the transmitted data. It defaults to `"text/plain"` if body is a string, and
+to `"application/json"` if body is a JS object (because it will automatically be
+transformed to JSON before sending).
+
+The `[<{options}>]` object is optional. It resembles the [Node.js options object
+for
+`http.request`](https://nodejs.org/api/http.html#http_http_request_url_options_callback).
+The most important variable is probably the `headers` object. (Some other will
+be automatically filled, e.g.`host`, `method`, `path`.)
+
+The functions resolve if the request was successful (meaning HTTP statusCode
+2xx) with a returned object that looks as follows: `{ response, body }`
+
+- `response`: is an object that contains meta information about the response,
+  including `.headers`, `.httpVersion`, `.method`, `.statusCode`,
+  `.statusMessage`, and `.url`. Because it resembles _IncomingMessage_, see the
+  [Node.js API about
+  IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
+  for more information.
+- `body`: Body of the response
+
+The functions throw an error (`try-catch` should be used) either if:
+
+- the response has a **non**-2xx statusCode: `{ response, body }` will be
+  returned as well
+- any error is encountered during the request (e.g. DNS resolution, TCP level
+  errors, or actual HTTP parse errors): an
+  [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)
+  object is returned.
+
+### Trigger Events
+
+#### `throw new BpmnError( ["<reference>",] "explanation" )`
+
+| API             | Send network requests                                                                                                                                                                                                                                                                                                                                                                           |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `'reference'`   | Optional, a String that is matched to the corresponding `errorCode` of the `error` element (prio 1) or to the `name` attribute of the attached BPMN boundary error event (prio 2). If there is no match but an attached event without a `name`, then the flow is given to this Event. See [Error and Escalation Event description](bpmn-error-escalation#script-and-user-tasks-catching-events) |
+| `'explanation'` | A String that is stored in the logging system of the Engine.                                                                                                                                                                                                                                                                                                                                    |
+
+#### `throw new BpmnEscalation( ["<reference>",] "explanation" );`
+
+| API             | Send network requests                                                                                                                                                                                                                                                                                                                                                                                          |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `'reference'`   | Optional, a String that is matched to the corresponding `escalationCode` of the `escalation` element (prio 1) or to the `name` attribute of the attached BPMN boundary escalation event (prio 2). If there is no match but an attached event without a `name`, then the flow is given to this Event. See [Error and Escalation Event description](bpmn-error-escalation#script-and-user-tasks-catching-events) |
+| `'explanation'` | A String that is stored in the logging system of the Engine.                                                                                                                                                                                                                                                                                                                                                   |
+
+## Example
+
+```js
+const capabilities = getService('capabilities');
+const network = getService('network');
+
+await setTimeoutAsync(() => {
+  log.info('Script started with a short delay');
+}, 5000);
+
+const amount = variable.get('amount');
+log.info("The value of the process variable 'amount' is: " + amount);
+if (typeof amount === 'number') {
+  variable.set('amount', ++amount);
+  log.info("Increased variable 'amount' by 1");
+} else {
+  variable.set('amount', 1);
+  log.info("Set variable 'amount' to 1");
+}
+
+// send get-request using given url and store response body in variable
+try {
+  const { response, body } = await network.get('http://localhost:33029/status');
+  log.debug(`Successful GET request with response: ${response.statusCode}`);
+  log.info(`Engine Status is: ${body}`);
+  variable.set('requestedData', body);
+} catch (error) {
+  if (error.response) {
+    log.error('GET Response was not successful. Status Code: ' + error.response.statusCode);
+  } else {
+    log.error('An error occured in the GET request: ' + error.message);
+  }
+}
+
+// set current progress of script task to 50%
+setProgress(50);
+
+// send put-request using given url and data
+const exampleText = '<task>A Simple XML element</task>';
+try {
+  const { response, body } = await network.put(
+    'https://httpbin.org/anything',
+    exampleText,
+    'text/xml',
+    {
+      headers: {
+        'My-New-Header': 'Sent from PROCEED',
+      },
+    },
+  );
+  log.debug(`Successful PUT request with response code: ${response.statusCode}`);
+  log.debug(`Successful PUT request with response body: ${body}`);
+} catch (error) {
+  if (error.response) {
+    log.error('PUT Response was not successful. Status Code: ' + error.response.statusCode);
+    throw new BpmnEscalation('BAD CODE given back');
+  } else {
+    log.error('An error occured in the PUT request: ' + error.message);
+    throw new BpmnError('An Error 101', 'It seems there is no Server');
+  }
+}
+
+// check if service is available, return true if so
+function checkState() {
+  const { response, body } = await network.get('https://exampleservice.org/status');
+
+  if (body.available) {
+    log.info('Service is available!');
+    return true;
+  } else {
+    log.info('Service is not available! Test again');
+    return false;
+  }
+}
+
+// request service status every second, end interval if service is available
+try {
+  await setIntervalAsync(checkState, 1000);
+  log.info('Service is available');
+} catch (error) {
+  if (error.response) {
+    log.error('GET Response was not successful. Status Code: ' + error.response.statusCode);
+  } else {
+    log.error('An error occured in the GET request: ' + error.message);
+  }
+}
+
+const image = await capabilities.startCapability('takePhoto');
+
+log.info('Photo taken');
+
+// set variable with new value
+return { photo: image };
+```
+
+![BPMN Network Test Process](/images/bpmn/BPMN_script-task-network.png)

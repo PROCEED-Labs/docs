@@ -1,0 +1,580 @@
+{/* **TODO: see [Related Work](./20_related_work.md) about WoT and their Thing Description** */}
+
+## Capability-based Execution: Overview
+
+![Capability Process Overview](/images/capability-process/PROCEED-Capability_Process_Overview.png)
+
+**Four important roles/stakeholders:**
+
+_Capability Maker_ (Human): programmer who creates the capability for a Machine
+
+_Process Creator_ (Human): programmer that uses the capability and writes code for it (e.g. in a Script Task)
+
+_Deployment Decider_ (Software): analyses all available capabilities of every reachable Process Engine and decides where to deploy the process (due to the required Capabilities for the next process steps)
+
+_Capability Executor_ (Software): during process execution translates the abstract call of a Capability to the local implementation of the capability
+
+## Step 1: Capability Description
+
+#### What is needed to be described:
+
+| Inside the Semantic Description | Example                                                                                                                                              | Does the Process Creator or Deployment Decider need to know this information for calling and finding the correct capability? (Otherwise it can be used for Capability Executor)                                                                                                                                                 |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kind of Capability              | `https://schema.org/PhotographAction`                                                                                                                | **X**                                                                                                                                                                                                                                                                                                                           |
+| File Name                       | `index.js`                                                                                                                                           |                                                                                                                                                                                                                                                                                                                                 |
+| Function Name                   | `takePhoto()`                                                                                                                                        |                                                                                                                                                                                                                                                                                                                                 |
+| _Parameter and Return Values_   |
+| Type of Parameter Input         | List, Array, Object <br /> `takePhoto( width, height )`<br /> `takePhoto( { width: ..., height: ...} )` <br /> `takePhoto( [width, height] )` <br /> | (depends on the definition of the capability call for the implementer, the executor can translate this information)                                                                                                                                                                                                             |
+| Kind of Value                   | `https://schema.org/width` <br /> `https://schema.org/height`                                                                                        | **X**                                                                                                                                                                                                                                                                                                                           |
+| Parameter/Property Name         | `w`, `h`                                                                                                                                             |                                                                                                                                                                                                                                                                                                                                 |
+| Data Type                       | simple `xsd:string` and complex, e.g. objects(**how ?**)                                                                                             | **X**                                                                                                                                                                                                                                                                                                                           |
+| Unit                            | `RGB, HSL, HEX, px, cm, pt, ...`                                                                                                                     | **X**                                                                                                                                                                                                                                                                                                                           |
+| Encoding                        | `jpg, base64, xml, json`                                                                                                                             | **X** (if it not given, it means there is no special encoding and the implementer doesn't need to know it for working with the value. E.g. a _name_ can be a normal string. But a _picture_ can have the datatype `xsd:string` and an encoding in `base64` -- the implementer needs to know that for working with the picture ) |
+| Default Value                   | `43`                                                                                                                                                 | **X**                                                                                                                                                                                                                                                                                                                           |
+| Optional or Required            | `width` is required for this PhotoAction to be executed                                                                                              | **X**                                                                                                                                                                                                                                                                                                                           |
+| Additional Validations          | `minlength, maxlength, size, pattern, ...`                                                                                                           | **X**                                                                                                                                                                                                                                                                                                                           |
+
+**Different Capability Descriptions for the _Process Creator_ and the _Capability Executor_**
+
+- The Capability Executor translates the semantic call (written by the Process Creator with the defined function, e.g. `startCapability( <KindOfCapability>, [<{Parameter-Object}>] )`) to execute the capability
+- therefore the Capability Executor needs some more information than the Process Creator
+  - but this additional information is mostly even optional, because todays programming languages can be very flexible and it depends how the capability is exactly implemeted and called
+    - e.g. JS Modules can export only one function, so the _Function Name_ is not always needed
+    - e.g. depending on the _Type of Parameter Input_ there could be a fixed sequence of parameters, e.g. the first one is always `width`. But as part of an objects property, it is usually necessary to know the \_Parameter Name
+
+#### How to describe a Capability (_Capability Maker_)
+
+All the capability descriptions have the following components: kind of capability, function name, parameter and return values, type of parameter input (if the parameter does not have a primitive type, the complex type is used), kind of Value, data type, unit, encoding, default value, optional or required and additional validations.
+
+The `capability.jsonld` is a valid JSON-LD file, which is installed with the capability on the Machine. It has the following format:
+After defining some prefixes for the used vocabularies inside `@context`, it uses the [`@graph` Graph Notation](https://json-ld.org/spec/latest/json-ld/#dfn-graph-objects) of JSON-LD to describe multiple components (also called "nodes") independently of each other.
+Each component describes a different aspect of the capability such as parameters, function call or implemetation.
+
+In JSON-LD `@id` keyword is used to uniquely identify concepts/things (which are IRIs) about which the JSON-LD document can make statements.
+This is an important aspect of linked data, because with a unique id you are able to identify a semantic description. (E.g. `schema.org/PhotographAction` for identifying the concept of taking a photo.)
+
+In PROCEED a capability is installed on multiple machines, and we want to describe that after installation the Machine now has a specific capability.
+The problem is at the time we create the semantic capability description, we don't know yet on which Machine the capability will be installed on.
+So we use a [blank node identifier](https://json-ld.org/spec/latest/json-ld/#identifying-blank-nodes) to make the statement that the capability is installed on a unknown Machine.
+A blank node syntactically starts the id with `_:`.
+(After installation the Machine could replace this id with an id uniquely identifying the Machine - but we don't do that and it's not necessary.)
+
+Every other node in the `@graph` also has no IRI, but they are specified as blank nodes.
+(Actually the creator of the capability could specify an IRI.)
+As you can see in the examples, the nodes often reference each other by using this blank node identifiers.
+
+A description of a capability first needs to state the type of action.
+In order to describe it, Schema.org offers a useful keyword [`potentialAction`](https://schema.org/potentialAction) which "indicates a potential Action, which describes an idealized action in which this thing would play an 'object' role".
+You can find a list of directly supported [Actions on Schema.org](https://schema.org/Action). If there is no fitting keyword, you can use other ontologies.
+
+- [Actions on Schema.org](https://schema.org/Action)
+- [iotschema.org](http://iotschema.org/docs/full.html)
+- [Linked Open Vocabularies for Internet of Things](https://lov4iot.appspot.com/?p=ontologies) (Catalog containing IoT related ontologies)
+- [Linked Open Vokabulary](https://lov.linkeddata.es/dataset/lov/) (Search Engine for keyword from different ontologies)
+
+When creating a capability it it can be useful to first look at the existing capability descriptions inside the (PROCEED) network. If there is a similar one, the only adaptations for the _Capability Maker_ to make are for the function implementation description.
+
+After having stated what kind of capability is described, you need to describe the calling and implementation of it on the machine.
+The [Function Ontology](https://fno.io/spec/) uses `expects` keyword in order to describe the parameter descriptions. Therefore in the semantic description, the universal identifier of the parameter names are used and the function parameters are described in another component of `@graph`. So all in all, the semantic description does the following: If the function expects for instance `schema:height`, which means that the function expects `The height of the item.` and the height of the item is used as `h` in the function implementation.
+
+If the function does not require any parameter or does not return anything, for the sake of the structure the keywords `fno:returns` or `fno:expects` are still included and return an empty object.
+
+{/* - Cemre Eval Drawback: Semantic description does not provide a solution for parameters given as arrays and this a limiting constraint. In the future iterations this can be improved. Moreover, semantic description should be always constructed with an @graph keyword which is limiting for capability makers. This can be improved in the future as well. */}
+
+#### Examples and Use Cases
+
+- PhotographAction Capability
+
+In this example the instance is a class of _PhotographAction_ (and of _Function_).
+
+Below the first examples of the capability description can be seen.
+The following JSON-LD file describes the capability of a PhotographAction and how this function can be invoked.
+
+```json
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "fno": "https://w3id.org/function/ontology#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dbpedia-owl": "http://dbpedia.org/ontology/",
+    "fnom": "https://w3id.org/function/vocabulary/mapping#",
+    "dcterms": "http://purl.org/dc/elements/1.1/",
+    "doap": "http://usefulinc.com/ns/doap#",
+    "fnoi": "https://w3id.org/function/vocabulary/implementation",
+    "iotschema": "http://iotschema.org/",
+    "saref": "https://w3id.org/saref#",
+    "odpa": "http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#",
+    "terms": "http://purl.org/dc/terms/"
+  },
+  "@graph": [
+    {
+      "@id": "_:capability",
+      "schema:potentialAction": {
+        "@id": "_:PhotographActionDefinition",
+        "@type": ["schema:PhotographAction", "fno:Function"]
+      }
+    },
+    {
+      "@id": "_:PhotographActionDefinition",
+      "fno:expects": {
+        "@list": [
+          { "@id": "_:heightParameter" },
+          { "@id": "_:widthParameter" },
+          { "@id": "_:dpiParameter" },
+          { "@id": "_:optionsParameter" }
+        ]
+      },
+      "fno:returns": {
+        "@list": [{ "@id": "_:imageParameter" }]
+      }
+    },
+    {
+      "@id": "_:heightParameter",
+      "fno:predicate": [{ "@type": "schema:height" }],
+      "@type": ["fno:Parameter", "schema:Integer"],
+      "schema:unitText": "px",
+      "fno:required": true
+    },
+    {
+      "@id": "_:widthParameter",
+      "fno:predicate": [{ "@type": "schema:width" }],
+      "@type": ["fno:Parameter", "schema:Integer"],
+      "schema:unitText": "px",
+      "schema:maxValue": 20,
+      "fno:required": true
+    },
+    {
+      "@id": "_:dpiParameter",
+      "fno:predicate": [{ "@type": "dpi" }],
+      "@type": ["fno:Parameter", "schema:Integer"],
+      "schema:description": "required Dots Per Inch value, resolution",
+      "fno:required": false
+    },
+    {
+      "@id": "_:optionsParameter",
+      "fno:predicate": [{ "@type": "options" }],
+      "@type": ["fno:Parameter", "xsd:complexType"],
+      "terms:hasPart": {
+        "@list": [
+          {
+            "@id": "_:blackWhiteParameter",
+            "fno:predicate": [{ "@type": "blackWhite" }],
+            "@type": ["fno:Parameter", "schema:Boolean"],
+            "fno:required": false,
+            "schema:defaultValue": false
+          },
+          {
+            "@id": "_:rotationParameter",
+            "fno:predicate": [{ "@type": "rotation" }],
+            "@type": ["fno:Parameter", "schema:Integer"],
+            "schema:minValue": 0,
+            "schema:maxValue": 359,
+            "schema:defaultValue": 0,
+            "fno:required": false
+          }
+        ]
+      },
+      "fno:required": false
+    },
+    {
+      "@id": "_:imageParameter",
+      "fno:predicate": [{ "@type": "schema:ImageObject" }],
+      "@type": ["fno:Output", "xsd:complexType"],
+      "terms:hasPart": {
+        "@list": [
+          {
+            "@id": "_:geoCoordinatesParameter",
+            "fno:predicate": [{ "@type": "schema:GeoCoordinates" }],
+            "@type": ["fno:Output", "xsd:complexType"],
+            "terms:hasPart": {
+              "@list": [
+                {
+                  "@id": "_:latiduteParameter",
+                  "fno:predicate": [{ "@type": "schema:latidute" }],
+                  "@type": ["fno:Output", "schema:Float"]
+                },
+                {
+                  "@id": "_:longitudeParameter",
+                  "fno:predicate": [{ "@type": "schema:longitude" }],
+                  "@type": ["fno:Output", "schema:Float"]
+                }
+              ]
+            }
+          },
+          {
+            "@id": "_:photographParameter",
+            "fno:predicate": [{ "@type": "schema:Photograph" }],
+            "@type": "fno:Output",
+            "schema:encodingFormat": "image/png",
+            "encoding": "base64"
+          }
+        ]
+      }
+    },
+    {
+      "@id": "_:PhotograhActionImplementation",
+      "@type": "fnoi:JavaScriptFunction",
+      "dbpedia-owl:filename": "index.js"
+    },
+    {
+      "@id": "_:PhotograhActionMapping",
+      "@type": "fno:Mapping",
+      "fno:function": "_:PhotographActionDefinition",
+      "fno:implementation": "_:PhotograhActionImplementation",
+      "fno:parameterMapping": [
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:heightParameter",
+          "fnom:implementationProperty": "h"
+        },
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:widthParameter",
+          "fnom:implementationProperty": "w"
+        },
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:dpiParameter",
+          "fnom:implementationProperty": "dpi"
+        },
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:optionsParameter",
+          "fnom:implementationProperty": "options"
+        },
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": [
+            "_:optionsParameter",
+            "_:blackWhiteParameter"
+          ],
+          "fnom:implementationProperty": "options/blackWhite"
+        },
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": [
+            "_:optionsParameter",
+            "_:rotationParameter"
+          ],
+          "fnom:implementationProperty": "options/rotation"
+        }
+      ],
+      "fno:returnMapping": [
+        {
+          "@type": "fnom:DefaultReturnMapping",
+          "fnom:functionParameter": "_:imageParameter",
+          "fnom:implementationProperty": "img"
+        },
+        {
+          "@type": "fnom:DefaultReturnMapping",
+          "fnom:functionParameter": [
+            "_:imageParameter",
+            "_:geoCoordinatesParameter"
+          ],
+          "fnom:implementationProperty": "img/gps"
+        },
+        {
+          "@type": "fnom:DefaultReturnMapping",
+          "fnom:functionParameter": [
+            "_:imageParameter",
+            "_:geoCoordinatesParameter",
+            "_:latiduteParameter"
+          ],
+          "fnom:implementationProperty": "img/gps/lat"
+        },
+        {
+          "@type": "fnom:DefaultReturnMapping",
+          "fnom:functionParameter": [
+            "_:imageParameter",
+            "_:geoCoordinatesParameter",
+            "_:longitudeParameter"
+          ],
+          "fnom:implementationProperty": "img/gps/long"
+        },
+        {
+          "@type": "fnom:DefaultReturnMapping",
+          "fnom:functionParameter": [
+            "_:imageParameter",
+            "_:photographParameter"
+          ],
+          "fnom:implementationProperty": "img/photo"
+        }
+      ]
+    }
+  ]
+}
+```
+
+- Turn On Green/Red Light On Capability
+
+One of the use cases of Proceed includes turning the red/green colors of the Raspberry Pi. [Iotschema.org](http://iotschema.org/) offers a vocabulary called TurnOn which has the semantic meaning to turn on a switch. Since we want to describe to turning the green light on, there is a need of expaning the capability description. Therefore [Ontology Design Patterns](http://www.ontologydesignpatterns.org/ont/dul/DUL.owl) provides a vocabulary `sameSettingAs` which means "A relation between two entities participating in a same Situation; e.g., Our company provides an antivenom service' (the situation is the service, the two entities are the company and the antivenom)."
+
+With the usage of `sameSettingAs` not only the Engine Capability but also the semantic description of `LightingDevice` Capability to turn on the light is achieved.
+
+```json
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "fno": "https://w3id.org/function/ontology#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dbpedia-owl": "http://dbpedia.org/ontology/",
+    "fnom": "https://w3id.org/function/vocabulary/mapping#",
+    "dcterms": "http://purl.org/dc/elements/1.1/",
+    "doap": "http://usefulinc.com/ns/doap#",
+    "fnoi": "https://w3id.org/function/vocabulary/implementation",
+    "iotschema": "http://iotschema.org/",
+    "saref": "https://w3id.org/saref#",
+    "odpa": "http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#",
+    "og": "http://ogp.me/ns#",
+    "exif": "http://www.w3.org/2003/12/exif/ns#",
+    "time": "http://www.w3.org/2006/time#"
+  },
+  "@graph": [
+    {
+      "@id": "_:capability",
+      "odpa:sameSettingAs": "saref:LightingDevice",
+      "schema:potentialAction": {
+        "@type": ["iotschema:TurnOn", "fno:Function"],
+        "@id": "_:TurnOnDefinition"
+      }
+    },
+    {
+      "@id": "_:TurnOnDefinition",
+      "fno:expects": {
+        "@list": [{ "@id": "_:colourParameter" }]
+      },
+      "fno:returns": {
+        "@list": []
+      }
+    },
+    {
+      "@id": "_:colourParameter",
+      "fno:predicate": [{ "@type": "schema:color" }],
+      "@type": ["fno:Parameter", "schema:Text"],
+      "fno:required": true
+    },
+    {
+      "@id": "_:TurnOnImplementation",
+      "@type": "fnoi:JavaScriptFunction",
+      "dbpedia-owl:filename": "index.js"
+    },
+    {
+      "@id": "_:turnOnMapping",
+      "@type": "fno:Mapping",
+      "fno:function": "_:TurnOnDefinition",
+      "fno:implementation": "_:TurnOnImplementation",
+      "fno:parameterMapping": [
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:colourParameter",
+          "fnom:implementationProperty": "col"
+        }
+      ]
+    }
+  ]
+}
+```
+
+- PROCEED MotionSensor Capability
+
+This capability description is slightly differs from other descriptions since the instance of the `potentialAction` is not from [Schema.org](https://schema.org/) but from [Saref](http://ontology.tno.nl/saref/). [Schema.org](https://schema.org/) does not provide a motion sensor action, therefore another resource is required. [Iotschema.org](http://iotschema.org/) also provides multiple keywords for Motion Sensor but the semantic structure for capabilities in [Iotschema.org](http://iotschema.org/) does not correlate with `potentialAction` Class.
+
+Therefore using [Saref](http://ontology.tno.nl/saref/) is a better alternative and semantic meaning is still preserved using `saref:SensingFunction`.
+
+```json
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "fno": "https://w3id.org/function/ontology#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dbpedia-owl": "http://dbpedia.org/ontology/",
+    "fnom": "https://w3id.org/function/vocabulary/mapping#",
+    "doap": "http://usefulinc.com/ns/doap#",
+    "fnoi": "https://w3id.org/function/vocabulary/implementation",
+    "og": "http://ogp.me/ns#",
+    "exif": "http://www.w3.org/2003/12/exif/ns#",
+    "time": "http://www.w3.org/2006/time#",
+    "og": "http://ogp.me/ns#",
+    "exif": "http://www.w3.org/2003/12/exif/ns#",
+    "time": "http://www.w3.org/2006/time#"
+  },
+  "@graph": [
+    {
+      "@id": "_:capability",
+      "odpa:sameSettingAs": "saref:Sensor",
+      "schema:potentialAction": {
+        "@type": ["saref:SensingFunction", "fno:Function"],
+        "@id": "_:SensingFunctionDefinition"
+      }
+    },
+    {
+      "@id": "_:SensingFunctionDefinition",
+      "fno:expects": {
+        "@list": []
+      },
+      "fno:returns": {
+        "@list": []
+      }
+    },
+    {
+      "@id": "_:proceedImplementation",
+      "@type": "fnoi:JavaScriptFunction",
+      "dbpedia-owl:filename": "sense-motion.js"
+    },
+    {
+      "@id": "_:SensingFunctionMapping",
+      "@type": "fno:Mapping",
+      "fno:function": "_:SensingFunctionDefinition",
+      "fno:implementation": "_:SensingFunctionImplementation"
+    }
+  ]
+}
+```
+
+- PROCEED PhotographAction Capability
+
+```json
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "fno": "https://w3id.org/function/ontology#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dbpedia-owl": "http://dbpedia.org/ontology/",
+    "fnom": "https://w3id.org/function/vocabulary/mapping#",
+    "doap": "http://usefulinc.com/ns/doap#",
+    "fnoi": "https://w3id.org/function/vocabulary/implementation",
+    "og": "http://ogp.me/ns#"
+  },
+  "@graph": [
+    {
+      "@id": "_:capability",
+      "schema:potentialAction": {
+        "@type": ["schema:PhotographAction", "fno:Function"],
+        "@id": "_:PhotographActionDefinition"
+      }
+    },
+    {
+      "@id": "_:PhotographActionDefinition",
+      "fno:expects": {
+        "@list": [
+          { "@id": "_:nofilesaveParameter" },
+          { "@id": "_:heightParameter" },
+          { "@id": "_:widthParameter" },
+          { "@id": "_:encodingFormatParameter" },
+          { "@id": "_:durationParameter" }
+        ]
+      },
+      "fno:returns": {
+        "@list": []
+      }
+    },
+    {
+      "@id": "_:nofilesaveParameter",
+      "fno:predicate": [{ "@type": "nofilesave" }],
+      "@type": ["fno:Parameter", "schema:Boolean"],
+      "schema:defaultValue": "true",
+      "schema:description": "The image taken won't be saved locally by default",
+      "fno:required": false
+    },
+    {
+      "@id": "_:heightParameter",
+      "fno:predicate": [{ "@type": "schema:height" }],
+      "@type": ["fno:Parameter", "schema:Integer"],
+      "schema:defaultValue": 700,
+      "fno:required": false
+    },
+    {
+      "@id": "_:widthParameter",
+      "fno:predicate": [{ "@type": "schema:width" }],
+      "@type": ["fno:Parameter", "schema:Integer"],
+      "schema:defaultValue": 700,
+      "fno:required": false
+    },
+    {
+      "@id": "_:encodingFormatParameter",
+      "fno:predicate": [{ "@type": "schema:encodingFormat" }],
+      "@type": ["fno:Parameter", "schema:Text"],
+      "schema:encodingFormat": "jpg",
+      "schema:defaultValue": "jpg",
+      "fno:required": false
+    },
+    {
+      "@id": "_:durationParameter",
+      "fno:predicate": [{ "@type": "schema:Duration" }],
+      "@type": ["fno:Parameter", "schema:Integer"],
+      "fno:required": false
+    },
+    {
+      "@id": "_:PhotograhActionImplementation",
+      "@type": "fnoi:JavaScriptFunction",
+      "dbpedia-owl:filename": "take-photo.js"
+    },
+    {
+      "@id": "_:PhotograhActionMapping",
+      "@type": "fno:Mapping",
+      "fno:function": "_:PhotographActionDefinition",
+      "fno:implementation": "_:PhotograhActionImplementation",
+      "fno:parameterMapping": [
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:nofilesaveParameter",
+          "fnom:implementationProperty": "nofilesave"
+        },
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:heightParameter",
+          "fnom:implementationProperty": "height"
+        },
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:widthParameter",
+          "fnom:implementationProperty": "width"
+        },
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:encodingFormatParameter",
+          "fnom:implementationProperty": "encoding"
+        },
+        {
+          "@type": "fnom:PropertyParameterMapping",
+          "fnom:functionParameter": "_:durationParameter",
+          "fnom:implementationProperty": "time"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Step 3: Sending the Capabilities (Optional Step)
+
+![Capability Process Overview](/images/capability-process/PROCEED-Capability-2-Sending.png)
+
+- a _compacted_ semantic description is sent. That means the description does not contain any local implementation details (which is only needed by an Engine to know how to execute the capability, see Table 1)
+- since a Machine can have multiple Capabilities installed, a consollidated list with all Capabilities is sent from the Machine
+- a valid JSON-LD description is sent
+
+## Step 4: Creating the process and writing the Script Tasks
+
+see [BPMN Script Task](bpmn/bpmn-script-task)
+
+For every created script task, that uses a capability in its code, an additional meta-data section is appended to the BPMN which contains a description of the required capabilities to run the script task. This is called the _process capability description_ and is encoded in JSON-LD.
+
+## Step 5: Decide where to execute the the (next) Task
+
+This decision is done by the _Decider_. Essentially it gets the _compacted capability description_ of all capabilities of every engine in the network. It compares this description with the _process capability description_ and finds out, which engine can run the needed capability.
+
+(TODO: show example of _process capability description_)
+
+Within this comparison step
+
+1. all the required parameters of the process description should be included in the required and optional parameters of the compacted capability description and
+   {/* required process parameters ∈ required + optional capability list parameters */}
+1. all the required parameters of the compacted capability description should be included in the required and optional parameters of the process description
+   {/* required capability list parameters ∈ required + optional process parameters */}
+
+## Step 6: Calling the Capability on an Engine
+
+![Capability Process Overview](/images/capability-process/PROCEED-Capability-5-Execution.png)
+
+- the Capability Executor translates the call of the Capability in the Script Task to the local installed Capability function

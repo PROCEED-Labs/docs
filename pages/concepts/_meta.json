@@ -1,0 +1,10 @@
+{
+  "deployment": "Deployment and Execution",
+  "capability-description": "Capability Description",
+  "versioning": "Versioning",
+  "collaborative-editing": "Collaborative Editing",
+  "monitoring": "Process Monitoring",
+  "bpmn": "BPMN Adaptions",
+  "offline-execution": { "display": "hidden" },
+  "user-mgmt": { "display": "hidden" }
+}

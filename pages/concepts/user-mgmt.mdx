@@ -1,0 +1,119 @@
+On this page we show how the user management works. Actually the concept includes not only users, but also the management of _Portable Machines_ (PM) and _Portable Processes_ (PP). (For now, PM/PP authorization and authentication is not fully implemented yet.)
+This is especially important for companies who have extra requirements for security.
+The following questions are discussed in the next sections:
+
+1. How to add users to a LDAP server?
+1. How to add users to user tasks?
+1. How to add authorizations to Portable Machines and Portable Processes?
+1. How does the user, machine and process authentication work?
+1. How does authorization and authentification work for cooperations between multiple companies?
+
+## Overview
+
+TODO
+
+{/* **LDAP**
+
+Due to its unproblematic embedding and its widespread use LDAP was chosen for PROCEED.
+To each Management-System we can add multiple LDAPs. All the users and roles are extracted from the LDAPs and displayed
+in the 'Access Management' section in the Management-System. PROCEED uses two organizational units (OU): People and Groups that must
+be preconfigured in LDAP. Users are stored in OU People and Roles are stored in OU Groups. The password are sent in plaintext to LDAP and
+LDAP handles the password hashing and salting. The result of that hashing/salting process is sent back to PROCEED. PROCEED can thus mostly work
+with all forms of password (plaintext, hash, hash and salt, base64encoded etc.). Adaption is only to be made when offline authentication is implemented since
+here PROCEED will implements its own credential check. In online authentication password checking is done via openIDConnect at LDAP itself.
+
+LDAP runs with very few custom configuration in PROCEED that can be found in installation part. OU People and OU Groups are needed. LDAP is implemented
+using a docker container: osixia/openldap:1.2.4. LDAPS are refered to in the Management System with IP, Port and CN (Common Name).
+
+**openIDConect**
+
+openIDConnect is used as an Identity Provider implementing most of the specification from 0Auth 2.0 (e.g. Resource Owner Password Grant Flow). openID Connect Provider
+can implement mutliple LDAPs which enables environment cooperation: An LDAP from a external environment can be added and Users can authenticate at their openID Connect Provider
+which talks to the LDAP. ClientID and ClientSecret specified in openIDConnect play an important role. In combination they represent a cooperation or a process/machine (M2M).
+
+keyCloak is implemented as openIDConnect Provider. The implementation is only done for User Authentication, not for Machine/Process Authentication. A theoretical approach is added
+in appendix. keycloak needs some modification described in appendix to work in PROCEED. An optimal sync time has to be adjusted in keycloak Admin interface so that
+Users and Roles are periodically syncd when edited in LDAP. openIDConnect is also used like LDAP as a docker container named: jboss/keycloak After a successful authentication (if provided
+credentials are correct) keycloak returns an Access Token. The Access Token is handled by the TaskList/Engine for further processing.
+
+**ManagementSystem**
+
+When 'Access Management' is opened inside Management-System it loads users from all added LDAPS.
+Inside 'Access Management' the origin of the user or role is shown. Furthermore LDAPS are configured here.
+User, Roles, and LDAPs can be added/deleted/updated. When Users are fetched from LDAP a request per user is started to detect its
+assigned openIDCOnnect Provider and its Client Credentials. This is done in communication with the cooperation server. All these information are added
+to the BPMN XML when a user is added to a BPMN User Task.
+
+ldapclient (npm package) is used to communicate with an LDAP. A binding with a user is added to Access Management section in the Management System. The user
+can have either read access only (needed for cooperation) or further modification rights. It is to be noted that multiple LDAPS can be added and their content (Users and Roles) is all
+displayed in Access Mnagement. Their origins are displayed in the section DN which stands for distinguished name. When a LDAP Client is added its content is added after a small
+timeout asynchronously without page refresh. When a User's role are edited, all assigned groups are deleted first and then added again due to ldapclient-js implementation.
+When a process is edited all users and roles are again fetched for assignment. The assigned User is added to the XML.
+
+**TaskList/Engine**
+
+In the TaskList per default are all those tasks displayed without authentication that are not assigned to any User. After authentication
+tasks are added that are assigned to a User or to one of his Role. In a first step all providers with their location and Client Credentials are fetchted from all
+available pending User Tasks. When authenticating only at the internal openIDConnect Provider (which is usually the case) all Providers are identical. It is taken and
+used for POST-Request of Authentication. For authentication we design two options:
+
+1.) In online authentication he or she types in his or her username and his or her
+password. If multiple openIDConnect Providers are registered (see client registration) the
+user can choose between one of the openIDConnect Providers. A token request
+is submitted containing username, password, clientID and clientSecret (1). An access token
+is returned (2). The access token is then used send to proceed engine. Processes are then filtered according
+to roles and the user contained in the access token. (3)
+
+2.) In offline authentication the password and username
+are sent directly without clientID and clientSecret to the engine that holds the processes. All User Task
+are matched so that the tasks are displayed where the user is directly assigned to or where a role is assigned
+to that the user is also assigned to. Custom adaption has to be implemented with each different LDAP Password Setting.
+
+When the TaskList is loaded we get providers from the TaskList. With a given provider we send a token request to keycloak. If user and client credentials match
+an access token is returned. That access token is appended as a query parameter to the request for User Tasks. Here if no access token is given we just return
+all not assigned User Tasks. If an access token is givern, User Task are filtered according to the User or the User's Role(s). Only online authentication is implemented.
+
+**Cooperation Server**
+
+The cooperation server holds information about openIDConnect Provider - either used internally or for cooperation.
+The cooperation server is requested when a User is fetched in Management System from the LDAP. These information are added to the BPMN Process.
+
+The cooperation Server holds an array of: {clientid, clientsecret, provider, ldapip, ldapport, ldapdn}. It is completely restful and an HTML Interface
+for displaying Cooperations are is offered with deleting and adding Cooperation. These method use the underlaying RESTful methods. The Management System uses the GET endpoint
+/provider/:dn which maps a LDAP DN to a openIDCpnnect Provider with Client Credentials. */}
+
+## How does the user, machine and process authentication work?
+
+The User, Portable Machine and Portale Process should authenticate itself in the current environment they are in.
+Additionally, it is also useful that the machines and processes authenticate in their home environment for management purposes.
+Therewith it is possible that the home environment recalls old machines or old processes.
+
+The authentification is done with an identity provider (IdP) that offers the OpenID Connect protocol.
+The address of the IdP is stored at multiple locations for the different authentications:
+
+**User Authentication - IdP Adress**:
+
+1. Dynamic resolution via mDNS (finding the environments Config server and requesting the IdP address)
+1. Backup if previous step fails: stored inside the process' user task
+
+**Machine Authentication - IdP Adress**:
+
+_For current environment:_
+
+1. Dynamic resolution via mDNS (finding the environments Config server and requesting the IdP address)
+1. Backup if previous step fails: inside an already stored environment profile that fits to the current environment
+
+_For home environment:_
+
+1. Stored inside the engines configuration
+
+**Process Authentication - IdP Adress**:
+
+_For current environment:_
+
+1. Dynamic resolution via mDNS (finding the environments Config server and requesting the IdP address)
+1. Backup if previous step fails: stored inside the process (global variable)
+
+_For home environment:_
+
+1. stored inside the process (global variable)

@@ -1,0 +1,32 @@
+Process Data can mean data that is either relevant for designing, executing or monitoring a process.
+There is meta data that describes, for example, who created the process, a general description and some process specification.
+This kind of data is usually added via the [_Properties Panel_](#properties-panel).
+Also, there are the source codes for Script Tasks, the graphical designs for [User Tasks](user-tasks) and the constraint definitions for the dynamic deployment.
+This data is added via a _blue button_ that appears on top of the BPMN editor.
+And last but not least, there is process data that is created and filled with values during the execution of a process at runtime.
+
+## Runtime Data
+
+There is many data generated during the execution of a process in a company.
+This data is used, for example, to make decisions how to continue with the process.
+If modeled in BPMN this decision making is usually done at a OR or XOR gateway.
+Another use case for runtime data is to create and store work protocols within user tasks.
+Or to repeat a task multiple times based on a table that includes all orders.
+
+In PROCEED, you can currently create and change the content of runtime data with Script Tasks and [User Tasks](user-tasks#set-process-variables). Afterwards, you can use this data in Gateways, Script Tasks and [User Tasks](user-tasks#use-process-variables). For example, the following picture shows the usage of a process variable to make a process decision on a Gateway:
+
+_TODO: GW-Pic_
+_TODO: Link to Script Description_
+_TODO: Link to Constraint Description_
+
+## Meta Data in the Properties Panel
+
+In some cases, additional data must be attached to a process, e.g. to analyze and evaluate the efficiency of a deployed process.
+Elements and attributes in a BPMN process can contain such properties.
+These properties can be viewed and edited in the Properties Panel.
+
+The Properties Panel can be accessed in the Process Editor and shows many properties of the overall process on default.
+In order to edit the properties of a certain element within a process, the element needs to be selected by clicking on it.
+The Properties Panel will then update its overview and show all properties which can be edited.
+
+![Properties Panel](/images/user-guide/process-data/properties-panel.png?width=1000px&classes=border)

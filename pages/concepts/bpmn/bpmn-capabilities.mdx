@@ -1,0 +1,171 @@
+**TODO: This is currently an old version. The XML description will be replaced by a JSON-LD description very soon.**
+
+One of PROCEEDs most interesting parts is that the BPMN processes can access native vendor-supplied functionalities of the machine, so-called _capabilities_. The execution engines needs to know which capabilities are needed by a process, so PROCEED extends the BPMN standard with the following elements:
+
+#### `capabilities`
+
+|                     |                                                                       |
+| ------------------- | --------------------------------------------------------------------- |
+| **Description**     | Contains a list of AND-connected [`capability`](#capability) elements |
+| **Attributes**      | --                                                                    |
+| **Constraints**     | --                                                                    |
+| **Parent Elements** | `scriptTask`                                                          |
+| **Child elements**  | [`capability`](#capability)                                           |
+
+(_TODO_: Usage inside other elements planed, e.g. condition events, user tasks etc.)
+
+#### `capability`
+
+|                     |                                                                            |
+| ------------------- | -------------------------------------------------------------------------- |
+| **Description**     | Contains a function name from the capability list in the Management System |
+| **Attributes**      | --                                                                         |
+| **Constraints**     | --                                                                         |
+| **Parent Elements** | [`capabilities`](#capabilities)                                            |
+| **Child elements**  | --                                                                         |
+
+## Example
+
+```xml
+<bpmn2:scriptTask id="Task_1pdn5o1" scriptFormat="Javascript">
+  <bpmn2:script>
+    <![CDATA[
+      const capabilities = getService('capabilities');
+      const logger = getService('logging').getLogger();
+      const photoObj = await capabilities.startCapability('PhotoAction', {
+        'https://schema.org/height': { value: 80, unit: 'px' },
+        width: 80,
+        dpi: { value: 300, optional: true },
+        { blackWhite: true, rotation: 90 },
+      });
+
+      const lat = Math.round(photoObj.geocoordinates.latitude);
+      const long = Math.round(photoObj.geocoordinates.longitude);
+      logger.info(`Photo taken at lat: ${lat} and long: ${long}`);
+      return { photo: photoObj.photo };
+    ]]>
+  </bpmn2:script>
+  <bpmn2:extensionElements>
+    <proceed:capabilities>
+      <proceed:capability capabilityShortName="PhotoAction"
+                          capabilityURI="https://schema.org/PhotographAction">
+
+        <proceed:cParameter>
+          <proceed:cValueURI>
+            https://schema.org/height
+          </proceed:cValueURI>
+          <proceed:cValueUnit>px</proceed:cValueUnit>
+        </proceed:cParameter>
+
+        <proceed:cParameter>
+          <proceed:cValueURI>
+            https://schema.org/width
+          </proceed:cValueURI>
+          <proceed:cValueUnit>px</proceed:cValueUnit>
+        </proceed:cParameter>
+
+        <proceed:cParameter optional="true">
+          <proceed:cValueOwnName>dpi</proceed:cValueOwnName>
+        </proceed:cParameter>
+
+        <proceed:cParameter>
+          <proceed:cObjectProperty>
+            <proceed:cValueOwnName>blackWhite</proceed:cValueOwnName>
+          </proceed:cObjectProperty>
+
+          <proceed:cObjectProperty>
+            <proceed:cValueOwnName>rotation</proceed:cValueOwnName>
+          </proceed:cObjectProperty>
+        </proceed:cParameter>
+
+        <proceed:cReturnValue>
+          <proceed:cValueURI>
+            https://schema.org/photo
+          </proceed:cValueURI>
+          <proceed:cValueEncoding>base64</proceed:cValueEncoding>
+        </proceed:cReturnValue>
+
+        <proceed:cReturnValue>
+          <proceed:cValueURI>
+            https://schema.org/GeoCoordinates
+          </proceed:cValueURI>
+
+          <proceed:cObjectProperty>
+            <proceed:cValueURI>
+              https://schema.org/latitude
+            </proceed:cValueURI>
+            <proceed:cValueDataType>
+              https://schema.org/Float
+            </proceed:cValueDataType>
+          </proceed:cObjectProperty>
+
+          <proceed:cObjectProperty>
+            <proceed:cValueURI>
+              https://schema.org/longitude
+            </proceed:cValueURI>
+            <proceed:cValueDataType>
+              https://schema.org/Float
+            </proceed:cValueDataType>
+          </proceed:cObjectProperty>
+        </proceed:cReturnValue>
+
+      </proceed:capability>
+    </proceed:capabilities>
+  </bpmn2:extensionElements>
+</bpmn2:scriptTask>
+```
+
+## XSD Definition
+
+[Link to XSD file](/xsd/XSD-PROCEED.xsd)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+  xmlns="https://docs.proceed-labs.org/BPMN"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="https://docs.proceed-labs.org/BPMN">
+
+  <xsd:element name="capabilities" type="tCapabilities"/>
+	<xsd:complexType name="tCapabilities">
+    <xsd:sequence>
+      <xsd:element ref="capability" minOccurs="1" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="capability" type="tCapability"/>
+  <xsd:complexType name="tCapability">
+    <xsd:sequence>
+      <xsd:element ref="cParameter" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element ref="cReturnValue" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+    <xsd:attribute name="capabilityShortName" type="xsd:string" use="optional"/>
+    <xsd:attribute name="capabilityURI" type="xsd:anyURI" use="required"/>
+  </xsd:complexType>
+
+  <xsd:element name="cParameter" type="tCValue" />
+  <xsd:element name="cReturnValue" type="tCValue" />
+  <xsd:element name="cObjectProperty" type="tCValue" />
+
+  <xsd:complexType name="tCValue">
+    <xsd:sequence>
+      <xsd:choice>
+        <xsd:element name="cValueURI" type="xsd:anyURI" minOccurs="0" />
+        <xsd:element name="cValueOwnName" type="xsd:token" minOccurs="0"  />
+      </xsd:choice>
+      {/* if something is an object and contains more than one element - self reference */}
+      <xsd:element ref="cObjectProperty" minOccurs="0" maxOccurs="unbounded"/>
+      {/* TODO:
+        - DataType and Unit (optional) could be together
+        - OR use Encoding (already integratesDataType and Unit)  */}
+      <xsd:element name="cValueDataType" type="xsd:anyURI" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="cValueUnit" type="xsd:token" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="cValueEncoding" type="xsd:token" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+    {/* Parameters can be optional */}
+    {/* TODO: only relevant for cParameter */}
+    <xsd:attribute name="optional" type="xsd:boolean" use="optional"/>
+  </xsd:complexType>
+</xsd:schema>
+```

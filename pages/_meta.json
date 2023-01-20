@@ -1,0 +1,31 @@
+{
+  "homepage": {
+    "title": "PROCEED Homepage",
+    "type": "page",
+    "href": "https://www.proceed-labs.org/"
+  },
+  "about": { "title": "About Us", "type": "page" },
+  "more": {
+    "title": "More",
+    "type": "menu",
+    "items": {
+      "wiki": {
+        "title": "Developer Wiki",
+        "href": "https://gitlab.com/dBPMS-PROCEED/proceed/-/wikis/home"
+      },
+      "xsd": {
+        "title": "XSD Schema",
+        "href": "/xsd/XSD-PROCEED.xsd"
+      }
+    }
+  },
+  "index": "Introduction",
+  "quick-start": "Quick Start Tutorial",
+  "downloads": "Downloads",
+  "vision": "Vision",
+  "concepts": "Concepts",
+  "user-guide": "User Guide",
+  "project": "Project Information",
+  "glossary": "Glossary",
+  "showcase": { "display": "hidden" }
+}

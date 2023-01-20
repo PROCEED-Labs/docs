@@ -1,0 +1,31 @@
+{
+  "name": "proceed-docs",
+  "description": "PROCEED project documentation website",
+  "version": "0.0.1",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/PROCEED-Labs/docs"
+  },
+  "dependencies": {
+    "next": "^13.1.2",
+    "nextra": "^2.2.5",
+    "nextra-theme-docs": "^2.2.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "homepage": "https://docs.proceed-labs.org/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PROCEED-Labs/docs.git"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "devDependencies": {
+    "@types/node": "18.11.18",
+    "typescript": "4.9.4"
+  }
+}

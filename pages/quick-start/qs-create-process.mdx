@@ -1,0 +1,78 @@
+### Create a small process
+
+In this tutorial, we will create a simple process which will cover the following
+concepts.
+
+- Variables
+- Process
+- JS Script
+- Separation
+
+We assume that the installation of PROCEED components are done and the machines
+are added according to [Installation](qs-install).
+
+#### Defining the process with a BPMN diagram
+
+- Define a simple process by clicking "Process Management" in the menu and
+  clicking "Add" on the top-right. This will open the process creation popup.
+  ![menu_mgmt_process](/images/quick-start-create-process/menu_mgmt_process.png)
+
+- Provide the process with a name, e.g. "First Process". You can optionally add
+  variables to the process by clicking "Add Variable". Once done, click "Add
+  Process" to finish creation.
+  ![process_mgmt_add_process_popup](/images/quick-start-create-process/process_mgmt_add_process_popup.png)
+
+- The process that was just created will be in the list of processes. For each
+  process, you can change the name and variables simply by clicking the process
+  you want to modify. You can also delete the process, edit the BPMN diagram and
+  deploy with the corresponding action buttons.
+  ![process_actions](/images/quick-start-create-process/process_actions.png)
+
+- For the newly created process, click the edit icon to create a BPMN diagram
+  like below using the editor.
+  ![simple_process_bpmn](/images/quick-start-create-process/simple_process_bpmn.png)
+  The above BPMN represents a simple process with a start state, two activities
+  and an end-state, linearly linked. The end result should look like the
+  following figure,
+
+- Convert "Activity 1" to a script-task by right-clicking the activity and
+  clicking the spanner icon, as illustrated in the following figure.
+  ![simple_process_convert_to_script_task](/images/quick-start-create-process/simple_process_convert_to_script_task.png)
+
+You should now see and icon on the top-left of the activity.
+![script_task_activity_1](/images/quick-start-create-process/script_task_activity_1.png)
+
+- Clicking on any script task will display a button on the top of the BPMN
+  editor to provide/edit the script for the task.
+  ![edit_script_action](/images/quick-start-create-process/edit_script_action.png)
+
+![script_editing_ide](/images/quick-start-create-process/script_editing_ide.png)
+
+The editor expects Javascript, for activity 1 enter the following script,
+
+```js
+services.console.log("Hello world");
+```
+
+- To run the processes on separate machines, right-click the activity and open
+  the machines menu by clicking the machine icon, then select a machine from the
+  menu on which the activity should run. If the machine is currently connected,
+  a green circle will appear next to it.
+
+![process_mgmt_select_device](/images/quick-start-create-process/process_mgmt_select_device.png)
+
+- At this stage, the separated processes should look like the below figure,
+  ![separated_processes](/images/quick-start-create-process/separated_processes.png)
+  This indicates activities of different colors will run on different machines.
+
+- Click "Save" from the top-right actions to save your changes. Optionally, you
+  can view the XML for the BPMN by clicking the "XML" button and also the
+  separated processes using the "Show Separated Button".
+  ![show_separation](/images/quick-start-create-process/show_separation.png)
+
+The task id and the process uuid are displayed for debugging purposes
+
+- As a final step, go back to the processes list, corresponding to "First
+  Process", click the corresponding deploy button to send the process XML and
+  associated data to the machines. The next step, go to the "Execution" tab in
+  the menu to execute the process on the machines.

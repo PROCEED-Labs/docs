@@ -1,0 +1,20 @@
+Execution constraints are important criterias to select the machine (DPE) for deploying a process to it. They constrain where the process and its parts are allowed to be deployed. This is necessary because the DPE needs to be able to execute the process part on the underlying machine.
+
+In general the criterias can be divided into hard and soft criterias, where hard are necessary and soft are preferred constraints. Furthermore PROCEED has the following criteria categories:
+
+- Global Constraints
+- Physical Constraints
+- Execution Constraints
+- Capabilities
+
+_Global Constraints_ are Service Level Agreements (SLA) for the complete process execution. E.g. one criteria can be that the process needs to be executed in a specific time frame.
+
+_Physical Constraints_ are necessary electronical parts connected to a machine. They are hard criterias. E.g. for executing a user task on a local machine, it is usually necessary to have a screen and a user input method available to display the user task in a task list and allow inputs.
+
+_Execution Constraints_ are necessary or preferred requirements concerning the machine. There are soft and hard criterias. E.g. if given, the ip address is a hard criteria where the task needs to be run.
+
+_Capabilities_: A capability is a specific software function a machine offers for use in the an automated process. They are hard criterias. For example, if a temperature sensor is connected to an IoT device, a process script task using this temperature sensing function requires it to be available during runtime.
+
+**TODO**: difference between Global and Execution Constraints
+
+Execution constraints can be bound to the whole process or to specific tasks. See the [BPMN Reference](../bpmn/bpmn-constraints.md) for a complete list and the information how they are attached to the process.

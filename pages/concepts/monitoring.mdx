@@ -1,0 +1,169 @@
+## Requirements
+
+The user wants to see:
+
+1. See all the active processes in the local network
+   - See the current and past status of all active processes
+   - where each process step was executed
+1. See all the deployed processes of one Engine => _Machine View_
+1. See all the deployed processes on the complete local network
+1. See the status of all "my", _deployed_ processes (even not in the local network)
+   - _my_ mean: all processes that the User is assigned to
+   - See all different running versions of a process
+
+## Main Problems
+
+3. How to _Display the Status_ in the MS GUI
+1. How to _Get the complete Process_ (for static and dynamic deployment)
+1. How to _Get the Status_
+
+## Display the Status in the MS GUI
+
+#### Which information is needed and Why
+
+- _BPMN Definition ID:_ to display the correct BPMN diagram
+- (_Process Version:_ to display the correct BPMN)
+- _Process State:_ running|ended|stopped|paused|uncertain
+- Instance and Token Info:
+  - _Amount of running tokens:_ to visualize the running tokens in the process
+  - _Flow Node where a token currently is:_ to visualize a token at a certain place in the BPMN diagram
+  - _Instance Start Time:_ to show an overall status when the instance started
+  - (_Instance End Time:_ to show an overall status when the instance ended; maybe to show an execution history in the MS)
+- Information for every Flow Node (Activity/Gateway/Event):
+  - _Machine ID/IP/Name_ to show on which Machine the Flow Node was executed
+  - (_Next Machine:_ to track the execution (this only needs to be shown, if this next machine is not reachable))
+  - _Flow Node Start Time and End Time_: to calculate the Flow Node and the overall Process progress
+  - _Current progress_: if the activity is not yet completed, this is an indicator to show that it is already 30% finished.
+- _Current Process Data:_ to monitor/debug to current process status (problem: can be big for files)
+- Log:
+  - _Technical Errors_
+
+#### Monitoring GUI
+
+TODO
+
+## How to get the Process
+
+#### For Req 1. and Req 2.: How to get the complete process?
+
+- Pull: Ask every reachable Engine for the process
+  - Problem: Static deployment allows to only send parts of a process (not yet defined) => need to backtrace all referenced Engines, it is possible that some are not reachable for the requesting MS
+  - Synchronize the read processes with the locally stored processes
+  - PROBLEM: process steps can be outside the current network
+- for static assignment?:
+- for dynamic assignment?:
+
+#### For Req. 4.: How to get the complete process?
+
+1. Already locally there, because it's yours
+1. Sync from Server
+   1. Processes from you
+   2. Processes assigned to you
+
+## Get The Status
+
+#### Where to get the Data for the _PULL_ method
+
+| Data                               | Where/How                                                                                 | Calculation                                                                                                                                                                                                                              |
+| ---------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BPMN Definition ID                 | `/process/{definition-id}`                                                                |                                                                                                                                                                                                                                          |
+| Process State                      | `/process/{definition-id}/instance/{id}` => `instanceState`                               | _running:_ if at least one token is in the running state, <br />_ended/stopped/paused:_ if all tokens are in the ended/stopped/paused state, <br />_uncertain_: if the instance is always `forwarded` and `nextMachine` is not reachable |
+| Instance: Amount tokens            | `/process/{definition-id}/instance/{id}` => `token[n].tokenId`                            | amount of _unique_ token ids for an instance                                                                                                                                                                                             |
+| Instance: Start Time               | `/process/{definition-id}/instance/{id}` => `globalStartTime`                             | _no calculation necessary_                                                                                                                                                                                                               |
+| Instance: End Time                 | `/process/{definition-id}/instance/{id}` => **TODO**                                      |                                                                                                                                                                                                                                          |
+| Token: Current Flow Node           | `/process/{definition-id}/instance/{id}` => `token[n].currentFlowNodeId`                  | _no calculation necessary_                                                                                                                                                                                                               |
+| Flow Node: ID/IP/Name              | `/process/{definition-id}/instance/{id}` => `log.flowNodeExecutions[n].machine`           | Match data with `flowNodeId`                                                                                                                                                                                                             |
+| Flow Node: next Machine            | `/process/{definition-id}/instance/{id}` => `tokens[n].nextMachine`                       | get this info from the previous machine                                                                                                                                                                                                  |
+| Flow Node: Start Time and End Time | `/process/{definition-id}/instance/{id}` => `log.flowNodeExecutions[n].startTime/endTime` | Match data with `flowNodeId`                                                                                                                                                                                                             |
+| Flow Node: Current progress        | `/process/{definition-id}/instance/{id}` => `tokens[n].currentFlowNodeProgress`           | _no calculation necessary_                                                                                                                                                                                                               |
+| Process Data                       | `/process/{definition-id}/instance/{id}` => `variables`                                   | _no calculation necessary_                                                                                                                                                                                                               |
+| Log/Technical Error                | `/logging/process/{definition-id}/instance/{id}`                                          | Display the logs in combination with a Machine ID/IP                                                                                                                                                                                     |
+
+To get the state of the complete process with the PULL method, it is necessary to follow the whole chain of Machines which executed a part of the process. The following is done by looking at `/process/{definition-id}/instance/{id}` => `tokens[n].nextMachine`.
+
+_Calculation_ determines how to calculate the whole process state, and not only displaying the local state of one Machine.
+
+#### How to get the status info?
+
+- for static assignment?:
+  - 1. Pull: 1. get the status from every engine
+    - Problem: trace Engine step by step (+ every Engine needs to be reachable)
+  - 2. Push: 1. the Engine sends the process to one or more MS
+    - Problem: stop sending, if MS don't need the status anymore
+- for dynamic assignment?:
+
+  - 1. Pull: 1. get the status from every engine
+    - Problem: how to trace the process and Engines step by step (+ every Engine needs to be reachable)
+  - 2. Push: 1. the Engine sends the process to one or more MS
+    - Problem: stop sending, if MS don't need the status anymore
+
+- Show process info of PUSHed processes
+
+  - does need one more available server
+  - what happens if one process step does not send any status info (because offline mode)?
+
+- Synced Server Version: wie werden Status Infos verteilt?
+
+  - direkt an alle MS oder über den Server?
+
+- Welche Push Methode?
+
+  - MS kann sich direkt registrieren bei Engine (Als wenn Engine eigener Msg Broker ist), entweder für
+    - eine Prozess-Instanz => übergeben mit Token an nächste Engine,
+    - einen Prozess in einer Version
+    - einen Prozess in allen Versionen
+    - Alle Prozessen der Engine (?)
+    - **Problem:** De-Registrierung wenn keine Infos mehr haben will => erfordert Abmeldung
+  - In Diagramm einen Message Broker hinterlegen: dort Anmelden
+    - Wäre auch zum Verfolgen von Prozessen geeignet, die im Netzwerk sind und vielleicht wieder verschwinden (UC 1. und 2.) => Anmeldung am Broker (mit Berechtigung)
+
+- Wie kann man vorher deployten Prozess nachverfolgen, wenn die Engines dann nicht mehr sichtbar sind, und absichtlich keine Daten senden?
+
+  - anfragen wenn erreichbar
+  - absichtlich keine => sollte von der Engine berücksichtigt werden
+    - Deshalb kann es passieren, dass einige Aktivitäten einen Status liefern, andere aber aussetzen (alles die selbe Instanz)
+
+- wie werden IP-Adressen für das statische Deployment gespeichert, so dass beim nächsten Depoy nicht erneut eingegeben werden müssen?
+
+  - mit versioniert
+
+- Muss ein Log gespeichert werden?
+
+  - Ja, für das dynamische Deployment: welche Aktivität durch welche Maschine ausgeführt wurde
+    - Kann entweder durch die Engine im Nachhinein in die Flow Node geschrieben werden (mit `machineId` and `machineAddress`) oder in ein Log
+    - Problem: Hier wird Status und Prozess vermischt => wie wird das gesendet?
+  - Vll, wer alles Status Infos abgegriffen hat
+
+- Muss die Engine den BPMN-Prozess verändern?
+  - Logs für Dynamische Deployment: welches Gerät
+  - alle MS, die gerne Status Tokens erhalten wollen
+
+## State on one PROCEED Engine
+
+One process execution is usually done on multiple PROCEED Engines.
+Every Engine manages the instance state of the process execution locally.
+The question are:
+
+- which instance states exists on one Engine?
+
+#### Instance States on a PROCEED Engine
+
+- The BPMN spec. does not really define a process state diagram, but mentions multiple states (section 10.5.7, page 280): Activated, In execution, Completed, In Compensation, Compensation, In Error, In Cancellation, Cancelled
+
+Our current implementation has the following states, which also results from the implementation state of the used BPMN engine (see wiki):
+
+- "instanceState": "running|paused|forwarded|ended|partly-ended-forwarded|stopped",
+
+This value is either set with function in the BPMN engine (running, paused, stopped) or calculated by the state of every available token.
+
+#### Failed state
+
+What does it mean?
+
+- error not catched
+
+Also technical Error?
+
+Should every other token also be canceled?
+
+- no, other tasks can run in parallel and we can handle the error manually (e.g. attach new BPMN elements)

@@ -1,0 +1,447 @@
+This page describes the adoption of the BPMN XML files applied by the PROCEED
+Management System. One of the goals is to stay as standard conform as possible.
+Some attributes (with a prefix) extending the standard and are defined inside
+the [PROCEED XSD definition](/xsd/XSD-PROCEED.xsd)
+
+## `definitions`
+
+`definitions` is the top level element in any BPMN model. It contains one or
+more `process` definitions and other BPMN elements. Here is the explanation
+about the generated values for the attributes:
+
+- `xmlns:proceed="https://docs.proceed-labs.org/BPMN"`: there is one extra
+  namespace added for PROCEEDs extensions
+- `id`: Underscore plus a random [UUID v4](https://www.ietf.org/rfc/rfc4122.txt)
+  to generate a global unique id, e.g. `"_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8"`
+  (it needs to start with an underscore or letter because of the XSD type ID)
+- `name`: same as the (file) name of the created process, e.g. `"My First
+PROCEED Process"`
+- `targetNamespace`: the URL `"https://docs.proceed-labs.org/"` plus the _id_,
+  e.g. `"https://docs.proceed-labs.org/_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8"`
+- `xsi:schemaLocation="https://docs.proceed-labs.org/BPMN
+https://docs.proceed-labs.org/xsd/XSD-PROCEED.xsd`
+  `http://www.omg.org/spec/BPMN/20100524/MODEL
+https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd"` for schema validation
+
+{/* usual BPMN attributes */}
+
+- `expressionLanguage`: `"https://ecma-international.org/ecma-262/8.0/"`
+  ([JavaScript Version](https://ecma-international.org/ecma-262/8.0/): )
+- `typeLanguage`:
+  `"https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf"`,
+  ([JSON](https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)
+  has six data types: _string, number, boolean, null/empty, object, array_)
+- `exporter`: `"PROCEED Management System"`,
+- `exporterVersion` contains the version number of the Management System
+
+{/* PROCEED specific attributes */}
+{/* - `proceed:version` contains the version of the process as a date in milliseconds. It changes if something changes in the process. [See here](versioning)
+- `proceed:versionBasedOn` if the process was created from another one, it references the version of the original process */}
+
+- `proceed:originalId`: (optional) if the process was imported into PROCEED's
+  Management System, this contains the original definition _id_
+- `proceed:originalExporter`: (optional) if the process was imported into
+  PROCEED's Management System, this contains the original _exporter_
+- `proceed:originalExporterVersion`: (optional) if the process was imported into
+  PROCEED's Management System, this contains the original _exporterVersion_
+- `proceed:originalTargetNamespace`: (optional) if the process was imported into
+  PROCEED's Management System, this contains the original _targetNamespace_
+- `proceed:creatorEnvironmentId`: (optional) if given during process creation,
+  the id of the environment the process creator belongs to.
+  ["Env"+UUIDv4](https://gitlab.com/dBPMS-PROCEED/proceed/-/wikis/Engine/Universal/Machine/Profiles)
+- `proceed:creatorEnvironmentName`: (optional) if given during process creation,
+  the name of the environment the process creator belongs to
+- `proceed:creatorId`: (optional) the id of the process creator
+- `proceed:creatorName`: (optional) the Name of the process creator
+
+## `process`
+
+- `id`: unique id like it is generated in bpmn-js (e.g. `Process_1wqd8fv`)
+- `name`: name of the pool (aka participant name), if no pool default: `"PROCEED
+  Main Process"`
+{/* - `processType`: 'Private'  */}
+- `isExecutable`: true
+- `proceed:deploymentMethod`: attribute for changing the deployment method. Can
+  have the values `static` or `dynamic` for the [respective methods](concepts/deployment/_index)
+
+## Flow Nodes inside a `process`
+
+#### The `id`
+
+The _id_ identifies a BPMN element unambiguously and is often used to reference
+the specific element. It has to be unique, that's why in PROCEED most ids have
+the pattern: element name plus a [small random
+id](https://www.npmjs.com/package/shortid) connected with an underscore, e.g.
+"SequenceFlow_0mwtb46". (This behaviour is borrowed from the bpmn.io libraries)
+
+**Hint:** Since a BPMN model can import other BPMN process definitions, the
+_ids_ of the elements has to be unique over multiple files. This is done with
+the combination of the _targetNamespace_ and the elements _id_
+
+#### The attributes for static deployment
+
+For static deployment two attributes can be attached to a _Flow Node_ (Events,
+Activities and Gateways). They define the Machine were this flow node must be
+executed. They are only valid if `proceed:deploymentMethod` is set to `static`:
+
+- `proceed:machineId`: references a specific Machine id
+- `proceed:machineAddress`: references a specific Machine IP address and Port
+  (IPv4 example: _192.168.1.11:33029_, IPv4 example:
+  _[1fff:0:a88:85a3::ac1f]:33029_ -- the port is optional)
+
+In static deployment mode, if an execution reaches a flow node the Engine checks
+whether the `machineId` and `machineAddress` match the current Machine. If not,
+it sends the execution (the token) to the specified machine.
+
+A flow node can contain one of the attributes or both. If both are set the
+`machineId` takes precedence because it should be a unique value.
+
+#### Constraints inside `extensionElements` for dynamic deployment
+
+For dynamic deployment the `extensionElements` on flow nodes is used. It
+contains constraints that restrict the deployment and execution of a flow node.
+For more XML serialization information, [see here](bpmn-constraints).
+
+#### Execution of a task by an external program
+
+PROCEED is able to let other programs execute a Flow Node if they have the
+`external` attribute set to `true`. This is especially useful if an external
+program has more information about the task context, e.g. if it knows the best
+resource to fulfill the task. In this case, the token just waits in the `READY`
+state of an activity until an external programs requests and indicates via the
+API the execution or completion of the task.
+
+## Meta Information
+
+The `<process>` and every _Flow Node_ can contain further meta data. They are
+embedded inside `<extensionElements><proceed:meta>...`. Here is the **ordered**
+list of possible elements:
+
+`<proceed:orderNumber>` : - represents the id of an order : - only used in
+_Projects_, is only used on the `<process>` level
+
+`<proceed:orderName>` : - indicates the name of the order : - it is usually the
+same as the project name which is stored inside the `name` attribute in
+definitions : - only used in _Projects_, is only used on the `<process>` level
+
+`<proceed:orderCode>` : - is a short Order/Project identifier : - only used in
+_Projects_, is only used on the `<process>` level
+
+`<proceed:customerId>` : - represents the ID of a customer : - only used in
+_Projects_, is only used on the `<process>` level
+
+`<proceed:customerName>` : - represents the name of a customer : - only used in
+_Projects_, is only used on the `<process>` level
+
+`<proceed:timePlannedOccurrence>` : - specifies the scheduled date when a
+process, activity or event is planned to start : - this is only relevant for
+_Projects_, since they are only executed one time (they are able to be executed
+on a specified date) : - datatype _xsd:dateTime_, inspired by [ISO
+8601](https://en.wikipedia.org/wiki/ISO_8601), date and time required, timezone
+optional : - example value: 2020-08-15T15:30:00+01:00
+
+`<proceed:timePlannedEnd>` : - specifies the scheduled date when a process,
+activity or event is planned to end : - this is only relevant for _Projects_,
+since they are only executed one time (they are able to be executed on a
+specified date) : - datatype _xsd:dateTime_, inspired by [ISO
+8601](https://en.wikipedia.org/wiki/ISO_8601), date and time required, timezone
+optional : - example value: 2020-08-15T15:30:00+01:00
+
+`<proceed:timePlannedDuration>` : - specifies the planned duration of a process,
+activity or event : - datatype _xsd:duration_, inspired by [ISO
+8601](https://en.wikipedia.org/wiki/ISO_8601), starts with a _P_ and separates
+the time with a _T_ : - example value: PT2H30M, P2M10D, P1Y2M3DT4H30M12S
+
+`<proceed:costsPlanned unit="Euro">` : - specifies the planned costs of a
+process, activity or event : - can be used to calculate the overall process
+costs : - datatype _xsd:decimal_, `unit` attribute is optional and a string
+
+`<proceed:occurrenceProbability>` : - specifies the probability that the process
+flow will take a specific sequence flow after a splitting XOR, OR and
+Event-based gateway : - is used for simulation : - only occurs inside a
+`<sequenceFlow>` : - datatype _xsd:integer_ between 0 - 100 percent
+
+`<proceed:overviewImage>` : - contains a summary picture about the FlowNode or
+process : - can contain either [base64 encoded data
+URIs](https://datatracker.ietf.org/doc/html/rfc2397) with an image mime type or
+[absolute URLs](https://url.spec.whatwg.org/)
+
+`<proceed:property name="xyz">` : - specifies arbitrary information, e.g. plugin
+data : - `name` attribute is required and a string : - can be used on every
+level, i.e. on `<process>` or every flow node : - the value is specified inside
+the content of the element
+
+{/* ## Versioning
+
+Process artifacts (User Task, Scripts, etc.) will be versioned with the attribute `proceed:version`.
+
+## Monitoring
+
+
+ */}
+
+### Example
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions
+    xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:proceed="https://docs.proceed-labs.org/BPMN"
+    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xsi:schemaLocation="https://docs.proceed-labs.org/BPMN https://docs.proceed-labs.org/xsd/XSD-PROCEED.xsd
+                        http://www.omg.org/spec/BPMN/20100524/MODEL https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd"
+
+    expressionLanguage="https://ecma-international.org/ecma-262/8.0/"
+    typeLanguage="https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf"
+    id="_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8"
+    name="My First PROCEED Process"
+    targetNamespace="https://docs.proceed-labs.org/_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8"
+    exporter="PROCEED Management System"
+    exporterVersion="1.0"
+
+    proceed:originalId="Definitions_0o1kcpw"
+    proceed:originalExporter="Camunda Modeler"
+    proceed:originalExporterVersion="4.4.0"
+    proceed:originalTargetNamespace="http://bpmn.io/schema/bpmn"
+
+    proceed:creatorEnvironmentId="Env-bbd545ad-31ac-479b-bbc3-d45155e5c212"
+    proceed:creatorEnvironmentName="SNET PROCEED Environment"
+    proceed:creatorId="Anon-1234"
+    proceed:creatorName="Max Mustermann"
+    >
+
+    <process id="Process_1wqd8fv"
+        name="PROCEED Main Process"
+        processType="Private" isExecutable="true"
+        proceed:deploymentMethod="static">
+
+        <extensionElements>
+            <proceed:meta>
+                <proceed:orderNumber>32029</proceed:orderNumber>
+                <proceed:orderName>My First PROCEED Process</proceed:orderName>
+                <proceed:orderCode>PROCEED-1</proceed:orderCode>
+                <proceed:customerId>1111</proceed:customerId>
+                <proceed:customerName>ACME company</proceed:customerName>
+                <proceed:overviewImage>data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAB3BAMAAAAeDIOYAAAAD1BMVEUAAABZWVlgYGBmZmZsbGy1A1kgAAAAAXRSTlMAQObYZgAAAAlwSFlzAAC4jAAAuIwBzPa7LwAAAWRJREFUaN7tmu0NgzAMRMPHAEAYAFoGCBsA+w/VDQqW41wSLv8tWSfn9ZHaudvTj+qzONXZ1Q14XQOtPoJD18GqbmCGR+DQESjHsFE3MOkaqOEmKiPo9BEEwogwIozKh9FJGNUAo4C+iRthtKAjIIwyhFH3uT3BFkayEgMYnbKS+GbUy0oM5HCXlcSHUScrMYDRKioxgFErKznRERjASBgBYWRgRoTRk8keCKOsYNQTRi81o29lMBp0ZmTwZrQTRjQjmtGTyfa2MEJrQXI3nOQzcJjOwAoegTb1JfCZkTA5CCfdHYz+dSL0gfg/hg8idZZG1KWG0Ph6CAXx/5K2b8ayACqAkJLChBAggM0UQhfahtEyXIAJeZqQ5deIEEIXGkKIAOo2oQd2Hfd5cMpNBApbZooPocJ2SC5wAPA9oiY6hArbJYOv9q6EEDYAQggdQFs+hWdCiBDCBkATogkRQlgR+AOhHxPPunGOG5/7AAAAAElFTkSuQmCC</proceed:overviewImage>
+                <proceed:property name="lastAuthor">Max Mustermann</proceed:property>
+            </proceed:meta>
+        </extensionElements>
+
+        <startEvent id="Event_141ngxf" proceed:machineId="6bd9c3cf-8164-453a-a039-e8aaf138f192">
+            <extensionElements>
+                <proceed:meta>
+                    <proceed:timePlannedOccurrence>2020-07-01T00:00:00+01:00</proceed:timePlannedOccurrence>
+                </proceed:meta>
+            </extensionElements>
+            <outgoing>SequenceFlow_0mwtb46</outgoing>
+        </startEvent>
+
+        <sequenceFlow id="SequenceFlow_0mwtb46" sourceRef="Event_141ngxf" targetRef="Task_1pdn5o1"/>
+
+        {/* the machineId has precedence */}
+        <task id="Task_1pdn5o1"
+        proceed:machineId="6bd9c3cf-8164-453a-a039-e8aaf138f192"
+        proceed:machineAddress="192.168.3.3"
+        proceed:external="true">
+
+            <extensionElements>
+                <proceed:meta>
+                    <proceed:timePlannedEnd>2020-07-01T00:00:00+01:00</proceed:timePlannedEnd>
+                    <proceed:timePlannedDuration>P2M10D</proceed:timePlannedDuration>
+                    <proceed:costsPlanned unit="Euro">3000.50</proceed:costsPlanned>
+                    <proceed:overviewImage>https://docs.proceed-labs.org/images/favicon.png</proceed:overviewImage>
+                    <proceed:property name="editor">VSCode</proceed:property>
+                </proceed:meta>
+
+                <proceed:processConstraints>
+                    <proceed:hardConstraints>
+                        <proceed:hardConstraint timeout="10">
+                            <proceed:name>machine.mem.free</proceed:name>
+                            <proceed:condition>&gt;=</proceed:condition>
+                            <proceed:values conjunction="OR">
+                                <proceed:value unit="GB">2</proceed:value>
+                            </proceed:values>
+                        </proceed:hardConstraint>
+                    </proceed:hardConstraints>
+
+                    <proceed:softConstraints>
+                        <proceed:softConstraint weight="5">
+                            <proceed:name>machine.cpu.free</proceed:name>
+                            <proceed:condition>max</proceed:condition>
+                        </proceed:softConstraint>
+                    </proceed:softConstraints>
+                </proceed:processConstraints>
+            </extensionElements>
+
+            <incoming>SequenceFlow_0mwtb46</incoming>
+            <outgoing>SequenceFlow_0a33trv</outgoing>
+        </task>
+
+        <sequenceFlow id="SequenceFlow_0a33trv" sourceRef="Task_1pdn5o1" targetRef="EndEvent_099f60v"/>
+
+        <endEvent id="EndEvent_099f60v" proceed:machineAddress="[1fff:0:a88:85a3::ac1f]:33029">
+            <incoming>SequenceFlow_0a33trv</incoming>
+        </endEvent>
+    </process>
+
+</definitions>
+```
+
+## Used Resources and possible Locations
+
+Every kind of _task_ and the message events can contain a list of resources that
+indicate the used or transferred things, especially for production use cases.
+They are embedded inside `<extensionElements><proceed:resources>...`. Here is
+the **ordered** list of possible elements:
+
+`<proceed:consumableMaterial>` : - represents the resources that will be
+consumed during execution of a task (in case of a message task it represent the
+resources that are sent or received) : - can occur multiple times to represent
+multiple consumed resources : - only used in `<task>` and its sub-types, or
+message events
+
+`<proceed:tool>` : - represents the assistive equipment/auxiliary
+devices/instruments/fixtures/apparatus that will be used during execution of a
+task : - can occur multiple times : - only used in `<task>` and its sub-types
+
+`<proceed:inspectionInstrument>` : - represents the testing or measuring devices
+that will be used during execution of a task : - can occur multiple times : -
+only used in `<task>` and its sub-types
+
+---
+
+Every kind of _task_ can contain a list of locations that indicate the expected
+place of its execution, especially for production use cases. They are embedded
+inside `<extensionElements><proceed:locations>...`. Here is the **ordered** list
+of possible elements:
+
+`<proceed:workingPlace>` : - represents the location where a task is expected to
+be executed or the destination (in case of a transport task) : - can occur
+multiple times: represents an OR connection, meaning the execution is possible
+at all the specified locations : - only used in `<task>` and its sub-types : -
+can have the attributes `buildingRef` and `areaRef` to reference the `id` of a
+building or area where it belongs to (optional)
+
+`<proceed:area>` : - represents an area inside a building : - logically it can
+contain multiple working places (the working places reference the area) : - can
+occur multiple times : - only used in `<task>` and its sub-types : - can have
+the attribute `buildingRef` to reference the `id` of a building where it belongs
+to (optional)
+
+`<proceed:building>` : - represents a building, belonging to a factory : - can
+occur multiple times : - only used in `<task>` and its sub-types : - can have
+the attribute `factoryRef` to reference the `id` of a factory where it belongs
+to (optional)
+
+`<proceed:factory>` : - represents one plant, belonging to a company : - can
+occur multiple times : - only used in `<task>` and its sub-types : - can have
+the attribute `companyRef` to reference the `id` of a company where it belongs
+to (optional)
+
+`<proceed:company>` : - represents a company : - only used in `<task>` and its
+sub-types
+
+Every location and resource can also contain another element
+`<proceed:description>` to further explain the context in more detail.
+
+### Available Attributes
+
+All location and resource elements can contain the following attributes
+(optional):
+
+`id` : - represents a unique id for the location or resource element
+
+`shortName` : - represents a short identifier for the location or resource
+element
+
+`longName` : - represents a long identifier for the location or resource element
+
+**Attributes available only for resources:**
+
+`manufacturer` : - represents the manufacturer of the resource element
+
+`manufacturerSerialNumber` : - represents the manufacturer's serial number of
+the resource element
+
+`unit` : - represents the unit in which the resource is measured
+
+`quantity` : - represents the needed quantity of the resource : - defaults to 1
+
+### Example
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions ... >
+
+    <process id="Process_1wqd8fv" ...>
+
+        <startEvent id="Event_141ngxf" proceed:machineId="6bd9c3cf-8164-453a-a039-e8aaf138f192">
+            <outgoing>SequenceFlow_0mwtb46</outgoing>
+        </startEvent>
+
+        <sequenceFlow id="SequenceFlow_0mwtb46" sourceRef="Event_141ngxf" targetRef="Task_1pdn5o1"/>
+
+
+        <task id="Task_1pdn5o1">
+
+            <extensionElements>
+                <proceed:resources>
+                    <proceed:consumableMaterial id="" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3" />
+                    <proceed:consumableMaterial id="" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3">
+                        <proceed:description></proceed:description>
+                    </proceed:consumableMaterial>
+
+                    <proceed:tool id="" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3" />
+                    <proceed:tool id="" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3">
+                        <proceed:description></proceed:description>
+                    </proceed:tool>
+
+                    <proceed:inspectionInstrument id="" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3" />
+                    <proceed:inspectionInstrument id="" shortName="" longName="" manufacturer="" manufacturerSerialNumber="" unit="" quantity="3">
+                        <proceed:description></proceed:description>
+                    </proceed:inspectionInstrument>
+                </proceed:resources>
+
+                <proceed:locations>
+                    <proceed:workingPlace id="" shortName="" longName="" buildingRef="" areaRef="" />
+                    <proceed:workingPlace id="" shortName="" longName="" buildingRef="" areaRef="">
+                        <proceed:description></proceed:description>
+                    </proceed:workingPlace>
+                    <proceed:area id="" shortName="" longName="" buildingRef="" />
+                    <proceed:area id="" shortName="" longName="" buildingRef="">
+                        <proceed:description></proceed:description>
+                    </proceed:area>
+                    <proceed:building id="" shortName="" longName="" factoryRef="" />
+                    <proceed:building id="" shortName="" longName="" factoryRef="">
+                        <proceed:description></proceed:description>
+                    </proceed:building>
+                    <proceed:factory id="" shortName="" longName="" companyRef="" />
+                    <proceed:factory id="" shortName="" longName="" companyRef="">
+                        <proceed:description></proceed:description>
+                    </proceed:factory>
+                    <proceed:company id="" shortName="" longName="" />
+                    <proceed:company id="" shortName="" longName="">
+                        <proceed:description></proceed:description>
+                    </proceed:company>
+                </proceed:locations>
+            </extensionElements>
+
+            <incoming>SequenceFlow_0mwtb46</incoming>
+            <outgoing>SequenceFlow_0a33trv</outgoing>
+        </task>
+
+        <sequenceFlow id="SequenceFlow_0a33trv" sourceRef="Task_1pdn5o1" targetRef="EndEvent_099f60v"/>
+
+        <endEvent id="EndEvent_099f60v" proceed:machineAddress="[1fff:0:a88:85a3::ac1f]:33029">
+            <incoming>SequenceFlow_0a33trv</incoming>
+        </endEvent>
+    </process>
+
+</definitions>
+```

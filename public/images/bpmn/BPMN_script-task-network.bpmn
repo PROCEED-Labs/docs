@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:proceed="https://docs.proceed-labs.org/BPMN" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="_41454fad-f495-43fa-b4dd-0a0be57b3c14" name="script-task-network-test" targetNamespace="https://docs.proceed-labs.org/_41454fad-f495-43fa-b4dd-0a0be57b3c14" expressionLanguage="https://ecma-international.org/ecma-262/8.0/" typeLanguage="https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf" exporter="PROCEED Management System" exporterVersion="0.0.1" proceed:creatorEnvironmentId="" proceed:creatorEnvironmentName="" xsi:schemaLocation="https://docs.proceed-labs.org/BPMN https://docs.proceed-labs.org/xsd/XSD-PROCEED.xsd http://www.omg.org/spec/BPMN/20100524/MODEL https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd">
+  <process id="Process_1wqd8fv" name="PROCEED Main Process" processType="Private" isExecutable="true" proceed:deploymentMethod="dynamic">
+    <documentation />
+    <startEvent id="Event_141ngxf" proceed:machineId="f01758fd-73ce-4967-bcf6-4049676d2465" proceed:machineAddress="192.168.200.20:33029">
+      <outgoing>Flow_0ytay6s</outgoing>
+    </startEvent>
+    <sequenceFlow id="Flow_0ytay6s" sourceRef="Event_141ngxf" targetRef="Activity_03rj4h2" />
+    <endEvent id="Event_0vfzfrl" proceed:machineId="f01758fd-73ce-4967-bcf6-4049676d2465" proceed:machineAddress="192.168.200.20:33029">
+      <incoming>Flow_07rh2rc</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_0ejk3o5" sourceRef="Activity_03rj4h2" targetRef="Activity_0cmjn64" />
+    <scriptTask id="Activity_03rj4h2" name="network connections" proceed:machineId="f01758fd-73ce-4967-bcf6-4049676d2465" proceed:machineAddress="192.168.200.20:33029" scriptFormat="application/javascript">
+      <incoming>Flow_0ytay6s</incoming>
+      <outgoing>Flow_0ejk3o5</outgoing>
+      <script>const network = getService('network');
+log.info( "Script started");
+const amount = variable.get("amount");
+log.info( "The value of the process variable 'amount' is: " + amount );
+if(typeof amount === 'number'){
+    variable.set("amount", ++amount);
+    log.info( "Increased variable 'amount' by 1" );
+}else{
+    variable.set("amount", 1);
+    log.info( "Set variable 'amount' to 1" );
+}
+// set current progress of script task to 50%
+setProgress(50);
+// send put-request using given url and data
+const exampleText = "&lt;task&gt;A Simple XML element&lt;/task&gt;";
+try {
+    const {response, body} = await network.put(
+        'http://localhost:3000/456', 
+        exampleText,
+        "text/xml",
+        {
+            headers: {
+                'My-New-Header': 'Sent from PROCEED'
+            }
+        }
+        );
+    log.debug(`Successful PUT request with response code: ${response.statusCode}`);
+    log.debug(`Successful PUT request with response body: ${body}`);
+} catch (error) {
+    if (error.response) {
+        log.error('PUT Response was not successful. Status Code: ' + error.response.statusCode);
+        throw new BpmnEscalation('BAD CODE given back');
+    } else {
+        log.error('An error occured in the PUT request: ' + error.message);
+        throw new BpmnError('An Error 101', 'It seems there is no Server');
+    }
+}
+// send get-request using given url and store response body in variable
+try{
+    const {response, body} = await network.get('http://localhost:33029/status');
+    log.debug(`Successful GET request with response: ${response.statusCode}`);
+    log.info(`Engine Status is: ${body}`);
+    variable.set('requestedData', body);
+}catch(error) {
+    if (error.response) {
+        log.error('GET Response was not successful. Status Code: ' + error.response.statusCode);
+    } else {
+        log.error('An error occured in the GET request: ' + error.message);
+    }
+};</script>
+    </scriptTask>
+    <sequenceFlow id="Flow_07rh2rc" sourceRef="Activity_0cmjn64" targetRef="Event_0vfzfrl" />
+    <scriptTask id="Activity_0cmjn64" name="Happy Path" scriptFormat="application/javascript">
+      <incoming>Flow_0ejk3o5</incoming>
+      <outgoing>Flow_07rh2rc</outgoing>
+      <script>log.info('it goes and goes the correct path')</script>
+    </scriptTask>
+    <boundaryEvent id="Event_1kkeez4" attachedToRef="Activity_03rj4h2">
+      <outgoing>Flow_0uuyr9w</outgoing>
+      <escalationEventDefinition id="EscalationEventDefinition_08k1id9" />
+    </boundaryEvent>
+    <sequenceFlow id="Flow_0uuyr9w" sourceRef="Event_1kkeez4" targetRef="Activity_0k5zi6z" />
+    <boundaryEvent id="Event_05hsug7" name="An Error 101" attachedToRef="Activity_03rj4h2">
+      <outgoing>Flow_1juv02n</outgoing>
+      <errorEventDefinition id="ErrorEventDefinition_19f6h6l" errorRef="Error_1qhraml" />
+    </boundaryEvent>
+    <endEvent id="Event_07xvkdd">
+      <incoming>Flow_0y38i79</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_0y38i79" sourceRef="Activity_0k5zi6z" targetRef="Event_07xvkdd" />
+    <scriptTask id="Activity_0k5zi6z" name="escalation" scriptFormat="application/javascript">
+      <incoming>Flow_0uuyr9w</incoming>
+      <outgoing>Flow_0y38i79</outgoing>
+      <script>log.warn("HERE is the ESCALATION - but only a warning")</script>
+    </scriptTask>
+    <sequenceFlow id="Flow_1juv02n" sourceRef="Event_05hsug7" targetRef="Activity_0ys2rig" />
+    <endEvent id="Event_01ch4xu">
+      <incoming>Flow_1k033mo</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_1k033mo" sourceRef="Activity_0ys2rig" targetRef="Event_01ch4xu" />
+    <scriptTask id="Activity_0ys2rig" name="error" scriptFormat="application/javascript">
+      <incoming>Flow_1juv02n</incoming>
+      <outgoing>Flow_1k033mo</outgoing>
+      <script>log.error("JEY, this is critical-&gt; SOOOOOO CriticAL!!!")</script>
+    </scriptTask>
+  </process>
+  <error id="Error_1qhraml" name="An Error 101" errorCode="An Error 101" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1wqd8fv">
+      <bpmndi:BPMNEdge id="Flow_1k033mo_di" bpmnElement="Flow_1k033mo">
+        <di:waypoint x="720" y="430" />
+        <di:waypoint x="812" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1juv02n_di" bpmnElement="Flow_1juv02n">
+        <di:waypoint x="460" y="276" />
+        <di:waypoint x="460" y="430" />
+        <di:waypoint x="620" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0y38i79_di" bpmnElement="Flow_0y38i79">
+        <di:waypoint x="720" y="340" />
+        <di:waypoint x="812" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0uuyr9w_di" bpmnElement="Flow_0uuyr9w">
+        <di:waypoint x="510" y="276" />
+        <di:waypoint x="510" y="340" />
+        <di:waypoint x="620" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07rh2rc_di" bpmnElement="Flow_07rh2rc">
+        <di:waypoint x="720" y="218" />
+        <di:waypoint x="802" y="218" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ejk3o5_di" bpmnElement="Flow_0ejk3o5">
+        <di:waypoint x="540" y="218" />
+        <di:waypoint x="620" y="218" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ytay6s_di" bpmnElement="Flow_0ytay6s">
+        <di:waypoint x="386" y="218" />
+        <di:waypoint x="440" y="218" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_141ngxf_di" bpmnElement="Event_141ngxf">
+        <dc:Bounds x="350" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0vfzfrl_di" bpmnElement="Event_0vfzfrl">
+        <dc:Bounds x="802" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ugvpqu_di" bpmnElement="Activity_03rj4h2">
+        <dc:Bounds x="440" y="178" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wdrtde_di" bpmnElement="Activity_0cmjn64">
+        <dc:Bounds x="620" y="178" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_07xvkdd_di" bpmnElement="Event_07xvkdd">
+        <dc:Bounds x="812" y="322" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0md2bsp_di" bpmnElement="Activity_0k5zi6z">
+        <dc:Bounds x="620" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1mfwxy0_di" bpmnElement="Activity_0ys2rig">
+        <dc:Bounds x="620" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_01ch4xu_di" bpmnElement="Event_01ch4xu">
+        <dc:Bounds x="812" y="412" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1emuta5_di" bpmnElement="Event_05hsug7">
+        <dc:Bounds x="442" y="240" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="429" y="283" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1da3918_di" bpmnElement="Event_1kkeez4">
+        <dc:Bounds x="492" y="240" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,81 @@
+Script tasks within Proceed can be written in JavaScript.
+
+To edit a script task, select it in the BPMN editor and click the "Edit Script" button which appears. The Proceed IDE opens.
+
+## TL;DR Important
+
+When writing script tasks, you must:
+
+- adhere to the [BPMN script task standards within Proceed](/concepts/bpmn/bpmn-script-task/)
+- define which capabilities your script requires to run, and which parameters are mandatory in the "Capas" tab (see below)
+- you must use the "save and close" button to pre-save your scripts (all changes to all files will be saved), and the you **must save the BPMN diagram** as well, otherwise your changes will be lost!
+
+## Editor
+
+You can see a large editor in the middle of the screen. It automatically highlights JavaScript syntax and shows syntax errors.
+
+It will automatically autocomplete any capabilities detected in the network and process variables of the currently open process.
+
+The code you write here must adhere to the [BPMN script task standards within Proceed](/concepts/bpmn/bpmn-script-task/).
+
+## Navigation
+
+The navigation on the left lets you open any script task of any process within the system. Due to technical limitations, script tasks of other processes apart from the one you're currently editing in the BPMN editor are opened in read-only mode, so you can look at their code and copy any, but you can't edit it.
+
+## Library
+
+Every process has a library. In the library, you can define functions which can be used within any script task in that process.
+
+For example, you can define the following function in the library:
+
+```javascript
+function doSomeThing() {
+  return "abc";
+}
+```
+
+Now, in any script task within the same process, you can call this function:
+
+```javascript
+doSomeThing(); // returns 'abc'
+```
+
+You can re-use code within a single process this way.
+
+## Sidebar Tools
+
+The sidebar shows tabs with a few tools to make your life easier:
+
+### Capabilities ("Capas")
+
+The capabilities tab lets you define the capabilities your script requires. Whatever capability you call in your code, it must be declared in this sidebar as a requirement.
+
+Let's say you call the following capability in your code:
+
+```javascript
+services
+  .system()
+  .capability()
+  .startCapability("https://schema.org/PhotographAction", {
+    "https://schema.org/width": 1200,
+    "https://schema.org/height": 800,
+  });
+```
+
+Then, in the sidebar, you must add `https://schema.org/PhotographAction` as a required capability. **Only this way** it will be made sure that the device your script task will run on will have this capability available.
+
+Next, you can choose which parameters to require. In your code, you used two parameters for the action: `https://schema.org/width` and `https://schema.org/height`. If you want this task to **only** run on devices with the given action which accept both parameters, you must add them as required parameters in the Capabilities sidebar. **Otherwise**, this task may run on a device which supports the same capability, but different parameters and your parameters may get ignored. Parameters you don't want to get ignored must thus be added as required parameters.
+
+To make your life easier, the sidebar reads your code as you type and suggests capability-parameter pairs which you can add with one click, and remove parameters from the required list if you want.
+
+### Variables
+
+This tab displays all process variables within the process. You may add, edit or remove them. Beware that all changes made to the process variables are instant and don't need to be saved.
+
+Click on a variable and the editor will paste a read-function for that variable at your current cursor position.
+
+### Devices
+
+This tab displays all devices detected in the network and their capabilities. Look at all capability definitions and which parameters they require. Click on the info-icon and see more in-depth requirements and sample code. Click on a capability and sample code will get pasted into the editor at your current cursor position.
+
+The devices tab will furthermore highlight capabilities which may be used to run your code, depending on the parameters you used.

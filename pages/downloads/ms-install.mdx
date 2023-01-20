@@ -1,0 +1,247 @@
+import { Callout } from "nextra-theme-docs";
+
+<Callout type="warning" emoji="⚠️">
+  There is no stable version yet. The version that is published is the nightly
+  version from Git.
+</Callout>
+
+The Management System (MS) creates, manages and monitors the execution of
+processes. It exists as a Desktop application and there is also a Server
+version. A limited version without Machine discovery in the network can be
+tested on: https://proceed-server.snet.tu-berlin.de/
+
+## MS Desktop Version
+
+The Management System can be downloaded as a Desktop Version for Linux, Windows
+and Mac OS under the following links.
+
+- [Windows](https://storage.googleapis.com/proceed-releases/ms/PROCEED-Management-System-0.1.0.exe)  
+- [Mac](https://storage.googleapis.com/proceed-releases/ms/PROCEED-Management-System-0.1.0.dmg)\*  
+- [Linux
+Snap](https://storage.googleapis.com/proceed-releases/ms/PROCEED-Management-System-0.1.0.snap)  
+- [Linux
+AppImage](https://storage.googleapis.com/proceed-releases/ms/PROCEED-Management-System-0.1.0.AppImage)\*\*
+
+Usually you just need to double click the file and the Management System starts.
+
+\*) Because this is a running, still highly-changing project, the Mac OS Desktop
+Version is not yet signed. Therefore, on Mac OS it usually requires you to allow
+the execution at the first start of the app. Open the Security & Privacy setting
+and accept the _PROCEED-Management-System_ at the bottom by clicking on _Open
+Anyway_ and then _Open_.
+
+![Mac OS Security Settings for the PROCEED
+MS](/images/installation/PROCEED-MS-Mac-Security.png?width=500px)
+
+\*\*) The _.AppImage_ needs to get execution rights before you can run it. This
+can be done with `chmod a+x PROCEED-Management-System-x.x.x.AppImage`).
+
+<Callout type="info">
+  The Management System also integrates a [PROCEED Engine](engine-install), which
+  you can start inside the graphical interface via _File_ -> _Turn Engine On_ or
+  by clicking on the PROCEED logo in the bottom left corner. For the Engine to work
+  properly -- especially on Mac and Windows -- you have to allow the program in the
+  Firewall.
+</Callout>
+
+## MS Server Version
+
+The server version of the Management System is a little bit more complex to
+start, because it requires to set up an Identity Management and more advanced
+knowledge about Docker. Unfortunately, not everything is yet fully documented.
+The best place to start and get help is the repository:
+https://github.com/PROCEED-Labs
+
+{/* 
+
+# Additional Systems
+
+For some cases there is additional software needed. The following sections
+describe the installation and configuration of these systems for PROCEED.
+
+## User Management Database
+
+_Users_ and _Roles_ that get assigned to _User Tasks_ can be created and managed
+inside the Management System. Since the MS is not a centralized application,
+especially for companies it is usually more useful to have a user management on
+a central server. In this section it is explained how this server is setup and
+how to configure the Management System to connect to this server.
+
+The section concepts describes the functional perspective of the elements that
+are installed here:
+
+## 1. Setup LDAP
+
+1.1.) Start a Docker container with OpenLDAP as follows:
+
+```
+docker run -p 10389:389 --name my-openldap --env LDAP_ORGANISATION="example" --env LDAP_DOMAIN="example.org"  --env LDAP_ADMIN_PASSWORD="admin"  --env LDAP_CONFIG_PASSWORD="config" --detach osixia/openldap:1.2.4
+```
+
+1.2) Enter two organization units People and Group in your LDAP. Save entries in
+file.ldiff
+
+```
+dn: ou=People,dc=proceed,dc=com
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Groups,dc=example,dc=org
+objectClass: organizationalUnit
+ou: Groups
+```
+
+Add the file.ldiff to your LDAP:
+
+```
+LDAP_CID=$(docker run --hostname ldap.example.org --env LDAP_REPLICATION=true --detach osixia/openldap:1.2.4)
+LDAP_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" $LDAP_CID)
+docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=proceed,dc=com" -w admin -f file.ldiff -H ldap://ldap.example.org -ZZ
+```
+
+1.3.a)
+
+Enter LDAP IP Address (localhost), LDAP Port(10389), LDAP admin DN
+(cn=admin,dc=proceed,dc=com) and LDAP password(admin) in Management System.
+Please note that the password is transmitted without being obfuscated. It is
+recommended to use an encrypted connection (SSL/TLS) which PROCEED at the moment
+does not offer. To underline this issue the password is stored as clear text.
+The LDAP admin DN and LDAP passwords are internally used to create an LDAP bind
+request. It firstly consists of the DN of the user to authenticate. This could
+be left empty for anonymous simple authentication
+(https://ldap.com/the-ldap-bind-operation/) Secondly the credential for the user
+to authenticate must be included. For simple authentication, this is the
+password for the user specified by the bind DN.
+
+![Overview User Management
+System](/images/architecture/usermanagement_addldap.jpg?width=600px&classes=shadow,border)
+
+1.4) optional: Secure Passwords if needed
+
+Create a tmp.ldiff File:
+
+```
+dn: cn=config
+changetype: modify
+add: olcPasswordCryptSaltFormat
+olcPasswordCryptSaltFormat: $6$%.16s
+-
+add: olcPasswordHash
+olcPasswordHash: {CRYPT}
+```
+
+Add this configuration to LDAP with ldapmodify. Make sure to use the account
+that has config privileges which is usually not 'admin'. You find the
+credentials in the file olcDatabase={0}config.ldif. The password in docker image
+osixia/openldap:1.2.4 can be set by environment variable LDAP_CONFIG_PASSWORD
+(here:config). With $6$ tmp.ldiff sets Hash to: SHA-512 Hash and 16s means that
+we store a 16 char salt.
+
+```
+ldapmodify -h localhost -D "cn=admin,cn=config" -w config -p 10389 -a -f tmp.ldiff
+```
+
+## 2. SetUp openIdProvider with KeyCloack
+
+2.1) Start a Docker container with Keycloack:
+
+```
+docker run -p 8080:8080 --name keycloak1 jboss/keycloak
+```
+
+2.2) Create an admin account within KeyCloak:
+
+```
+docker exec keycloak1 keycloak/bin/add-user-keycloak.sh -u admin -p admin
+```
+
+2.3) Restart keycloack
+
+```
+docker restart keycloak1
+```
+
+# 3. Add LDAP to keycloack
+
+#### 3.1) Click on Administration Console at AdminConsole: http://localhost:8080/auth/
+
+#### 3.2.) Login with your credentials from 2.2 (user: admin / pw:admin)
+
+#### 3.3.)
+
+On User Federation create a new LDAP with the following values:
+
+| Key                      | Value                      |
+| ------------------------ | -------------------------- |
+| Console Display Name     | LDAP                       |
+| Edit Mode                | READ_ONLY                  |
+| Sync Registrations       | OFF                        |
+| Vendor                   | Other                      |
+| Username LDAP attribute  | uid                        |
+| RDN LDAP attribute       | uid                        |
+| UUID LDAP attribute      | entryUUID                  |
+| User Object Classes      | inetOrgPerson              |
+| Connection URL           | ldap://172.17.0.6:389      |
+| Users DN                 | dc=example,dc=org          |
+| Authentication Type      | simple                     |
+| Bind DN                  | cn=admin,dc=example,dc=org |
+| Bind Credential          | [OpenLDAP admin password]  |
+| Search Scope             | One Level                  |
+| Validate Password Policy | Off                        |
+| Use Truststore SPI       | Only for ldaps             |
+| Connection Pooling       | ON                         |
+| Connection Timeout       | n/a                        |
+| Read Timeout             | n/a                        |
+| Pagination               | ON                         |
+
+# 4. Add LDAP Mapper for Roles
+
+1. Click on User Federation
+2. Select the LDAP you want to add Role System to
+3. Click on Mappers
+4. Click on >>Create<<
+5. Set the following values:
+
+| Key                                  | Value                           |
+| ------------------------------------ | ------------------------------- |
+| Name                                 | ldap-roles                      |
+| Mapper Type                          | group-ldap-mapper               |
+| LDAP Groups DN                       | ou=Groups,dc=example,dc=org     |
+| Group Name LDAP Attribute            | cn                              |
+| Group Object Classes                 | groupOfNames                    |
+| Preserve Group Inheritance           | On                              |
+| Ignore Missing Groups                | Off                             |
+| Membership LDAP Attribute            | member                          |
+| Membership Attribute Type            | DN                              |
+| Membership User LDAP Attribute       |                                 |
+| LDAP Filter                          |                                 |
+| Mode                                 | READ_ONLY                       |
+| User Groups Retrieve Strategy        | LOAD_GROUPS_BY_MEMBER_ATTRIBUTE |
+| Member-Of LDAP Attribute             | memberOf                        |
+| Mapped Group Attributes              |                                 |
+| Drop non-existing groups during sync | OFF                             |
+
+# 5. Add openIdConnect to keycloack
+
+1. Add Client to keycloack
+
+Client Protocol: openid-connect Acces Type: confidential
+
+2. Add Group Mappers: We need to add a Group Mappers that injects the Groups in
+   the access token: 1. Click on "Clients" 2. Select your client 3. Click on
+   Mappers 4. Click Create:
+
+Name: groups  
+Mapper Type: Group Membership  
+Token Claim Name: groups  
+other Values: default
+
+## 6. Management-System Interface
+
+Users and Roles are automatically fetched from LDAP. To add user directly one
+can click on 'Add User' and fill in the input fields. Same holds for Roles. If
+you are wokring on a User Task, click on the User Task and click on the small
+User Icon appearing (HoverText: Select Users/Roles). You can now assign a User
+or a Role to a User Task.
+
+*/}

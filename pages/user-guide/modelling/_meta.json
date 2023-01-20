@@ -1,0 +1,12 @@
+{
+  "process-creation": "Process Creation",
+  "process-export-import": "Import and Export",
+  "process-editor": "Process Editor",
+  "process-data": "Process Data",
+  "user-tasks": "User Tasks",
+  "exec-constraints": { "display": "hidden" },
+  "process-start": { "display": "hidden" },
+  "script-tasks": { "display": "hidden" },
+  "subprocesses": { "display": "hidden" },
+  "user-assignment": { "display": "hidden" }
+}

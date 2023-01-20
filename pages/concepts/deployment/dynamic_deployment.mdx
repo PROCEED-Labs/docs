@@ -1,0 +1,75 @@
+This page describes how the dynamic deployment of processes works. The main idea
+is that the Distributed Process Engines (DPE) decide at runtime if the next
+activity is executed on the same DPE or if it should be sent to another engine.
+
+For deciding where to execute the next process step, there are multiple
+[execution constraints](execution_constraints) to consider. An
+important criteria are the needed capabilities for the next task. A _capability_
+is a specific function a machine offers. For example, if a temperature sensor is
+connected to an IoT device, the process engine running on that device can offer
+this capability to other engines. Other decision criterias can be constraints
+like the engines workload and performance.
+
+#### Step 1: Discover or add Capabilities in the Management System
+
+The Management System can automatically discover all capabilities in the
+connected network. They are then displayed on the "Capability View". Since at
+runtime a process can travel outside the network scope, there is the possibility
+to add manually more capabilities.
+
+{/* _(TODO: add picture of the MS with the capabilities)_ */}
+
+#### Step 2: Reuse the Capabilities in the Process
+
+- Currently it is only possible to use the capabilities as function calls inside
+  a Script Task
+- The used capabilities are added to the BPMN XML via BPMN extensions of PROCEED
+
+```xml filename="XML"
+<bpmn2:scriptTask id="Task_1pdn5o1" scriptFormat="javascript">
+    <bpmn2:script>
+        <![CDATA[
+        let a = services.system.capability.startTask( "takePhoto" );
+        next();
+        ]]>
+    </bpmn2:script>
+    <bpmn2:extensionElements>
+        <proceed:capabilities>
+            <proceed:capability>takePhoto</proceed:capability>
+        </proceed:capabilities>
+    </bpmn2:extensionElements>
+</bpmn2:scriptTask>
+```
+
+#### Step 3: Deploy the complete process to a suitable DPE
+
+- The complete, unseparated process is deployed to a Distributed Process Engines
+  in the connected network which offers the needed capability to execute the
+  first activity
+- It is possible that the first activity does not need any special capability --
+  just pure BPMN execution
+- Theoretically it is also possible the deploy the process to an engine that
+  does not offer the needed capability. Since this engine can (at a later time)
+  be connected to other networks not reachable for the Management System the
+  engine then serves as a proxy.
+
+#### Step 4: The DPE executes the process step by step and decides if to retransfer the process
+
+- The _Process Manager_ executes the BPMN process step by step
+- After each step it evaluates if the next activity can and should be executed
+  on the same machine
+  - If it should be not executed on the same machine, the DPE sends the
+    complete process to the next DPE that can execute it
+  - The selection of the next process engine is currently a simple process:
+    the first machine that is capable of running the next step is picked. If
+    there is no machine available the process waits until one system becomes
+    available (This can lead to a deadlock situation.)
+    - At a later stage it is inteded to extend the selection process with
+      more variables and smarter decision making.
+  - Afterwards it starts the process on the next engine by sending it the _id_
+    of the next task to start
+
+![PROCEED Engine Architecture
+Overview](/images/architecture/PROCEED-Engine_process_separation.png)
+
+#### Step 5: Repeat Step 4 until the end of the Process is reached

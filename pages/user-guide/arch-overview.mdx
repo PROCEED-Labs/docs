@@ -1,0 +1,41 @@
+The following picture presents the architectural overview of PROCEED. It actually has only two different software components: the _Management System_ (MS) and the _Distributed Process Engine_ (DPE, or only _Engine_).
+
+![PROCEEDs architecture](/images/architecture/Decentralized_BPMS_extended_with_Machines.png?width=1000px)
+
+## The Management System (MS)
+
+PROCEEDs Management System is a desktop application to create executable, BPMN-based processes, to deploy and execute them, as well as to monitor and administor all running processes and machines.
+All of this three parts are described in further detail in this user guide.
+Everybody who wants to do one of the mentioned activities can install the MS.
+But actually it is not necessary to use PROCEEDs Management System, because the DPEs interfaces are well documented and it is also possible to create an own management software or to use other tools like Postman to talk to the engines.
+
+It is possible that the Management System runs multiple times in the network/company by multiple users. For simple process creation, deployment and monitoring there is no problem. But for more useful business processes there is some data that is useful to be sychronized, e.g. the created processes and the available resources (users, groups, roles, machines).
+
+## The Distributed Process Engines (DPE) is installed on multiple Machines
+
+PROCEEDs Distributed Process Engine is the core software for running BPMN-based business processes. It coordinates the process execution, can offer a tasklist (accessable with a browser), can run JavaScript-based script tasks or calling remote applications with service tasks.
+
+One main technical goal of PROCEED is to enable a decentralized process execution without a centralized coordinator.
+That's why the DPE can be installed and executed on multiple _Machines_.
+(We often use the terms Machine, DPE and Engine synonymously, since one Machine has exactly one DPE installed and vice versa.)
+The Engines then coordinate each other to execute the process and fullfil the goals.
+
+To execute processes on as many platforms as possible and to include a wide range of IoT devices, the PROCEED Engine is designed with a platform-independent framework to run on as many Machines as possible. The Machines can be any kind of programmable IT system, e.g. a PC, a cloud server, a smartphone, a very constraint microcontroller, etc.
+
+Different IoT devices usually offer a wide range of functionalities. If a DPE runs on such a Machine, it can use and integrate such functionalities in the process - we call them _Capabilities_. For example a process could use the temperature sensor of a micro controller to trigger an action in the air conditioner. Read on in this documentation to see how to create or use existing Capabilities.
+
+## The Network
+
+DPEs are connected in a network and this is not constraint to pure IP networks.
+For IoT use cases it is even possible to integrate devices that just have Bluetooth or NFC connections, where one DPE can act as a kind of gateway to include other network technologies.
+
+Usually devices inside a local network can only reach each other.
+Often routing to systems in the _public_ Internet is also enabled.
+But normally most of the devices can't talk to private or secured networks like other company networks.
+If at all only a few servers are configured and allowed to communicate with their counterparts in these networks.
+Or it for our ubuquitious surrounding IoT world it is even possible that a computer can never talk directly to the poster on the wall where the transportable smartphone can.
+
+This is where PROCEED hooks in: for executing a process inside multiple networks it is sufficient that a Machine can reach the next one.
+Not every participating Machine needs to reach all other Machines.
+Depending on the _deployment method_ used, this makes it possible that a process is executed on multiple networks.
+That sometimes makes monitoring way harder, because also the MS can't reach all participating DPEs -- but even for that case we have solutions :)

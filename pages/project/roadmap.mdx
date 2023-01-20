@@ -1,0 +1,345 @@
+## Goals Roadmap
+
+gantt
+dateFormat YYYY-MM-DD
+title Overview of Stages and Goals
+section Stage 1
+Fog Processes :active sta1-fog, 2018-04-01, 2018-12-01
+Interoperable Processes :active sta1-choreo, 2018-04-01, 2018-12-01
+IoT Integration :active sta1-iot, 2018-04-01, 2019-10-01
+Smart Process Dev Suite :active sta1-ide, 2018-04-01, 2022-01-01
+
+        section Stage 2
+        Portable Processes      :active         sta2-port, 2018-11-01, 2020-10-01
+        Enterprise-aware Processes :active      sta2-enter, 2019-04-01, 2020-05-01
+        Privacy-aware Processes :active         sta3-priv, 2019-04-01, 2020-05-01
+
+        section Stage 3
+        Context-aware Processes :active         sta3-ctx, 2020-01-01, 2021-01-01
+        Smart IoT Integration   :active         sta1-iot, 2020-09-01, 2021-10-01
+        Process Monitoring Dashboard :active         sta1-iot, 2020-12-01, 2022-01-01
+
+{/*
+
+## Working Package Roadmap
+
+gantt
+dateFormat YYYY-MM-DD
+title Overview of active and realized features
+section Stage 1
+First Prototype (UC1) -- Smart Home :active, sta1-prot1, 2018-04-01, 2018-10-01
+Infrastructure :active, sta1-infra, 2018-07-01, 2018-11-01
+BPMN Separation :active, sta1-bpmn, 2018-04-01, 2018-11-01
+Engine Architecture :active, sta1-arch, 2018-08-01, 2019-07-01
+
+        section Stage 2
+        Second Prototype (UC2) -- Drone     :active,        sta2-prot2, 2018-11-01, 2019-12-01
+        IoT Capabilities Usage              :active,        sta1-sim, 2018-11-01, 2019-08-01
+        Engine on constraint MCUs           :active,        sta1-sim, 2018-11-01, 2019-08-01
+        Code Editor                         :active,        sta1-code, 2019-03-01, 2019-07-01
+        Semantic Capabilities Description   :               sta1-sem, 2019-06-01, 2020-03-01
+        Execution Constraints               :active,        sta2-constr, 2019-06-01, 2019-12-31
+        New BPMN Execution Engine           :               sta1-engine, 2019-06-01, 2020-02-01
+        Machine Monitoring                  :               sta1-mon, 2019-11-01, 2020-03-01
+        Dynamic Decisions                   :               sta1-dyn, 2019-11-01, 2020-04-01
+
+        section Stage 3
+        Third Prototype (UC2) -- Industrie 4.0:             sta2-prot3, 2020-04-01, 2020-10-15
+        User Management                     :active,        sta1-user, 2018-11-01, 2019-06-01
+        Semantic Search Vocabulary          :               sta3-vocab, 2020-01-01, 2020-07-15
+        Engine on Android and iOS           :               sta3-phone, 2019-11-01, 2020-05-01
+        Engine in Webbrowser                :               sta3-browser, 2019-12-15, 2020-07-01
+        BPMN Generation from Smart Speaker  :               sta3-smart, 2019-12-01, 2020-08-01
+
+*/}
+
+# Trello Boards
+
+We use Trello to plan and organize our features. You find the boards under the following link: [https://trello.com/proceedengine](https://trello.com/proceedengine)
+
+## Open Theses
+
+In the following you find an unordered list of of open thesis topics. If you are interested in working on one of the topics, just write a mail to [proceed@snet.tu-berlin.de](mailto:proceed@snet.tu-berlin.de)
+
+### Open Bachelor Theses
+
+**Currently there are no open bachelor theses**
+
+{/* **Creating a Communication Abstraction Layer for the PROCEED Engine**
+
+Description ...
+The PROCEED Engine is currently communicating with other Engines over HTTP. Therefore it needs to be connected with an IP network over Wifi or Ethernet. But current IoT devices offer much more data transfer possibilities, for example Bluetooth and NFC. Also there are a bunch of different application level protocols for different use cases, e.g. COAP, WebSockets, pure UDP/TCP. The goal of this thesis is to implement a communication abstraction layer for the PROCEED Engine for using different hardware and application protocols. There should also be a negotiation mechanism implemented, which determines the best way to communicate with other Engines.
+
+- Concept: define use cases and find out, how an abstract communication can work
+  - How can other Engines be discovered in different network types? (mDNS possible?)
+  - If necessary, develop a URI scheme for the abstract communication between the Engines
+- Implement an abstract network layer independent of the used protocol (`network.get(), .put(), ...`)
+- Implement PROCEED libraries for different communication protocols on Android (maybe also Node.js and iOS)
+- Extend the engine installation process: when installed, there needs to be a way for an Engine to say which protocols it supports. (E.g. some machines don't have Bluetooth.)
+  - Node.js: how can native libs, e.g. bluetooth, be dynamically installed on multiple platforms
+- Implement a negotiation mechanism to automatically select the fitting protocol for communication
+
+Required Knowledge: JS >ES6, Kotlin, Node.js, (Vue.js, HTML, CSS)
+*/}
+
+{/* **Implementation of BPMN Service Tasks in PROCEED**
+
+Description...
+The goal of this thesis is to enable BPMN Service Tasks.
+
+- Expand the Management System with a generic view to create Service Tasks
+- Predefine multiple adpater for multiple communication protocols
+- Implement a way to import OpenAPI specs and use them in the Service Tasks
+- Extend the PROCEED engine to execute Service Tasks
+
+Required Knowledge: JS >ES6, Node.js, Vue.js, HTML, CSS
+*/}
+
+{/* **P2P consensus protocols**
+
+Description...
+The goal of this thesis is to explore and implement different P2P consensus/voting protocols.
+In the PROCEED project multiple Engines inside one network have to find a consent about different topics.
+E.g. an Engine have to find out the current environment and environment profile it is working in.
+And -- if successful -- get the newest version of the profile.
+
+- Compare different consensus protocols
+- Implement the best one(s) for PROCEED
+- Realize the use cases: find the current environment and send the newest profile
+
+Required Knowledge: JS >ES6, Node.js
+*/}
+
+### Open Master Theses
+
+**Currently there are no open master theses**
+
+{/* **Multi-Layer Peer-2-Peer Communication (Proxy)**
+
+Description...
+Currently one Engine communicates only _directly_ with other Engines and only to those it can reach (often this means only Engines in the same Network). But every Engine can also reach other Engines that are maybe not reachable by the origin one. This thesis will explore and implement ways to use other Engines as a kind of proxy to communicate with multiple other Engines not directly reachable for the origin Engine.
+
+Tasks:
+
+- Research existing protocols for discovery and communication
+- Design an own/adapted solution based on the research findings and PROCEEDs requirements
+- Implement the solution in a PROCEED Engine
+
+Interesting theoretical questions:
+
+- How does a data packet find the best way to a target Engine? (Over Engine 1 or maybe Engine 2 + Engine 4?)
+- How to limit the validity of a data packet? (maybe a data packet is not valid after 5 minutes anymore)
+- How to ensure that the target engine is not getting/processing the same data packet multiple time via different paths?
+- How to establish the communication once discovered? (In most use cases not a one-directional (only informing) communication is need, but a bi-directional (sending and communicating back.)
+- How to secure the communication?
+- How to make the communication transactional/atomic? (Engines sometimes need multiple data exchanges, where everything needs to be transfered or nothing. PROCEED has a dynamic nature, so Engines can leave the communication network. If a communication via a Proxy is not finished, but the Proxy leaves the network, how to ensure the transactional behaviour?)
+
+Required Knowledge: Interested in Research about Distributed Systems, JS >ES6
+
+**Security and Reliability of dBPMS on the example of the PROCEED engine**
+
+Description ...
+This thesis should examine and implement all aspects that are needed to execute processes in a secure and reliable manner in a distributed Business Process Management System.
+
+- Encrypted P2P communication
+- Signed and Encrypted process packages (for static and dynamic deployment)
+- Roles with permissions for a collection of devices to encrypt the process
+- Execution Transactions
+- Restarting the process engine after crashing
+
+Required Knowledge: Security Background, JS >ES6, Node.js
+*/}
+
+{/* **Creating Choreographies with a dBPMS**
+
+Description ...
+This thesis should find and assess different ways to create interorganizational processes (choreographies) in a dBPMS. The most useful way should be realized within the PROCEED System.
+
+- How is the process of creating choreographies with multiple actors/cooperations
+- Which regulations and systems are needed? Which data needs to be exchanged?
+- Need trust be established? How?
+
+Required Knowledge: Business Processes, Distributed Systems, JS >ES6, Node.js, Vue.js, HTML, CSS
+*/}
+
+{/* **Process Simulation**
+
+Description ...
+
+This thesis should create a simulation system for the PROCEED System that can be used to analyse the execution of a process before deployment.
+Therefore the Management System needs to be extended with multiple views to enhance the process with simulation values, to start and to evaluate a simulation run.
+
+- Define the simulation goals for the PROCEED platform
+- Define the allowed range of process structures, e.g. only a strctured process is allowed
+- Extend processes for adding simulation values
+- Offline (only on the MS) and Online (live, in the complete network) simulation.
+- Consider the possible and the implemented Workflow Patterns of PROCEED
+
+Required Knowledge: Business Processes, Distributed Systems, JS >ES6, Node.js, Vue.js, HTML, CSS
+
+*/}
+
+{/* ## Current Thesis
+
+| Thesis                                                                          | Student    |
+| ------------------------------------------------------------------------------- | ---------- | ---- |
+| General Engine Architecture                                                     | Kai        |
+| IoT Capabilities                                                                | Cemre      |
+| Script Editor                                                                   | Victor     |
+| User Management                                                                 | Alessandro |
+| Monitoring Data on the Engine                                                   | Alex       |
+| Engine Execution on constrained devices                                         | Roman      |
+| Adaptive selection of a process engine within a distributed process environment | Cihan      |
+| Graphical constraint definition for process distribution                        | Beriwan    |
+| Syncronising Semantic Descriptions with Source Code Implementations             | Konstanze  |
+| Graphical Monitoring and Management of distributed process executions           | Yannick    |
+| A Modern BPMN Execution Engine in JavaScript                                    | Santhos    |
+| Workflow Patterns                                                               | Phong      |
+| PROCEED Engine on Android                                                       | Linus      |  | */}
+
+{/*
+
+## Closed Working Packages
+
+| Semantic Capability Offering | Marcel Reppenhagen | Nov. 17 - Mar. 18 |
+| First Prototype | IoSL Team SS 18 | Apr. 18 - Aug. 18 |
+| Infrastructure | Kai R. | Jul. 18 - Sept. 18 |
+| BPMN Separation | Ester BA | Apr. 18 - Oct. 18 |
+*/}
+
+{/* **Creating a community-driven, centralized linked data vocabulary for PROCEED**
+
+Description ...
+PROCEED uses the semantic web and linked data to describe the capabilities of Machines. Unfortunately this has some disavantages, mainly that someone who creates a Capability needs much knowledge in the linked data field to also describe it correctly. This thesis is researching for solutions and implementing them for PROCEED. One idea is:
+
+- to create a search engine through existing vocabularies (e.g. schema.org) that are useful for PROCEED
+- to establish a community process to easily add missing concepts
+- integrate both in a UI page to graphically create the Capability description
+
+Required Knowledge: Semantic Web, Web Programming
+*/}
+
+{/* **Create a BPMN process with Alexa or Google Home**
+
+Description...
+The goal of this thesis is to create and deploy BPMN processes with voice recognition service like Amazon Alexa or Google Home.
+Therefore we choose a specific smart voice service and implement a way to create BPMN XML files with this service.
+
+- Find the best fitting smart voice system (in the requirement analysis consider the use case that the same system maybe should be used on smartphones and laptops)
+- Find a user friendly ways to create processes
+- Find ways to analyse and extend the resulting BPMN XML diagram (e.g. in the MS)
+- Deploy the diagram to a proceed engine
+- User Task als Audio und als Beides (Audio und HTML)
+  - Erweiterung von BPMN Nutzertask
+- Arbeit an einem Nutzertask wie bei Minority Report: Erstelle Benutzertask und dann wird angezeigt auf MS
+
+Required Knowledge: BPMN specification, JavaScript
+
+Problem: Speech Analysis is in the Cloud
+
+- Prozesse des Netzwerks herausfinden
+  - was ist der Inhalt des Prozesses? -> <documentation>
+- Deployment Methods for PROCEED
+- Process for Starting completely new, pause, stop
+- Monitoring the execution: process, machinen status, welche capabilities sind im netzwerk
+
+  - debugging von prozessen: rückmeldung nach jedem task (wie sprachassi in prozess einbinden?)
+
+- Storage Possibilities: on the devices, on the speaker ("private" API), in a company, in the cloud
+- revising the design process
+
+*/}
+
+{/* **Multi Process Engine Execution as a Progressive Web App**
+
+Description ...
+The process engine should be executable on multiple platforms. Therefore the envisioned architecture includes an abstraction layer -- the dispatcher. In this thesis a native layer for executing the process engine inside a WebView as a Progressive Web App (PWA) should be implemented.
+
+- Support of Browser Storage and Communication, e.g. WebRTC, WebSockets
+- Support of mDNS for Network Discovery
+- Use the WebView for displaying an Overview/Status Status Page
+- Extend the existing Engine to execute multiple Processes
+
+Required Knowledge: JS >ES6, Node.js, (Vue.js, HTML, CSS)
+*/}
+
+{/* **Engine Execution on Android**
+
+Description ...
+
+The process engine should be executable on multiple platforms. Therefore the envisioned architecture includes an abstraction layer -- the dispatcher. In this thesis a native layer for executing the process engine on Android should be implemented.
+
+- Implement two native parts for the PROCEED Engine: 1. as an Android App and 2. with a Node.JS Runtime for Android
+- Compare both Implementations
+- Write Capabilities that uses all Android sensors and actors
+
+Required Knowledge: Java/Kotlin, JavaScript
+
+*/}
+
+{/* **Engine Execution on constrained devices (e.g. Espruino)**
+Description ...
+The process engine should be executable on multiple platforms. Therefore the envisioned architecture includes an abstraction layer -- the dispatcher. In this thesis a native layer for executing the process engine on constrained devices, e.g. the Espruino MCs, should be implemented.
+
+- Implement all Dispatcher libraries
+- Write capabilities for all sensors and actors connected to the given devices
+
+Required Knowledge: JavaScript
+*/}
+
+{/* **Adaptive selection of a process engine within a distributed environment**
+Description ...
+The PROCEED process engine discovers other engines in the network and requests some additional data. If the running process can continue on multiple other devices, then the engine has to decide which next engine to use. This thesis should assess and implement multiple selection algorithms.
+
+- Implement a [Dynamic Router](https://www.enterpriseintegrationpatterns.com/patterns/messaging/DynamicRouter.html)
+- Also see: [Offline Execution](/concepts/offline-execution)
+
+Required Knowledge: Distributed Systems, JS >ES6, Node.js
+*/}
+
+{/* **Constraint Definition for Process Distribution**
+Description ...
+**Already Reserved** A PROCEED engine can [dynamically (at runtime) distribute](/concepts/deployment#dynamic-deployment) a process to another engine. The decision, if a process needs to be fowarded, depends on the machine's capabilities and other constraints. In this thesis the student needs to find and evaluate suitable constraints for the PROCEED platform and design/implement an interface in the Management System to add this data.
+
+- assess multiple constraints for process distribution
+- implement a view in the Management System to add the constraints
+- find a way to include the constraints into the BPMN XML file
+- Also see: [Offline Execution](/concepts/offline-execution)
+
+See: [Execution Constraints](/concepts/deployment/execution_constraints) and [Constraint List](/concepts/bpmn/bpmn-constraints)
+
+Required Knowledge: JS >ES6, Node.js, Vue.js, HTML, CSS, BPMN
+*/}
+
+{/* **Syncronising Semantic Descriptions with Source Code Implementations**
+Description ..."%}}
+**Already Reserved** A device/system that is running the process engine offers their capabilities to other devices in the network. E.g. a temprature sensor can offer that it has the ability to measure the temprature. This capabilities are first describes with semantic standards and implemented later on. The problem: if one changes either the description or the implementation has to be adopted.
+
+In this thesis a more reliable way for syncronisation has to be found and implemented, e.g. by extending JSDOC.
+*/}
+
+{/* **Monitoring and Management of distributed process executions**
+Description ...
+**Already Reserved** This thesis should implement a monitoring page for observing and controlling the running processes.
+
+- Implement multiple monitoring/management views
+- Show network devices, the installed engines, the deployed and the running processes
+- Management: Start, stop, remove, change running processes
+- Think about the problems of monitoring in a distributed process environment
+- Evaluation: Usability Test
+
+Resources: [BPMN Extension for Business Process Monitoring](https://bpt.hpi.uni-potsdam.de/pub/Public/AndreasMeyer/BPMN_Extension_for_Business_Process_Monitoring.pdf)
+
+Required Knowledge: JS >ES6, Node.js, Vue.js, HTML, CSS
+*/}
+
+{/* **A Modern BPMN Execution Engine in JavaScript**
+Description
+**Already Reserved** Currently the PROCEED project relies on the [ProcessHub BPMN Engine](https://github.com/ProcessHub/processhub-bpmn-engine). There are multiple reasons why this engine is not the optimal solution: mostly old ES 5 code (callback hell and event pattern), not adapted for PROCEED, etc. This thesis is about writing a modular ES 8 based BPMN Engine.
+
+- Write a process engine in JavaScript using modern ES 8 / 9 code, e.g. async-await
+- Replace and integrate the _engine.js_ and _management.js_ files from our _Process Manager_ module into the new engine, since they are actually just overlays for the ProcessHub Engine
+  - e.g. the analysis of the BPMN XML after each activity
+- Make it modular, so that the PROCEED extensions are only plugins
+- Evaluation: compare with other engines
+  */}

@@ -1,0 +1,164 @@
+**Content:** This is an interesting transaction topic: 
+
+- how to concurrently work on one document (process) without blocking? e.g.
+  google docs, etc.
+- how to synchronize sub-documents (scripts, html, etc.)?
+
+{/* - requirement: ACID
+  - Atomicity: the changes should be available for every client or for none
+  - Consistency: of course
+  - Isolation: goal == no isolation
+  - Durability: of course
+  - => sind CAP Theorem und BASE-Prinzip (Eventual Consistency) relevant? (keine
+    mehrere Server) */}
+
+### What data is synchronized for collaborative editing?
+
+- the events (name + modification data + author + date) that bpmn-js emits
+  events, if something was changed inside the GUI
+- also emit events if something is directly changes inside the BPMN
+  (Constraints, Name, ID, Extensions, etc.)
+- **Question:** can an event also be emitted immediately when there is something
+  changed inside the HTML, Script, Constraint View? (not the whole script)
+
+{/* - it could also just be the changed BPMN file, but this is much more data
+and would require blocking at some point (see Client version) */}
+
+### What needs to be done for synchronizing?
+
+1. emit event
+2. change BPMN process
+3. verify: check if the changed BPMN is the same on all the other systems
+    - if not: re-sync and get correct BPMN
+
+### How to sync the changes to every client?
+
+- there are two versions: 1. the server has the source of truth, or 2. the
+  client has the source of truth
+
+Main PROBLEMS to solve:
+
+- two clients work concurrently on the same process and should not override any
+  changes from the others
+
+Minor Problems:
+
+- How is the time synchronized over all Client for `lastModificationDate`?
+  - goal: see the time of the last modification
+  - the Server can **not** add a date to the event because the triggering client
+    does not receive its own event, but instead incorporates its changes by
+    himself => but if the client has another time than all the other clients,
+    the process hash is different
+  - Solution 1: when initialized server sends time to the client, client manages
+    this time and use it (not the system time) 
+  - Solution 2: last modification is not a time, but a unique id
+- What happens to the Back- and Forward-Buttons?
+  - Can everybody revert (back) the changes from others?
+
+
+#### The server truth
+
+- the server incorporates all changes into the BPMN process
+  - every client also does it for itself
+
+**Verify that every editing client has the latest version:**
+
+- after incorporating _all_ open changes, the server sends a hash of the new
+  process to all registered clients
+- Client validate the hash with their version and requests a complete process
+  update, if it is not the same
+- PROBLEM: the incorporation is done in parallel on every system (server and
+  clients)
+  - if there are many change events, one system can be faster than the other
+  - if the server is faster than the client, the client gets a process hash
+    before it finished the incorporation of all changes
+    - => the client needs to check against the same "version" as the server had
+      for calculating the hash
+    - SOLUTION 1 (simple, maybe not sufficient): just compare when the
+      incorporation of all events on the Client is finished (if there is a hash
+      update from the server, just **override** the existing hash)
+    - SOLUTION 2 (more complex): in addition to the hash, send which (last 10)
+      events have been incorporated in the hash and compare it
+
+sequenceDiagram participant C1 as Client1 participant C2 as Client2 participant
+    S as Server participant Cn as Client-N
+
+    note over C1: Start process editing
+    activate C1
+    C1->>+S: get process-1 and register for process-1 changes
+    S-->>-C1: latest process version
+
+    note over C2: Start process editing
+    activate C2
+    C2->>+S: get process-1 and register for process-1 changes
+    S-->>-C2: latest process version
+
+    par Editing concurrently
+        C1->>C1: change something in process-1
+        C1->>S: send change event
+        activate S
+        S->>C2: broadcast change event from Client1
+        note over S,Cn: no broadcast of the change event to other clients 
+        %%because they didn't work on the process (no registration)
+        S->>S: add change event to process-1 "Change-Queue"
+        C2->>C2: add change event to process-1 "Change-Queue"
+    and In Parallel: no change from Client1 received yet
+        C2->>C2: change something in process-1
+        C2->>S: send change event
+        note over S,Cn: no broadcast of the change event to other clients 
+        %%because they didn't work on the process (no registration)
+        S->>C1: broadcast change event from Client2
+        S->>S: add change event to process-1 "Change-Queue"
+        C1->>C1: add change event to process-1 "Change-Queue"
+    end
+
+    par Parallel Change Incorporation
+        loop until "Change-Queue" is empty
+            C1->>C1: incorporate change from Client2 into process-1
+        end
+    and
+        loop until "Change-Queue" is empty
+            C2->>C2: incorporate change from Client1 into process-1
+        end
+    and
+        loop until "Change-Queue" is empty
+        S->>S: incorporate change from Client1 into process-1
+        S->>S: incorporate change from Client1 into process-1
+        end
+        S->>S: calculate hash of new process
+        note over S,Cn: send hash only to registered clients
+        S->>C1: send new process hash
+        S->>C2: send new process hash
+        deactivate S
+    end
+
+    par In Parallel
+        C1->>C1: compare new process-1 hash
+        opt Client hash != Server hash
+            C1->>+S: get complete process-1
+            S-->>-C1: latest process version
+        end
+    and
+        C2->>C2: compare new process-1 hash
+        opt Client hash != Server hash
+            C2->>+S: get complete process-1
+            S-->>-C2: latest process version
+        end
+    end
+    
+    deactivate C1
+    deactivate C2
+
+#### The client truth
+
+- the client send the change event to the server, which distributes it
+- the client calculates the new BPMN process
+- the client sends the new process to the server
+  - the server stores this version as the _latest_ version
+- verification as before with hashes
+
+**PROBLEM:**
+- too many problem with concurrent editing on multiple clients in parallel: if
+  both clients send the BPMN to the server at the same time, which one is then
+  the correct one?
+  - it would require blocking again, which we want to avoid

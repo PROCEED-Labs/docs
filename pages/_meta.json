@@ -1,10 +1,10 @@
 {
   "homepage": {
-    "title": "PROCEED Homepage",
+    "title": "Project Website",
     "type": "page",
     "href": "https://www.proceed-labs.org/"
   },
-  "about": { "title": "About Us", "type": "page" },
+  "about": { "title": "About", "type": "page" },
   "more": {
     "title": "More",
     "type": "menu",
@@ -22,9 +22,18 @@
   "index": "Introduction",
   "quick-start": "Quick Start Tutorial",
   "downloads": "Downloads",
-  "vision": "Vision",
-  "concepts": "Concepts",
   "user-guide": "User Guide",
+  "features": { "type": "separator", "title": "Features" },
+  "deployment": "Deployment and Execution",
+  "capability-description": "Capability Description",
+  "versioning": "Versioning",
+  "collaborative-editing": "Collaborative Editing",
+  "monitoring": "Process Monitoring",
+  "bpmn": "BPMN Adaptions",
+  "offline-execution": { "display": "hidden" },
+  "user-mgmt": { "display": "hidden" },
+  "general": { "type": "separator", "title": "General" },
+  "vision": "Vision",
   "project": "Project Information",
   "glossary": "Glossary",
   "showcase": { "display": "hidden" }

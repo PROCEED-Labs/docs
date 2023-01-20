@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0.313 0.015 24.295 13.495" xmlns="http://www.w3.org/2000/svg">
+  <g id="layer1" transform="matrix(1, 0, 0, 1, -122.565636, -37.908913)">
+    <g style="font-size:medium;color-interpolation-filters:sRGB;fill:none;fill-rule:evenodd;stroke-linecap:square;stroke-miterlimit:3" id="shape3-5-8" transform="matrix(0.51663939,0,0,0.61819737,129.39647,-37.786489)">
+      <title id="title1251">Chevron</title>
+      <path style="fill:#595959;stroke:none;stroke-width:0.23999999;stroke-linecap:round;stroke-linejoin:round" d="m 0,144.3 h 24.66 l 9.75,-10.91 -9.75,-10.92 H 0 l 9.75,10.92 z" class="st3" id="path1253"/>
+    </g>
+    <g style="font-size:medium;color-interpolation-filters:sRGB;fill:none;fill-rule:evenodd;stroke-linecap:square;stroke-miterlimit:3" id="shape4-7-2" transform="matrix(0.51663939,0,0,0.61819737,122.87891,-40.99114)">
+      <title id="title1256">Chevron.19</title>
+      <path style="fill:#595959;stroke:none;stroke-width:0.23999999;stroke-linecap:round;stroke-linejoin:round" d="m 0,144.3 h 12.95 l 5.11,-5.73 -5.11,-5.73 H 0 l 5.12,5.73 z" class="st3" id="path1258"/>
+    </g>
+  </g>
+</svg>

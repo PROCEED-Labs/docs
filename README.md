@@ -1,4 +1,4 @@
-# Proceed Documentation
+# Proceed Documentation 
 
 You can find the docs at https://docs.proceed-labs.org.
 

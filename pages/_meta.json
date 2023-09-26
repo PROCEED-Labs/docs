@@ -5,6 +5,7 @@
     "href": "https://www.proceed-labs.org/"
   },
   "about": { "title": "About", "type": "page" },
+  "ms-api": { "title": "MS Api", "type": "page", "href": "/msapi.html" },
   "more": {
     "title": "More",
     "type": "menu",

@@ -9,10 +9,11 @@
 
 
   <!-- for extension in the BPMN 'definition' element -->
-  <xsd:attribute name="creatorEnvironmentId" type="xsd:string" />
-  <xsd:attribute name="creatorEnvironmentName" type="xsd:string" />
+  <xsd:attribute name="creatorSpaceId" type="xsd:string" />
+  <xsd:attribute name="creatorSpaceName" type="xsd:string" />
   <xsd:attribute name="creatorId" type="xsd:string" />
   <xsd:attribute name="creatorName" type="xsd:string" />
+  <xsd:attribute name="creatorUsername" type="xsd:string" />
   <!-- for extension in the BPMN 'definition' element for process imports -->
   <xsd:attribute name="originalId" type="xsd:ID" />
   <xsd:attribute name="originalExporter" type="xsd:string" />

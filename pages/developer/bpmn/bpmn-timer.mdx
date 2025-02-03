@@ -1,0 +1,64 @@
+## Intermediate Timer Events
+
+![BPMN Process](/images/bpmn/BPMN_timer_intermediate.png?width=500px)
+
+An intermediate timer event specifies a deadline (duration or date), how long to wait to continue with the process flow.
+The label is the human readable explanation of the executable value.
+
+## Date and Time
+
+A specific date is specified in the time and date format from [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601).
+It has the general form of `<Year>-<Month>-<Day>T<Hour>:<Minute>:<Second><Offset from UTC time: ±[hh]:[mm]>` (`T` is the separator to start the time specification). For example, 2025-02-25T13:37:00+01:00 indicates the 25th February in 2025 at 13:37 o'clock in the Central European Time zone (CET).
+
+Timer events with date-time combination is only allowed for Projects (not for Processes).
+
+```
+<intermediateCatchEvent id="Event_0ndy65v" name="25.02.2025 at 13:37">
+    <timerEventDefinition id="TimerEventDefinition_196e4hq">
+        <timeDate xsi:type="tFormalExpression">2025-02-25T13:37:00+01:00</timeDate>
+    </timerEventDefinition>
+</intermediateCatchEvent>
+```
+
+## Durations
+
+A duration is specified in the time interval format from [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601).
+It has the general form of `P<n>Y<n>M<n>DT<n>H<n>M<n>S`, where `n` is a value that specifies `Y`ears, `M`onth, `D`ays, `H`ours, `M`inutes and `S`econds (`T` is the separator to start the time specification).
+
+```
+<intermediateCatchEvent id="Event_15hhytu" name="4 Month">
+    <timerEventDefinition id="TimerEventDefinition_1tpnwvg">
+        <timeDuration xsi:type="tFormalExpression">P4M</timeDuration>
+    </timerEventDefinition>
+</intermediateCatchEvent>
+
+<intermediateCatchEvent id="Event_08uergq" name="3 days&#10;12 min">
+    <timerEventDefinition id="TimerEventDefinition_0xjopsa">
+        <timeDuration xsi:type="tFormalExpression">P3DT12M</timeDuration>
+    </timerEventDefinition>
+</intermediateCatchEvent>
+
+<intermediateCatchEvent id="Event_1pal5bn" name="13 hours&#10;12 sec">
+    <timerEventDefinition id="TimerEventDefinition_1xvk9zm">
+        <timeDuration xsi:type="tFormalExpression">PT13H12S</timeDuration>
+    </timerEventDefinition>
+</intermediateCatchEvent>
+
+<intermediateCatchEvent id="Event_1pal5bn" name="1 years&#10;1 month&#10;2 days&#10;3 hours&#10;5 min&#10;8 sec">
+    <timerEventDefinition id="TimerEventDefinition_1xvk9zm">
+        <timeDuration xsi:type="tFormalExpression">P1Y1M2DT3H5M8S</timeDuration>
+    </timerEventDefinition>
+</intermediateCatchEvent>
+```
+
+## Boundary Timer Events
+
+A timer event can be used on the boundary of a Script or User Task to interrupt the task or to start some work in parallel.
+
+![](/images/bpmn/icons-black/EventBoundaryTimer.svg)
+![](/images/bpmn/icons-black/EventBoundaryTimerNonInterrupting.svg)
+
+## Restrictions
+
+- Until now, only intermediate timer events are supported (no timer start events)
+- no _timeCycle_ expressions for repeating intervals are supported (for start or non-interruption boundary events)

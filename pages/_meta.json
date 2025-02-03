@@ -5,7 +5,7 @@
     "href": "https://www.proceed-labs.org/"
   },
   "about": { "title": "About", "type": "page" },
-  "ms-api": { "title": "MS Api", "type": "page", "href": "/msapi.html" },
+  "ms-api": { "title": "MS API", "type": "page", "href": "/msapi.html" },
   "more": {
     "title": "More",
     "type": "menu",
@@ -20,22 +20,13 @@
       }
     }
   },
+
   "index": "Introduction",
   "quick-start": "Quick Start Tutorial",
-  "downloads": "Downloads",
   "user-guide": "User Guide",
-  "features": { "type": "separator", "title": "Features" },
-  "deployment": "Deployment and Execution",
-  "capability-description": "Capability Description",
-  "versioning": "Versioning",
-  "collaborative-editing": "Collaborative Editing",
-  "monitoring": "Process Monitoring",
-  "bpmn": "BPMN Adaptions",
-  "offline-execution": { "display": "hidden" },
-  "user-mgmt": { "display": "hidden" },
-  "general": { "type": "separator", "title": "General" },
-  "vision": "Vision",
-  "project": "Project Information",
-  "glossary": "Glossary",
-  "showcase": { "display": "hidden" }
+  "developer": "Developer Information",
+
+  "features": { "type": "separator", "title": "Advanced Features", "display": "hidden" },
+  "adv-process-deployment": { "title": "Process Deployment Methods", "display": "hidden" },
+  "adv-capability-description": { "title": "Capability Descriptions", "display": "hidden" }
 }

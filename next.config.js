@@ -3,6 +3,7 @@ const withNextra = require('nextra')({
   themeConfig: './theme.config.tsx',
   defaultShowCopyCode: true,
   staticImage: true,
+  showHiddenPages: true,
 });
 
 module.exports = withNextra({

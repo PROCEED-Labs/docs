@@ -1,0 +1,7 @@
+{
+  "arch-overview": { "title": "Architectural Overview", "display": "shown" },
+  "create-executable-processes": { "title": "Creation of Executable Processes", "display": "shown" },
+  "moni-and-admin": { "title": "Monitoring", "display": "shown" },
+  "process-deployment": { "title": "Deployment", "display": "shown" },
+  "process-execution": { "title": "Execution", "display": "shown" }
+}

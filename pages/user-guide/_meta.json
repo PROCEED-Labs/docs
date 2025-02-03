@@ -1,7 +1,6 @@
 {
-  "arch-overview": "Architecture Overview",
-  "modelling": "Process Modelling",
-  "engine-configuration": "Process Engine Setup",
-  "exec-and-moni": "Execution & Monitoring",
-  "shortcuts": "Shortcuts"
+  "ms-interface-overview": "Overview",
+  "creation": "Process Creation",
+  "automation": { "title": "Process Automation", "display": "hidden" },
+  "shortcuts": "Keyboard Shortcuts"
 }

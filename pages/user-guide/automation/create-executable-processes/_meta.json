@@ -1,0 +1,7 @@
+{
+  "user-tasks": { "title": "Human Tasks", "display": "shown" },
+  "user-assignment": { "title": "Human Assignments", "display": "shown" },
+  "script-tasks": { "title": "Own Logic in Scripts", "display": "shown" },
+  "process-start": { "title": "Process Start", "display": "shown" },
+  "process-data": { "title": "Process Data", "display": "shown" }
+}

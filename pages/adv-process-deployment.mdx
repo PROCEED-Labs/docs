@@ -1,0 +1,46 @@
+Processes are created inside the Management-System. For a decentralized
+execution the process steps needs to be transfered to multiple network-connected
+systems with an installed distributed process engine. The PROCEED BPMS supports
+_2 types of deployment_: a static deployment and a dynamic deployment.
+
+## Static Deployment
+
+Static deployment means that the created process (the so-called
+_parent_-process) is separated into several, smaller _child_ processes. This is
+done by the process creator at design-time inside the management system. Every
+child process is then assigned to an IT system, which runs the PROCEED engine
+and has the necessary capability.
+
+Afterwards the deployment can be done: every child is transferred to the
+assigned system and waits for executing its part of the entire parent process.
+The process starts on a system that contains a start event and can be triggered
+manually (e.g. in case of a BPMN empty start event with the Management System
+via the API) or automatically (if a catching event waits for the trigger event).
+
+## Dynamic Deployment
+
+Dynamic deployment means that the created process is deployed to a device which
+is capable of running the _first_ process step(s). After each step the process
+engine evaluates if it is able to run the next step or if it needs to send the
+packaged process to another engine that is capable of executing it. This further
+deployment can also be enforced due to other constraints, e.g. the physical
+location or workload. This means one process literally _jumps_ from machine to
+machine, and thereby can even travel above network boundaries, if it is
+transported with a portable device. This is done until every process instance
+reaches its ends.
+
+## Offline Execution
+
+Distributed Processes Engines don't need any active connections to other engines, systems or coordinators. The process execution can happen completely independently.
+
+If a process needs the capabilities of another system or device for fulfulling the next process steps (which is the usual case), the engine waits until such system is available.
+
+If the process engine is working to its capacity, it rejects new incoming processes or execution requests
+
+Open questions:
+
+- Should there be a configuration option for a wait maximum?
+- Do waiting processes have influence on system performance?
+- How to prevent infinite process execution? Do we need to prevent that?
+- How to design the software components for waiting/listing?
+- Esp. for IoT devices: how to prevent new processes or execution requests? Maybe include a waiting queue?

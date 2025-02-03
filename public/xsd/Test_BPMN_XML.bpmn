@@ -12,19 +12,28 @@
     typeLanguage="https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf"
     xsi:schemaLocation="https://docs.proceed-labs.org/BPMN https://docs.proceed-labs.org/xsd/XSD-PROCEED.xsd
                         http://www.omg.org/spec/BPMN/20100524/MODEL https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd"
-    id="_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8" 
+    id="_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8"
+
+    proceed:userDefinedId="Proc 123"
+    
     name="My First PROCEED Process"
     targetNamespace="https://docs.proceed-labs.org/_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8" 
     exporter="PROCEED Management System" 
     exporterVersion="1.0"
+
     proceed:originalId="Definitions_0o1kcpw"
     proceed:originalExporter="Camunda Modeler"
     proceed:originalExporterVersion="4.4.0"
     proceed:originalTargetNamespace="http://bpmn.io/schema/bpmn"
-    proceed:creatorEnvironmentId="Env-bbd545ad-31ac-479b-bbc3-d45155e5c212"
-    proceed:creatorEnvironmentName="SNET PROCEED Environment"
+
+    proceed:basedOnTemplateId="_5to2e6c4-4d7f-4aff-b91f-c102d5ea4ht3"
+    proceed:basedOnTemplateVersionId="_df89e6c4-4d7f-4aff-b91f-c102d5eaht43"
+
+    proceed:creatorSpaceId="Env-bbd545ad-31ac-479b-bbc3-d45155e5c212"
+    proceed:creatorSpaceName="SNET PROCEED Environment"
     proceed:creatorId="Anon-1234"
     proceed:creatorName="Max Mustermann"
+    proceed:creatorUsername="Maxi_123"
     >
 
     <!-- 
@@ -292,6 +301,8 @@
         </extensionElements>
     </task>
 
+    
+
     <sequenceFlow id="SequenceFlow_uyrt9vc" sourceRef="Task_1pdn5o1" targetRef="ExclusiveGateway_1vj29a0"/>
 
     <exclusiveGateway id="ExclusiveGateway_1vj29a0">
@@ -320,6 +331,8 @@
     <endEvent id="EndEvent_xpco072" proceed:machineAddress="[1fff:0:a88:85a3::ac1f]:33029">
     </endEvent>
 
+    
+    <proceed:genericResource name="Erna" iconType="User" />
 </process>
     
 </definitions>

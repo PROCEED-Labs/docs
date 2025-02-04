@@ -35,9 +35,9 @@ https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd"` for schema validation
 - `exporterVersion` contains the version number of the Management System
 
 {/* PROCEED specific attributes */}
-{/* - `proceed:version` contains the version of the process as a date in milliseconds. It changes if something changes in the process. [See here](versioning)
+{/\* - `proceed:version` contains the version of the process as a date in milliseconds. It changes if something changes in the process. [See here](versioning)
 
-- `proceed:versionBasedOn` if the process was created from another one, it references the version of the original process */}
+- `proceed:versionBasedOn` if the process was created from another one, it references the version of the original process \*/}
 
 - `proceed:originalId`: (optional) if the process was imported into PROCEED's
   Management System, this contains the original definition _id_
@@ -172,13 +172,13 @@ data : - `name` attribute is required and a string : - can be used on every
 level, i.e. on `<process>` or every flow node : - the value is specified inside
 the content of the element
 
-{/* ## Versioning
+{/\* ## Versioning
 
 Process artifacts (User Task, Scripts, etc.) will be versioned with the attribute `proceed:version`.
 
 ## Monitoring
 
-*/}
+\*/}
 
 ### Example
 
@@ -254,7 +254,7 @@ Process artifacts (User Task, Scripts, etc.) will be versioned with the attribut
                     <proceed:timePlannedEnd>2020-07-01T00:00:00+01:00</proceed:timePlannedEnd>
                     <proceed:timePlannedDuration>P2M10D</proceed:timePlannedDuration>
                     <proceed:costsPlanned unit="Euro">3000.50</proceed:costsPlanned>
-                    <proceed:overviewImage>https://docs.proceed-labs.org/docs/images/favicon.png</proceed:overviewImage>
+                    <proceed:overviewImage>https://docs.proceed-labs.org/images/favicon.png</proceed:overviewImage>
                     <proceed:property name="editor">VSCode</proceed:property>
                 </proceed:meta>
 

@@ -2,7 +2,7 @@
 
 ## Capability-based Execution: Overview
 
-![Capability Process Overview](/docs/images/capability-process/PROCEED-Capability_Process_Overview.png)
+![Capability Process Overview](/images/capability-process/PROCEED-Capability_Process_Overview.png)
 
 **Four important roles/stakeholders:**
 
@@ -244,18 +244,12 @@ The following JSON-LD file describes the capability of a PhotographAction and ho
         },
         {
           "@type": "fnom:PropertyParameterMapping",
-          "fnom:functionParameter": [
-            "_:optionsParameter",
-            "_:blackWhiteParameter"
-          ],
+          "fnom:functionParameter": ["_:optionsParameter", "_:blackWhiteParameter"],
           "fnom:implementationProperty": "options/blackWhite"
         },
         {
           "@type": "fnom:PropertyParameterMapping",
-          "fnom:functionParameter": [
-            "_:optionsParameter",
-            "_:rotationParameter"
-          ],
+          "fnom:functionParameter": ["_:optionsParameter", "_:rotationParameter"],
           "fnom:implementationProperty": "options/rotation"
         }
       ],
@@ -267,36 +261,22 @@ The following JSON-LD file describes the capability of a PhotographAction and ho
         },
         {
           "@type": "fnom:DefaultReturnMapping",
-          "fnom:functionParameter": [
-            "_:imageParameter",
-            "_:geoCoordinatesParameter"
-          ],
+          "fnom:functionParameter": ["_:imageParameter", "_:geoCoordinatesParameter"],
           "fnom:implementationProperty": "img/gps"
         },
         {
           "@type": "fnom:DefaultReturnMapping",
-          "fnom:functionParameter": [
-            "_:imageParameter",
-            "_:geoCoordinatesParameter",
-            "_:latiduteParameter"
-          ],
+          "fnom:functionParameter": ["_:imageParameter", "_:geoCoordinatesParameter", "_:latiduteParameter"],
           "fnom:implementationProperty": "img/gps/lat"
         },
         {
           "@type": "fnom:DefaultReturnMapping",
-          "fnom:functionParameter": [
-            "_:imageParameter",
-            "_:geoCoordinatesParameter",
-            "_:longitudeParameter"
-          ],
+          "fnom:functionParameter": ["_:imageParameter", "_:geoCoordinatesParameter", "_:longitudeParameter"],
           "fnom:implementationProperty": "img/gps/long"
         },
         {
           "@type": "fnom:DefaultReturnMapping",
-          "fnom:functionParameter": [
-            "_:imageParameter",
-            "_:photographParameter"
-          ],
+          "fnom:functionParameter": ["_:imageParameter", "_:photographParameter"],
           "fnom:implementationProperty": "img/photo"
         }
       ]
@@ -548,7 +528,7 @@ Therefore using [Saref](http://ontology.tno.nl/saref/) is a better alternative a
 
 ## Step 3: Sending the Capabilities (Optional Step)
 
-![Capability Process Overview](/docs/images/capability-process/PROCEED-Capability-2-Sending.png)
+![Capability Process Overview](/images/capability-process/PROCEED-Capability-2-Sending.png)
 
 - a _compacted_ semantic description is sent. That means the description does not contain any local implementation details (which is only needed by an Engine to know how to execute the capability, see Table 1)
 - since a Machine can have multiple Capabilities installed, a consollidated list with all Capabilities is sent from the Machine
@@ -575,6 +555,6 @@ Within this comparison step
 
 ## Step 6: Calling the Capability on an Engine
 
-![Capability Process Overview](/docs/images/capability-process/PROCEED-Capability-5-Execution.png)
+![Capability Process Overview](/images/capability-process/PROCEED-Capability-5-Execution.png)
 
 - the Capability Executor translates the call of the Capability in the Script Task to the local installed Capability function

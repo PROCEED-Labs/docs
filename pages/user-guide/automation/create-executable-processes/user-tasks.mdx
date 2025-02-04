@@ -1,7 +1,7 @@
 User tasks are semi-manual activities in which an IT system works together with a human actor.
 I.e., a human actor gets and picks a task from his [_task list_](http://localhost:33029/):
 
-![Picture of a tasklist](/docs/images/user-guide/user-tasks/tasklist_with_two_tasks.png?width=800px&classes=border)
+![Picture of a tasklist](/images/user-guide/user-tasks/tasklist_with_two_tasks.png?width=800px&classes=border)
 
 The tasklist can currently be opened on the port 33029 on the Machine (IP) that runs the PROCEED Engine, e.g. http://localhost:33029/
 
@@ -9,18 +9,18 @@ The tasklist can currently be opened on the port 33029 on the Machine (IP) that 
 
 In the process editor, a user task can be created via the wrench symbol and by selecting the correct task type.
 
-![From an activity to a user task](/docs/images/user-guide/user-tasks/activity_to_user_task.png?width=400px&classes=border)
+![From an activity to a user task](/images/user-guide/user-tasks/activity_to_user_task.png?width=400px&classes=border)
 
 After clicking on the new User Task, in the upper center of the process editor a blue button _EDIT USER TASK FORM_ is appearing which needs to be clicked to get to the HTML editor.
 
-![The edit user task form button appears](/docs/images/user-guide/user-tasks/edit_user_task_button.png?width=400px&classes=border)
+![The edit user task form button appears](/images/user-guide/user-tasks/edit_user_task_button.png?width=400px&classes=border)
 
 ## The HTML editor
 
 Within the simple HTML editor you can create the content and design of the User Task.
 To showcase a very simple example, a default page is assigned to every new User Task which will be shown if you open the editor the first time.
 
-![HTML editor landing page](/docs/images/user-guide/user-tasks/html_editor_landing_page.png?width=800px&classes=border)
+![HTML editor landing page](/images/user-guide/user-tasks/html_editor_landing_page.png?width=800px&classes=border)
 
 The main area in the middle show the content.
 On top there is a Menubar and on the right side is the editing panel.
@@ -29,7 +29,7 @@ There is no _Cancel_ button since every change is saved immediately.
 
 ### The Menubar
 
-![HTML editor Menubar](/docs/images/user-guide/user-tasks/html_editor_menubar.png?width=800px&classes=border)
+![HTML editor Menubar](/images/user-guide/user-tasks/html_editor_menubar.png?width=800px&classes=border)
 
 The Menubar has on the left side three symbols to change the viewport size. This is useful to develop responsive layouts and check if everything is positioned correctly for different screen sizes.
 
@@ -38,26 +38,26 @@ The first icon, the empty square icon, highlights all components inside the main
 
 Most useful is probably the _source code_ symbol which shows the HTML and CSS source code. You can use the popup editor to directly edit the code of the HTML page. As you can notice here, the complete HTML page is put into a HTML `<form> ... </form>` element.
 
-![Html editor source code editor](/docs/images/user-guide/user-tasks/html_editor_source_code_editor.png?width=600px&classes=border)
+![Html editor source code editor](/images/user-guide/user-tasks/html_editor_source_code_editor.png?width=600px&classes=border)
 
 ### The Editing Panel
 
 The Editing Panel on the right has multiple _tabs_.
 The right one with the four-filled-square icon shows multiple components that can be dragged and dropped into the main area. It is subdivided into three areas _Basic, Extra_ and _Forms_. For a better overview, they can be collapsed and expanded.
 
-![The components tab of the editing panel](/docs/images/user-guide/user-tasks/html_editor_editing_panel_components_tab.png?width=200px&classes=border)
+![The components tab of the editing panel](/images/user-guide/user-tasks/html_editor_editing_panel_components_tab.png?width=200px&classes=border)
 
 The hamburger icon tab displays the structure of the HTML page in a tree structure. You can use it to move components to another position or to make them invisible.
 
-![The structure tab of the editing panel](/docs/images/user-guide/user-tasks/html_editor_editing_panel_structure_tab.png?width=200px&classes=border)
+![The structure tab of the editing panel](/images/user-guide/user-tasks/html_editor_editing_panel_structure_tab.png?width=200px&classes=border)
 
 If you select a component in the main area, this component gets a thick blue border and displays some useful icons on its top right corner to move, copy or delete it. Also, the left paintbrush icon in the editor panel is selected. In multiple areas (_General, Layout, Typography, Decorations, Extra_) it allows you to change the layout, design and style of the element.
 
-![The layout tab of the editing panel](/docs/images/user-guide/user-tasks/html_editor_select_element.png?width=800px&classes=border)
+![The layout tab of the editing panel](/images/user-guide/user-tasks/html_editor_select_element.png?width=800px&classes=border)
 
 Furthermore, after selecting a component you can click the gear icon to open the configuration page of the component. There, you can configure every HTML attribute of the element. For example, in case of the button you can change the text here.
 
-![The HTML attribute tab of the editing panel](/docs/images/user-guide/user-tasks/html_editor_select_element_gear_icon.png?width=800px&classes=border)
+![The HTML attribute tab of the editing panel](/images/user-guide/user-tasks/html_editor_select_element_gear_icon.png?width=800px&classes=border)
 
 ## Use Process Variables
 
@@ -70,7 +70,7 @@ There are some more interesting things you can do within curly brackets:
 - Looping over arrays with the _for_ operator: `{for variable in array} <p>{variable}</p> {/for}`
 - Conditional displaying of information with _if_: `{if variable}<p>Text</p>{else}<p>No variable!</p>{/if}` and `{if not variable}<p>No variable!</p>{/if}`
 
-![Templates can be inserted with braces inside the HTML](/docs/images/user-guide/user-tasks/html_editor_template_engine.png?width=800px&classes=border)
+![Templates can be inserted with braces inside the HTML](/images/user-guide/user-tasks/html_editor_template_engine.png?width=800px&classes=border)
 
 The above picture shows the different possibilities used inside the HTML. Let's assume, the following process variables are given:
 
@@ -91,14 +91,14 @@ errorInMachineA = false
 
 Then the task renders at runtime to the following HTML representation:
 
-![The rendered variables inside the HTML](/docs/images/user-guide/user-tasks/tasklist_rendered_variables.png?width=1000px&classes=border)
+![The rendered variables inside the HTML](/images/user-guide/user-tasks/tasklist_rendered_variables.png?width=1000px&classes=border)
 
 ## Set Process Variables
 
 You have also the possibility to let the process participant set new process variables from within a task.
 This is done by using `input` or `textarea` fields inside the HTML:
 
-![Form fields inside the HTML editor](/docs/images/user-guide/user-tasks/html_editor_form_fields.png?width=1000px&classes=border)
+![Form fields inside the HTML editor](/images/user-guide/user-tasks/html_editor_form_fields.png?width=1000px&classes=border)
 
 It is important to set the `name` attribute to the name of the process variable in which the value should be stored.
 This can be done via the HTML editor by clicking on the gear icon.
@@ -122,22 +122,22 @@ Afterwards the HTML code should somehow look like this:
 In its tasklist, the user fills the form fields with content.
 By clicking on a _submit_ button the values get transferred to the process engine and are stored in the process variables.
 
-![Filled form fields inside a task](/docs/images/user-guide/user-tasks/tasklist_with_input_filled_fields.png)
+![Filled form fields inside a task](/images/user-guide/user-tasks/tasklist_with_input_filled_fields.png)
 
 ## Milestones
 
 Milestones indicate the progress to reach a certain goal.
 You can define Milestones in the Environment View and then assign the Milestones to User Tasks via the BPMN Property Panel:
 
-![Selection of Milestones for a User Task](/docs/images/user-guide/user-tasks/milestone_selection.png?width=500px&classes=border)
+![Selection of Milestones for a User Task](/images/user-guide/user-tasks/milestone_selection.png?width=500px&classes=border)
 
 This will automatically generate a Milestone Box in the HTML. You can adapt the generated code or delete it.
 
-![The generated Milestone Block in the User HTML](/docs/images/user-guide/user-tasks/milestone_generated_html.png?width=600px&classes=border)
+![The generated Milestone Block in the User HTML](/images/user-guide/user-tasks/milestone_generated_html.png?width=600px&classes=border)
 
 If the generated code should be restored after some changes, the easiest way is to use the Milestone component of the right Editing panel.
 
-![The Milestone component in the HTML editor](/docs/images/user-guide/user-tasks/milestone_html_component.png?width=150px&classes=border)
+![The Milestone component in the HTML editor](/images/user-guide/user-tasks/milestone_html_component.png?width=150px&classes=border)
 
 ## Task Constraints
 
@@ -149,11 +149,11 @@ In this case the constraint can easily be removed via the graphical interface.
 If the HTML page references an online resource, e.g. a picture hosted on the internet, a second constraint needs to be added to ensure that the executing Machine has Internet access.
 This is sometimes automatically recognized and added (`machine.online == true`).
 
-![Two constraints for a user task to have a display and an internet connection](/docs/images/user-guide/user-tasks/user_task_constraints.png)
+![Two constraints for a user task to have a display and an internet connection](/images/user-guide/user-tasks/user_task_constraints.png)
 
-{/*
+{/\*
 
 ## Assign User and Roles
 
 LATER
-*/}
+\*/}

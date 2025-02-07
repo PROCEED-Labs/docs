@@ -64,17 +64,29 @@
     </xsd:sequence>
   </xsd:complexType>
 
-  
 
-  <!-- Resources with no semantic specification about the exact role -->
+
+  <!-- Resources with no semantic specification about the exact role, used for visual icons inside <process> -->
+  <xsd:element name="responsibleParty" type="tResponsibleParty" substitutionGroup="bpmn:resourceRole" />
+  <xsd:complexType name="tResponsibleParty">
+    <xsd:complexContent>
+      <xsd:extension base="bpmn:tResourceRole">
+        <!-- "name" attribute is inherited from type tResourceRole -->
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+
+
+  <!-- Resources with no semantic specification about the exact role, used for visual icons inside <process> -->
   <xsd:element name="genericResource" type="tGenericResource" substitutionGroup="bpmn:resourceRole" />
   <xsd:complexType name="tGenericResource">
     <xsd:complexContent>
-			<xsd:extension base="bpmn:tResourceRole">
+      <xsd:extension base="bpmn:tResourceRole">
         <!-- "name" attribute is inherited from type tResourceRole -->
         <xsd:attribute name="iconType" type="xsd:string" />
       </xsd:extension>
-		</xsd:complexContent>
+    </xsd:complexContent>
   </xsd:complexType>
 
   <!-- The material/tools used in a task -->
@@ -250,35 +262,6 @@
     <!-- Parameters can be optional -->
     <!-- TODO: only relevant for cParameter -->
     <xsd:attribute name="optional" type="xsd:boolean" use="optional"/>
-  </xsd:complexType>
-
-
-  <!-- Alessandro: Users and Roles -->
-  <xsd:element name="roles" type="tRoles"/>
-  <xsd:complexType name="tRoles">
-    <xsd:sequence>
-      <xsd:element name="role" type="xsd:string"/>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <xsd:element name="users" type="tUsers"/>
-  <xsd:complexType name="tUsers">
-    <xsd:sequence>
-      <xsd:element ref="user" maxOccurs="unbounded"/>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <xsd:element name="user" type="tUser" />
-  <xsd:complexType name="tUser">
-    <xsd:sequence>
-      <xsd:element type="xsd:string" name="name"/>
-      <xsd:element type="xsd:int" name="id"/>
-      <xsd:element type="xsd:string" name="password"/>
-      <xsd:element type="xsd:string" name="clientid"/>
-      <xsd:element type="xsd:string" name="clientsecret"/>
-      <xsd:element type="xsd:anyURI" name="provider"/>
-      <xsd:element type="xsd:string" name="origin"/>
-    </xsd:sequence>
   </xsd:complexType>
 
 

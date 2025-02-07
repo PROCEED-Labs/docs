@@ -41,34 +41,6 @@
         - the 'xsi:schemaLocation' will not be considered by the tools
         - but it will be considered by VSCode Addon "Xml Complete": https://marketplace.visualstudio.com/items?itemName=rogalmic.vscode-xml-complete
     -->
-<resource id="regionalManager" name="Regional Manager">
-    <extensionElements>
-       <proceed:roles>
-            <proceed:role>(cn=Administrator,ou=Groups,dc=example,dc=org)</proceed:role>
-        </proceed:roles>
-        <proceed:users>
-            <proceed:user>
-                <proceed:name>Testuser1</proceed:name>
-                <proceed:id>234640868</proceed:id>
-                <proceed:password>e1NTSEF9QjU0VXNmQWhJN1dQZ3FvbDVSQ1l5RHUzTlVqa1luVVhYV2ljbmc9PQ=</proceed:password>
-                <proceed:clientid>client1</proceed:clientid>
-                <proceed:clientsecret>27d4e246-0563-4e6c-8325-27bc6e596139</proceed:clientsecret>
-                <proceed:provider>http://localhost:8082/auth/realms/master/protocol/openid-connect/token</proceed:provider>
-                <proceed:origin>(uid=234640868,ou=People,dc=example,dc=org)</proceed:origin>
-            </proceed:user>
-            <proceed:user>
-                <proceed:name>TestUser2</proceed:name>
-                <proceed:id>635890982</proceed:id>
-                <proceed:password>e1NTSEF9QjU0VXNmQWhJN1dQZ3FvbDVSQ1l5RHUzTlVqa1luVVhYV2ljbmc9PQ=</proceed:password>
-                <proceed:clientid>client1</proceed:clientid>
-                <proceed:clientsecret>27d4e246-0563-4e6c-8325-27bc6e596139</proceed:clientsecret>
-                <proceed:provider>http://localhost:8082/auth/realms/master/protocol/openid-connect/token</proceed:provider>
-                <proceed:origin>(uid=635890982,ou=People,dc=example,dc=org)</proceed:origin>
-            </proceed:user>
-        </proceed:users>
-    </extensionElements>
-</resource>
-
 
 
 <process id="_09abb321-f819-480a-9827-66264d17b4df" name="PROCEED Main Process" processType="Private" isExecutable="true" proceed:deploymentMethod="static">
@@ -185,9 +157,33 @@
                 </proceed:hardConstraints>
             </proceed:processConstraints>
         </extensionElements>
-        <potentialOwner>
-            <resourceRef>regionalManager</resourceRef>
+
+
+
+        <proceed:responsibleParty name="Martha Mustermann">
+            <resourceAssignmentExpression>
+                <expression>user=e8a328cb-b7ef-4d92-9d0c-ad69b188f7b0</expression>
+            </resourceAssignmentExpression>
+        </proceed:responsibleParty>
+        
+        <proceed:responsibleParty name="Production">
+            <resourceAssignmentExpression>
+                <expression>role=b59d1952-45f7-4654-953e-06d18b9bb0ac</expression>
+            </resourceAssignmentExpression>
+        </proceed:responsibleParty>
+
+
+        <potentialOwner name="Max Mustermann">
+            <resourceAssignmentExpression>
+                <expression>user=a77500e0-ba49-4408-b12c-26a70420e7cb</expression>
+            </resourceAssignmentExpression>
         </potentialOwner>
+        <potentialOwner name="Administrators">
+            <resourceAssignmentExpression>
+                <expression>role=f9a3b839-ed22-4949-b9aa-e6cd24e6f401</expression>
+            </resourceAssignmentExpression>
+        </potentialOwner>
+
 
     </userTask>
 

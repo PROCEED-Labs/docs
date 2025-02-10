@@ -1,3 +1,5 @@
+import { Callout } from "nextra/components";
+
 User tasks are semi-manual activities in which an IT system works together with
 a human actor. I.e., a human actor gets or picks a task from a _task list_.
 
@@ -95,9 +97,9 @@ change to any input fields, fetch the values and send them to the Engine.
 User tasks are assigned to a _resource_ which works on the task. This is
 typically a user or a role.
 
-import { Callout } from 'nextra-theme-docs';
-
-<Callout type='info'>This is currently not yet implemented and in development.</Callout>
+<Callout type="info">
+  This is currently not yet implemented and in development.
+</Callout>
 
 ```
 <userTask id="Task_0pjwckr" name="Erstelle Welle" implementation="https://html.spec.whatwg.org/" proceed:fileName="User_Task_0991eu7">
@@ -220,7 +222,7 @@ User Task
 This is what is shown in the tasklist of the engine when encountering the User Task `Show full name`:
 ![User Task in Tasklist](/images/tasklist/show-variables.png)
 
-{/\*
+{/*
 
 ## OLD: FROM Alessandro
 
@@ -321,4 +323,4 @@ Task work on that Task after Authentication.
 ## XSD Definition
 
 see [PROCEED XSD file](/xsd/XSD-PROCEED.xsd)
-\*/}
+*/}

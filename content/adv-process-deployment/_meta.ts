@@ -1,9 +1,27 @@
-import type { MetaRecord } from "nextra";
+import type { MetaRecord } from 'nextra';
 
 const meta: MetaRecord = {
-  dynamic_deployment: "Dynamic Deployment",
-  execution_constraints: { display: "hidden" },
-  static_deployment: { display: "hidden" },
+  'adv-process-deployment': {
+    title: 'Process Deployment Methods',
+    display: 'hidden',
+  },
+  'dynamic_deployment': {
+    title: 'Dynamic Deployment',
+    display: 'hidden',
+  },
+  'execution_constraints': {
+    title: 'Execution Constraints',
+    display: 'hidden',
+  },
+  'static_deployment': {
+    title: 'Static Deployment',
+    display: 'hidden',
+  },
+
+  'adv-capability-description': {
+    title: 'Capability Descriptions',
+    display: 'hidden',
+  },
 };
 
 export default meta;

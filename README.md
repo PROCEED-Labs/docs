@@ -1,4 +1,4 @@
-# Proceed Documentation 
+# Proceed Documentation
 
 You can find the docs at https://docs.proceed-labs.org.
 
@@ -6,9 +6,8 @@ You can find the docs at https://docs.proceed-labs.org.
 
 We use [Nextra](https://nextra.site/) (which uses Next.js under the hood) as the static site-generator.
 
-To get started with development, fork this repo and run `yarn install` in the root directory.
-
-After installation, you can run `yarn dev` to start the local development server.
+1. `yarn install` in the root directory.
+2. `yarn dev` to start the [local development server on port 3000](http://localhost:3000)
 
 If you want to add or change something, please make sure that you have [`git lfs`](https://git-lfs.github.com/) installed for storing large files like pictures.
 

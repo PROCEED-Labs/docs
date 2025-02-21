@@ -28,7 +28,9 @@
 
     <!-- for extension in the BPMN 'definitions' element for process imports -->
   <xsd:attribute name="originalId" type="xsd:ID" />
-  <xsd:attribute name="originalProcessVersion" type="xsd:string" />
+  <xsd:attribute name="originalName" type="xsd:string" />
+  <xsd:attribute name="originalProcessVersionId" type="xsd:string" />
+  <xsd:attribute name="originalProcessVersionName" type="xsd:string" />
   <xsd:attribute name="originalExporter" type="xsd:string" />
   <xsd:attribute name="originalExporterVersion" type="xsd:string" />
   <xsd:attribute name="originalTargetNamespace" type="xsd:anyURI" />

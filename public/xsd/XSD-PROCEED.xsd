@@ -10,25 +10,31 @@
 
   <xsd:import namespace="http://www.omg.org/spec/BPMN/20100524/MODEL" schemaLocation="BPMN_2_XSD-BPMN20.xsd"/>
 
+  <!-- for extension in the BPMN 'definitions' element -->
 
+  <!-- if a user wants to set an own process id (id attribute is internal)-->
+  <xsd:attribute name="userDefinedId" type="xsd:string" />
+  <!-- date when a process was created, format given in ISO 8601, date and time required, timezone optional-->
+  <xsd:attribute name="creationDate" type="xsd:dateTime" />
+  <!-- for Versions -->
   <xsd:attribute name="processVersionId" type="xsd:string" />
   <xsd:attribute name="processVersionName" type="xsd:string" />
-  <!-- for extension in the BPMN 'definitions' element -->
+  <!-- for User and Spaces -->
   <xsd:attribute name="creatorSpaceId" type="xsd:string" />
   <xsd:attribute name="creatorSpaceName" type="xsd:string" />
   <xsd:attribute name="creatorId" type="xsd:string" />
   <xsd:attribute name="creatorName" type="xsd:string" />
   <xsd:attribute name="creatorUsername" type="xsd:string" />
-    <!-- if a user wants to set an own process id (id attribute is internal)-->
-  <xsd:attribute name="userDefinedId" type="xsd:string" />
-
-
+  <!-- for Templates -->
   <xsd:attribute name="basedOnTemplateId" type="xsd:string" />
   <xsd:attribute name="basedOnTemplateVersionId" type="xsd:string" />
 
-    <!-- for extension in the BPMN 'definitions' element for process imports -->
+
+  <!-- extension in the BPMN 'definitions' element for process imports -->
   <xsd:attribute name="originalId" type="xsd:ID" />
   <xsd:attribute name="originalName" type="xsd:string" />
+  <xsd:attribute name="originalUserDefinedId" type="xsd:string" />
+  <xsd:attribute name="originalCreationDate" type="xsd:dateTime" />
   <xsd:attribute name="originalProcessVersionId" type="xsd:string" />
   <xsd:attribute name="originalProcessVersionName" type="xsd:string" />
   <xsd:attribute name="originalExporter" type="xsd:string" />

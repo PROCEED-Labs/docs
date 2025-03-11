@@ -1,19 +1,17 @@
-BPMN Script Tasks can be used in process diagrams for a PROCEED engine.
+## BPMN Script Tasks and their API
 
-## General Aspects
+An executable BPMN diagram can contain Script Tasks.
+In PROCEED, you can use pure JavaScript to write functionalities for the process.
+Therewith, you also have access to APIs for accessing process variables or to trigger network requests.
 
-You can use pure JavaScript to write functionalities for the process. Thereby,
-you also have access to a bunch of APIs for accessing process variables or
-trigger network requests (see [API](#api)).
-
-At the end of the script there can be a `return`, ending the script. The
-`return` may return an object with properties/value pairs which will update the
-process variable. A Script Task can also end by a semantic error, which will be
+At the end of the script there can be a `return`, ending the script.
+The `return` may return an object with properties/value pairs which will update process variables.
+A Script Task can also end by a semantic error, which will be
 caught by an attached boundary _Error_ or _Escalation_ event. This is done by
 throwing an `BpmnError` or an `BpmnEscalation`.
 
 If an error is thrown but not caught within the BPMN process, or if the script
-itself has an error (e.g. syntax error), the token will end its execution..
+itself has an error (e.g. syntax error), the token will end its execution.
 (This only stops the running token, not the whole process.)
 
 The code of a script task is usually executed within a sandboxed JavaScript
@@ -37,31 +35,25 @@ the customer is informed that the order got canceled.
 
 #### Example Script Code
 
-```xml
-<bpmn2:scriptTask id="Task_1pdn5o1" scriptFormat="application/javascript">
-    <bpmn2:script>
-        <![CDATA[
-            const amount = variable.get('amount'); // amount of the ordered products
-            const cost = variable.get('cost'); // cost of the ordered products
+```js
+const amount = variable.get('amount'); // amount of the ordered products
+const cost = variable.get('cost'); // cost of the ordered products
 
-            if (cost < 50) {
-                // update the costs
-                try {
-                    // add shipping costs to total cost
-                    variable.set('cost', cost+5);
-                } catch(err) {
-                    log.info('Error occured while processing order: ' + err);
-                    throw new BpmnError('A severe error occured while processing');
-                }
-            }
+if (cost < 50) {
+  // update the costs
+  try {
+    // add shipping costs to total cost
+    variable.set('cost', cost + 5);
+  } catch (err) {
+    log.info('Error occured while processing order: ' + err);
+    throw new BpmnError('A severe error occured while processing');
+  }
+}
 
-            if (amount > 100) {
-                // execute alternative flow to the attached escalation boundary-event
-                throw new BpmnEscalation('late shipment', 'The order is too much');
-            }
-        ]]>
-    </bpmn2:script>
-</bpmn2:scriptTask>
+if (amount > 100) {
+  // execute alternative flow to the attached escalation boundary-event
+  throw new BpmnEscalation('late shipment', 'The order is too much');
+}
 ```
 
 ## API
@@ -159,15 +151,6 @@ The `setTimeoutAsync` function returns a `Promise`, so you need to call it with 
 There are special functionalities for accessing system resources. They can be
 accessed via _services_ by calling `getService( 'service' )`. Services are
 provided by the PROCEED Engine. The following services are currently offered:
-
-#### `getService('capabilities')`
-
-| API                                                                                                                                       | Access to the systems capabilities                                                                                                                                                                                                         |
-| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `.startCapability( „<Capability-Name>“, [<{ Parameter-Object }>], [<clb function>] )`<br /> Return value: `if clb then null else Promise` | Call the capability Function and give a list of parameters.                                                                                                                                                                                |
-| E.g.<br />`await startCapability( „PhotographAction“, { height: 80, width: 80 } )`                                                        |                                                                                                                                                                                                                                            |
-| E.g. Variant 1:<br />`await startCapability( „PhotographAction“, { height: { value: 80, unit: “px” } )`                                   | Needed for the Management System to determine the correct Capability Description if there are multiple Description of the same Capability kind (e.g. two times "PhotoAction") with different Parameter units, e.g. "cm" and "pt"           |
-| E.g. Variant 2:<br />`await startCapability( „https://schema.org/PhotographAction“, { “https://schema.org/height”: 80 } )`                | Only needed for the Management System to determine the correct Capability Description if there are multiple descriptions of the same capability kind or its parameter (e.g. "height" from "schema.org/height" and from "vocab.org/height") |
 
 #### `getService('network')`
 

@@ -1,181 +1,199 @@
+import "/styles/create_process_image_styles.css";
+
 ### Create a small process
 
 In this tutorial, we will create a simple process which will cover the following concepts:
 
-- Creating a new folder and process in the Editor Table
-- Become familiar with the UI of the Editor
-- Design a BPMN-based Process and add some meta information
+- Creating a new folder and process in the editor table
+- Becoming familiar with the UI of the editor
+- Designing a BPMN-based process and adding some meta information
 
 #### Getting started
 
-- Start by opening the Processes menu in the left section to navigate to the editor.
+Start by opening the 'Processes' menu in the left section to navigate to the editor.
   ![navigate_to_editor](/images/quick-start-create-process/navigate_to_editor.png)
 
-- Click on the three-dotted button next to Create Process to create a new folder.
+Click on the three-dotted button next to 'Create Process' to create a new folder.
   Give the folder a name and a description in the popup menu.
   ![create_folder](/images/quick-start-create-process/create_folder.png)
 
-- Press Create Process to create a new process inside your new folder. For our
+Press Create Process to create a new process inside your new folder. For our
   example process we will build a simplified workflow of an order fulfillment
   in a company, so name the process Order Fulfillment.
   ![create_process](/images/quick-start-create-process/create_process.png)
 
-- After creating the process you are now in the editor, so let's have a quick look at the editor UI.
+After creating the process you are now in the editor, so let's have a quick look at the editor UI.
   For keyboard shortcuts, refer to our section for them on this site.
   ![Editor_overview_final](/images/quick-start-create-process/Editor_overview_final.png)
 
-- Every process begins with a start event, so your newly created process already contains one by default.
+#### Basic Editor Functions
+
+Every process begins with a start event, so your newly created process already contains one by default.
   Click on the start event element to reveal the quick access toolbar.
   Here you find the wrench icon which lets you change between different element types.
   Our example case begins with receiving an order from a customer, so change the element to a message start event.
   ![modify_start_event](/images/quick-start-create-process/modify_start_event.png)
 
-- Double-clicking the element lets you name it in a small text-box which is also movable for readability.
+Double-clicking the element lets you name it in a small text-box which is also movable for readability.
   Name your message start event something like Customer order received.
   Tip: Shift-Enter completes the editing inside the text-box.
   ![name_start_element](/images/quick-start-create-process/name_start_element.png)
 
-- Clicking on your start event again, you will find the Append Task option to quickly connect a new task
+Clicking on your start event again, you will find the Append Task option to quickly connect a new task
   with your event. Name the new task by double-clicking again, something like 'Check availability of components'.
   ![append_task](/images/quick-start-create-process/append_task.png)
 
-- Tasks are also modifiable, so you can change your new task to a different kind using the wrench icon again.
-  In this case a user task would make sense.
+Tasks are also modifiable, so you can change your new task to a different kind using the wrench icon again.
+  In this case a script task would make sense to check for availability in a database.
 ![modify_task](/images/quick-start-create-process/modify_task.png)
 
-- Some elements are only found in the toolbar on the left side. To check for availability of components,
+Some elements are only found in the toolbar on the left side. To check for availability of components,
   we will reference a warehouse database, so you can drag-and-drop the data store element underneath your task
   and name it Warehouse Database.
 ![left_toolbar_data_store_reference](/images/quick-start-create-process/left_toolbar_data_store_reference.png)
 
-- To connect elements, simply click on the element you want the connection to root from and use the arrow icon
+To connect elements, simply click on the element you want the connection to root from and use the arrow icon
   in the quick access toolbar to draw a connection to another element, in this case from the task to the database.
 ![connect_elements](/images/quick-start-create-process/connect_elements.png)
 
-- Let's add some logic to our process! Use the Append gateway button from the toolbar to quickly connect a new gateway.
+#### Gateways
+
+Let's add some logic to our process! Use the 'Append gateway' button from the toolbar to quickly connect a new gateway.
 ![append_gateway](/images/quick-start-create-process/append_gateway.png)
 
-- Gateways offer a way to model different process flows. The default gateway in the editor is an XOR gateway,
+Gateways offer a way to model different process flows. The default gateway in the editor is an XOR gateway,
   marked with an X inside, meaning the process can only follow one path going out from this element.
   Name the gateway 'All components available?', append a task and double-click the connecting arrow to name it 'Yes'.
 ![name_connections](/images/quick-start-create-process/name_connections.png)
 
-- Name the appended task 'Move order to production facility' and change it to a business rule task using the wrench icon.
-  For conciseness, from now on in this guide we will only change task types if it is necessary for the logic of the process.
-  Continue by appending another task to the gateway, naming it 'Procurement' and the connection 'No' as shown below.
+Name the appended task 'Move order to production facility'. For conciseness, from now on in this guide we will only change 
+task types if it is necessary for the logic of the process. Continue by appending another task to the gateway,
+naming it 'Procurement' and the connection 'No' as shown below.
 ![add_production_and_procurement](/images/quick-start-create-process/add_production_and_procurement.png)
 
-- Another type of gate is a parallel gate, allowing for multiple tasks to run at the same time. It is indicated by a + sign.
+Another type of gate is a parallel gate, allowing for multiple tasks to run at the same time. It is indicated by a + sign.
   Add another gate to the business rule task and change it into a parallel gate using the wrench icon.
 ![add_parallel_gate](/images/quick-start-create-process/add_parallel_gate.png)
 
-- The individual paths of a parallel gate usually re-unite in another parallel gate. Append the tasks and the gate as shown
+The individual paths of a parallel gate usually re-unite in another parallel gate. Append the tasks and the gate as shown
   below.
 ![complete_parallel_gate](/images/quick-start-create-process/complete_parallel_gate.png)
 
-- To modify elements beyond their type and add meta information and even information that influences the flow of the process,
+#### Properties Panel + Meta Information
+
+To modify elements beyond their type and add meta information and even information that influences the flow of the process,
   further modifications can be made using the Properties Panel. If no element is selected, the properties added are for the entire
   process, otherwise for the currently selected element. Select the 'Assemble' task and open the panel, either clicking the icon
   in the top right or use  **`Ctrl` or `⌘` + `Enter`** 
 ![open_properties_panel](/images/quick-start-create-process/open_properties_panel.png)
 
-- In the Properties Panel you find a lot of options to add further data to each element or change their appearance for 
+In the Properties Panel you find a lot of options to add further data to each element or change their appearance for 
   easier legibility. Use the pre-made duration property for example to give the 'Assemble' task a custom duration in the popup menu.
 ![set_duration](/images/quick-start-create-process/set_duration.png)
 
-- You also have the option of introducing your own custom properties with their own custom values.
+You also have the option of introducing your own custom properties with their own custom values.
   For example, select the 'Create bill' element, enter a property name like 'assignedTo' and assign the task
   to the Accounting department as shown below.
 ![set_custom_property_assignedTo](/images/quick-start-create-process/set_custom_property_assignedTo.png)
 
-- All elements can be equipped with custom properties, and these can even influence the flow and logic of the process.
+All elements can be equipped with custom properties, and these can even influence the flow and logic of the process.
   For instance you can give the closing parallel gate a 'syncType' property, which defines when the process flow continues.
   The value 'Wait for all' could set the condition that the process does not continue from here unless all parallel tasks
   within the gate are completed.
 ![set_custom_property_syncType](/images/quick-start-create-process/set_custom_property_syncType.png)
 
-- Another feature in the Properties Panel are Milestones. As the name implies, these are typically used to indicate progress
+Another feature in the Properties Panel are 'Milestones'. As the name implies, these are typically used to indicate progress
   within a process. Append a task to the closing parallel gate as shown below, select the connecting line and add a milestone.
   In the popup window, give the milestone an ID, a name and a description.
 ![add_milestone](/images/quick-start-create-process/add_milestone.png)
 
-- It should be indicated where a milestone can be reached in the process model. Use the 'Add text annotation button' to append
-  a text field to the connection line that triggers the milestone.
+It should be indicated where a milestone can be reached in the process model. Use the 'Add text annotation button' to append
+  a text field to the connection line that triggers the milestone. For better legibility, feel free to color the text field as well.
 ![add_text_annotation_for_milestone](/images/quick-start-create-process/add_text_annotation_for_milestone.png)
 
-- Each flow direction of the process has to end in an end event. Append one and call it 'Order fulfilled' to complete this
+Each flow direction of the process has to end in an end event. Append one and call it 'Order fulfilled' to complete this
   side of the XOR gateway.
 ![add_end_event_for_yes_fork](/images/quick-start-create-process/add_end_event_for_yes_fork.png)
 
-- Before we finish this tutorial by completing the 'No' side of the gateway, you can compare your current result to this
+Before we finish this tutorial by completing the 'No' side of the gateway, you can compare your current result to this
   interim result below. Use the lasso and space removal tools from the left-side toolbar to refactor your model to
-  be similar to this, especially moving 'Procurement' further down, to make the next few steps smoother.
+  be similar to this, especially moving 'Procurement' further down and giving the 'Yes' arrow some extra space,
+  to make the next few steps a bit smoother.
 ![interim_result](/images/quick-start-create-process/interim_result.png)
 
-- In the left-hand toolbar, you find the button for 'Create pool/participant'. This allows us to divide the model
+#### Pools + Participants
+
+In the left-hand toolbar, you find the button for 'Create pool/participant'. This allows us to divide the model
   into different sections of different participants to further improve legibility of responsibilities.
-  Click it and onto your schema to encompass your entire current model in a pool.
+  Click it and onto your schema to encompass your entire current model in a pool and give it a company name by double-clicking
+  on the left side of the box.
 ![create_pool](/images/quick-start-create-process/create_pool.png)
 
-- When selecting the entire pool you get some options in the top-right corner to further separate your schema into or
+When selecting the entire pool you get some options in the top-right corner to further separate your schema into or
   add additional sections. Click the 'Divide into two lanes' option.
   Note: When deleting a pool, you also delete its contents. But don't worry, the undo-button in the top left corner
   or pressing  **`Ctrl` or `⌘` + `Z`** gives you back your work.
 ![dividing_line](/images/quick-start-create-process/dividing_line.png)
 
-- You now have a pool split into two groups of participants and can select each participant compartment separately.
+You now have a pool split into two groups of participants and can select each participant compartment separately.
   Expand the bottom compartment to give you a bit more room. Double-clicking in the front of the compartment lets
   you name it like you've done with elements. Name the particpants 'Manufacturing & Logistics' and 'Procurement Department'.
 ![naming_participants](/images/quick-start-create-process/naming_participants.png)
 
-- Another type of task is a sub-process, meaning you can build an entire process inside one task element. You have the option
+#### Sub-processes
+
+Another type of task is a sub-process, meaning you can build an entire process inside one task element. You have the option
   between a collapsed or expanded version, but for legibility we will go with the collapsed version here that is marked with a + inside of it.
 ![make_procurement_sub-process](/images/quick-start-create-process/make_procurement_sub-process.png)
 
-- You have two options to open a collapsed sub-process, either with the button on top of the page or with the arrow in the bottom right corner.
+You have two options to open a collapsed sub-process, either with the button on top of the page or with the arrow in the bottom right corner.
 ![open_subprocess](/images/quick-start-create-process/open_subprocess.png)
 
-- Now inside the sub-process you could freely build an entire new process. Of course procurement would be a big and complicated process,
+Now inside the sub-process you could freely build an entire new process. Of course 'Procurement' would be a big and complicated process,
   but for simplicity we will just leave this sub-process empty. You can navigate back to your model using the 'Back to parent' button
   in the top left corner.
 ![back_to_parent](/images/quick-start-create-process/back_to_parent.png)
 
-- One of the last things we want to demonstrate is something you might have been waiting for if you are familiar with BPMN already.
-  To create a boundary event, drag-and-drop an event from the left-side toolbar and attach it to an element, in our case the Procurement task.
+#### Boundary events
+
+One of the last things we want to demonstrate is something you might have been waiting for if you are familiar with BPMN already.
+  To create a boundary event, drag-and-drop an event from the left-side toolbar and attach it to an element, in our case the 'Procurement' task.
 ![create_boundary_event](/images/quick-start-create-process/create_boundary_event.png)
 
 ![drag_event_to_task](/images/quick-start-create-process/drag_event_to_task.png)
 
-- Using the wrench icon, change the event to an error boundary event. Name it 'Undeliverable'.
+Using the wrench icon, change the event to an error boundary event. Name it 'Undeliverable'.
 ![modify_to_error_boundary_event](/images/quick-start-create-process/modify_to_error_boundary_event.png)
 
-- Drag-and-drop another event to the Procurement task and change it to an escalation boundary event (non-interrupting).
+Drag-and-drop another event to the 'Procurement' task and change it to an escalation boundary event (non-interrupting).
   Name it 'Late Delivery'.
 ![add_escalation_boundary_non-interrupting](/images/quick-start-create-process/add_escalation_boundary_non-interrupting.png)
 
-- If the procurement (sub-)process cannot resolve the issue of the missing components, this boundary error event would be
+If the 'Procurement' (sub-)process cannot resolve the issue of the missing components, this boundary error event would be
   triggered, which is why we called it 'Undeliverable'. This being an interrupting event, as indicated by the solid lines,
-  defines that the process has to end here. After cancelling the order to the customer, the process ends in an end event 
-  called 'Order cancelled'.
+  defines that the process ends here. After cancelling the order the process ends in a message end event 
+  called 'Order cancelled', informing the customer.
 ![cancel_order](/images/quick-start-create-process/cancel_order.png)
 
-- The Late Delivery event is a non-interrupting event, meaning the main flow of the process does not have to go through
-  this path if this event is triggered. The Procurement (sub-)process can keep running, trying to acquire the missing components,
+The 'Late Delivery' event is a non-interrupting event, meaning the main flow of the process does not have to go through
+  this path if this event is triggered. The 'Procurement' (sub-)process can keep running, trying to acquire the missing components,
   and at some point triggers this event to inform the customer about the delayed delivery. The flow from this event
   to notify the customer also needs to stop somewhere, so it ends in an end event called 'Customer informed of late delivery'.
 ![late_delivery](/images/quick-start-create-process/late_delivery.png)
 
-- If the Procurement process is (eventually) successful, the order can be fulfilled, meaning the flow returns to the
-  Manufacturing & Logistics Department. This can simply be achieved by a 'throw message event', notifiying the other
-  department that the components are now in stock and production for the order can begin.
-![components_notification_throw_event](/images/quick-start-create-process/components_notification_throw_event.png)
+#### Finishing the diagram
 
-- The notification from the Procurement Department needs to reach the flow in the Manufacturing & Logistics Department 
-  right after gateway to not miss any steps. This can easily, and when multiple participants are involved also more legibly,
-  be achieved with a 'catch message event'.
-![components_notification_catch_event](/images/quick-start-create-process/components_notification_catch_event.png)
+If the 'Procurement' process is (eventually) successful, the order can be fulfilled, meaning the flow returns to the
+  'Manufacturing & Logistics' department. To not miss any steps, the flow has to continue right after the 'All components available?' gate.
+  To achieve this, one uses an XOR gateway to merge two incoming flows. Simply drag one from the left-side toolbar onto the 'Yes' arrow.
+![xor_merge_gateway](/images/quick-start-create-process/xor_merge_gateway.png)
 
-- This concludes our tutorial for the BPMN editor of PROCEED. You have now used and at least seen most tools of
-  the editor UI and built a reasonable process by BPMN standards doing so.
-  Enjoy using our tools and Thank you for using PROCEED!
+Once the 'Procurement' process is finished gathering the missing components, without triggering the 'Undeliverable' event 
+  and potentially after triggering the 'Late Delivery' event, the order can now move to a production facility.
+  You can now link 'Procurement' directly to the newly added XOR gateway to merge two incoming flows and your simplified order fulfillment diagram is complete.
+![merge_procurement](/images/quick-start-create-process/merge_procurement.png)
+
+This concludes our process creation tutorial for the BPMN editor of PROCEED. You have now used most tools of
+  the editor UI, built a reasonable process according to BPMN standards and are ready to create your own models.
+  Enjoy using our tools and thank you for using PROCEED!
 ![final_result](/images/quick-start-create-process/final_result.png)

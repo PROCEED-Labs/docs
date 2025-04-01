@@ -1,4 +1,6 @@
-Subprocesses can be divided into _embedded_ subprocesses and _call activities_.
+# Subprocesses and Call Activities
+
+In BPMN, subprocesses can be divided into _embedded_ subprocesses and _call activities_.
 The former are usual processes enclosed inside the parent process and don't live by its own.
 Embedded subprocesses are mainly used to reduce the visual complexity of a process.
 Therefore, they can be in an expanded and in a collapsed (with a plus symbol) state.
@@ -20,7 +22,7 @@ In both cases, the semantic part is contained in the parent process.
 
 In the PROCEED MS it is not possible to convert a collapsed subprocess into an expanded one, because this would interfere with the graphical layout of the remaining process and would maybe shift or overlap some other elements.
 
-```
+```xml
 <bpmn:process ... >
     ...
     <bpmn:startEvent id="StartEvent_1"></bpmn:startEvent>
@@ -53,19 +55,10 @@ In the PROCEED MS it is not possible to convert a collapsed subprocess into an e
 ## Call Activities
 
 A call activity references another process, so that one process can be reused in multiple other processes.
-Currently the PROCEED MS can store processes private (in the users browser storage) and publicly (on the server).
-Other processes can only be selected as call activity if the referenced process is public.
-
-Reason why only public processes can be selected for call activities...
-
-- if a process is public which references private processes as call activities, other users can't open them and would be confused
-- only public processes can be deployed, so we would need to check if every call activity is available on the server
-- an option would be to allow private processes reference other private processes, and if the parent process is made public then also transform all referenced processes
-  - public and private processes are only an intermediate solution until the user mgmt exists
 
 The following code shows how call activities are serialized:
 
-```
+```xml
 <definitions
     xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
     xmlns:p33c24="https://docs.proceed-labs.org/_17c6fed0-8a8c-4722-a62f-86ebf1324c33"
@@ -75,34 +68,40 @@ The following code shows how call activities are serialized:
     targetNamespace="https://docs.proceed-labs.org/_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8"
     >
 
-    <import namespace="https://docs.proceed-labs.org/_17c6fed0-8a8c-4722-a62f-86ebf1324c33" location="_17c6fed0-8a8c-4722-a62f-86ebf1324c33" importType="http://www.omg.org/spec/BPMN/20100524/MODEL">
+    <import namespace="https://docs.proceed-labs.org/_17c6fed0-8a8c-4722-a62f-86ebf1324c33" location="_17c6fed0-8a8c-4722-a62f-86ebf1324c33:_3rt4b808-1cc0-499d-b6bc-4eba603177z6" importType="http://www.omg.org/spec/BPMN/20100524/MODEL" />
 
     <process ...>
         ...
         <callActivity id="Task_0ul33bj" name="Call the global process" calledElement="p33c24:Process_1wqd8fv">
-            ...
         </callActivity>
         ...
     </process>
 </definitions>
 ```
 
-- the imported process is not contained within the same BPMN file (not within `<definitions>`, this would be another option)
+- the imported process is not contained within the same BPMN file (not within `<definitions>`)
 - the `import` element can occur multiple times for multiple processes, but always as the first child element of `definitions` (not after `<process>`)
 - the `import` attribute `namespace` is the `targetNamespace` of the imported process
-- a prefix is defined for the namespace of the imported process
-- the `import` attribute `location` is the `definitions id` of the imported BPMN file
+- the _prefix_ `p33c24` is defined for the namespace of the imported process on top in `definitions`
+- the `import` attribute `location` contains the `id` and `processVersionId` separated by a colon of the `definitions` element of the imported BPMN file
 - the `import` attribute `importType` indicates that the imported file is a BPMN file (static value)
-- the `callActivity` attribute `calledElement` links to the process `id` of the imported process
+- the `callActivity` attribute `calledElement` links to the `id` of `process` of the imported process
 
 \__17c6fed0-8a8c-4722-a62f-86ebf1324c33:_
 
-```
+```xml
 <definitions
     xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
     ...
     id="_17c6fed0-8a8c-4722-a62f-86ebf1324c33"
-    name="Imported Other Process"
+    name="Imported Process"
+
+    proceed:processVersionId="_3rt4b808-1cc0-499d-b6bc-4eba603177z6"
+    proceed:processVersionName="v2"
+    proceed:processVersionDescription="version 2"
+    proceed:processVersionCreatedOn="2025-04-01-15-04-33-881"
+    proceed:processVersionBasedOn="_5bfb32f1-8554-42d9-bc2d-f75fc2f60634"
+
     targetNamespace="https://docs.proceed-labs.org/_17c6fed0-8a8c-4722-a62f-86ebf1324c33"
     >
 
@@ -115,7 +114,13 @@ The following code shows how call activities are serialized:
 </definitions>
 ```
 
-#### Data transfer to and from Call Activities
+### Why don't we use another `<process>` element inside `<definitions>`?
+
+- before deployment we would have to copy the other process and its graphical model into the `<definitions>` element; after an import we would have to split it again into two processes
+- problem: if we want to start a process, the executor has to select one process of all the available processes inside `<definitions>`. There is no standard way to say which one of all processes is the main one
+  - we could use the `executable` or `processType` attribute, but this would somehow change the original semantics
+
+### Data transfer to and from Call Activities
 
 _Attention: this is not BPMN standard conform yet_
 
@@ -127,48 +132,14 @@ This may results in a set of updated/overwritten variables, but it can also cont
 
 Note that changes to variables, which are performed in the main process in parallel to the call activity execution, do not affect the variables of the latter during its runtime (there is no variable synchonization between a call activity and parallel activities). Depending on which of the parallel activities ends last, the existing variables are overwritten.
 
-#### What is currently done at the Management System to link a Call Activity
+### Deployment and Executionof Call Activities
 
-- at _design time_: if the link to the global process is created, the modeler does the following:
+If a process with Call Activities is deployed to a Process Engine, the MS does the following steps:
 
-  1. sets the `namespace` and adds a XML prefix to `definitions` ((`p+(last 5 chars from the imported namespace)`) )
-  2. sets the `location`: just the name of the BPMN file (not the folder)
-  3. sets `calledElement`
-  4. checks if the imported process has exactly one non-typed starting event
-  5. checks for cyclic references, if other call activities exists in the referenced process
+- checks if there are `<import>` elements after `definitions`
+- checks if the imported process has at least one non-typed starting event
+- checks for cyclic references, if other call activities exists in the referenced process and they are not building a loop
+- deploys all imported processes and recursive processes to a sub-endpoint under `/imported/{processName}`
+- deploys all user tasks of imported processes and recursive processes to a sub-endpoint under `/imported/user-tasks/{html-file}`
 
-- at _deployment time_:
-
-  - checks if there is `<import>` inside definitions
-  - deploys all imported processes and recursive processes to a sub-endpoint under `/imported/{processName}`
-  - deploys all user tasks of imported processes and recursive processes to a sub-endpoint under `/imported/user-tasks/{html-file}`
-  - checks for cyclic references, if other call activities exists in the referenced process
-
-- at _execution time_:
-  - the referenced process is started with the non-typed start event
-
-**Why don't we use another `<process>` element inside `<definitions>`?**
-
-- before deployment we would have to copy the other process and its graphical model into the `<definitions>` element; after an import we would have to split it again into two processes
-- problem: if we want to start a process, the executor has to select one process of all the available processes inside `<definitions>`. There is no standard way to say which one of all processes is the main one
-  - we could use the `executable` or `processType` attribute, but this would somehow change the original semantics
-
-## Exporting Sub Processes
-
-If a process is exported that contains call activities (other referenced processes), the folder structure of the zip file is as follows:
-
-```
-/PROCEED-Processes_BPMN.zip
-- {Process-Name_ABC}/
---- {Process-Name_ABC}.bpmn
---- User-Tasks/
------ {User_Task-Name}.html
------ {User_Task-Name}.html
-- {Process-Name_XYZ}/
---- {Process-Name_XYZ}.bpmn
---- User-Tasks/
------ {User_Task-Name}.html
------ {User_Task-Name}.html
-```
-
-Every process is exported with its own folder and its own user tasks.
+At _execution time_: The referenced processes are started with all the non-typed start events

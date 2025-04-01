@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<definitions    
+<definitions
     xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" 
     xmlns:proceed="https://docs.proceed-labs.org/BPMN"
     xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
@@ -8,6 +8,9 @@
     xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+
+    xmlns:p33c24="https://docs.proceed-labs.org/_17c6fed0-8a8c-4722-a62f-86ebf1324c33"
+
     expressionLanguage="http://www.ecma-international.org/ecma-262/#sec-relational-operators"
     typeLanguage="https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf"
     xsi:schemaLocation="https://docs.proceed-labs.org/BPMN https://docs.proceed-labs.org/xsd/XSD-PROCEED.xsd
@@ -20,7 +23,8 @@
     proceed:processVersionId="_2db7b808-1cc0-499d-b6bc-4eba603155e2" 
     proceed:processVersionName="v2" 
     proceed:processVersionDescription="version 2" 
-    proceed:processVersionBasedOn="_5bfb32f1-8554-42d9-bc2d-f75fc2f60634" proceed:processVersionCreatedOn="2025-04-01-15-04-33-881"
+    proceed:processVersionCreatedOn="2025-04-01-15-04-33-881"
+    proceed:processVersionBasedOn="_5bfb32f1-8554-42d9-bc2d-f75fc2f60634" 
 
     targetNamespace="https://docs.proceed-labs.org/_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8" 
     exporter="PROCEED Management System" 
@@ -46,7 +50,7 @@
         - the 'xsi:schemaLocation' will not be considered by the tools
         - but it will be considered by VSCode Addon "Xml Complete": https://marketplace.visualstudio.com/items?itemName=rogalmic.vscode-xml-complete
     -->
-    <import namespace="https://docs.proceed-labs.org/_17c6fed0-8a8c-4722-a62f-86ebf1324c33" location="_17c6fed0-8a8c-4722-a62f-86ebf1324c33" importType="http://www.omg.org/spec/BPMN/20100524/MODEL" />
+    <import namespace="https://docs.proceed-labs.org/_17c6fed0-8a8c-4722-a62f-86ebf1324c33" location="_17c6fed0-8a8c-4722-a62f-86ebf1324c33:_3rt4b808-1cc0-499d-b6bc-4eba603177z6" importType="http://www.omg.org/spec/BPMN/20100524/MODEL" />
 
 
 
@@ -205,6 +209,9 @@
             </proceed:meta>
         </extensionElements>
     </scriptTask>
+
+    <callActivity id="Task_0ul33bj" name="Call the global process" calledElement="p33c24:Process_1wqd8fv">
+    </callActivity>
 
     <sequenceFlow id="SequenceFlow_094ur4d" sourceRef="ScriptTask_oey7oew" targetRef="Task_1pdn5o1"/>
 

@@ -19,6 +19,9 @@
   <!-- for Versions -->
   <xsd:attribute name="processVersionId" type="xsd:string" />
   <xsd:attribute name="processVersionName" type="xsd:string" />
+  <xsd:attribute name="processVersionDescription" type="xsd:string" />
+  <xsd:attribute name="processVersionCreatedOn" type="xsd:string" />
+  <xsd:attribute name="processVersionBasedOn" type="xsd:string" /> <!-- references a previous version of this process -->
   <!-- for User and Spaces -->
   <xsd:attribute name="creatorSpaceId" type="xsd:string" />
   <xsd:attribute name="creatorSpaceName" type="xsd:string" />
@@ -158,14 +161,6 @@
     <xsd:attribute name="factoryRef" type="xsd:NMTOKEN" use="optional"/>
     <xsd:attribute name="companyRef" type="xsd:NMTOKEN" use="optional"/>
   </xsd:complexType>
-
-
-
-
-  <!-- TODO: VERSION for process and artifacts, extension in BPMN definition and every BPMN flow node -->
-  <!-- <xsd:attribute name="version" type="xsd:integer" />
-  <xsd:attribute name="versionBasedOn" type="xsd:integer" /> -->
-
 
   <!-- Meta Information: cost, time, probability, property -->
   <xsd:element name="meta" type="tMeta"/>

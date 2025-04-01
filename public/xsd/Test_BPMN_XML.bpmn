@@ -12,11 +12,16 @@
     typeLanguage="https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf"
     xsi:schemaLocation="https://docs.proceed-labs.org/BPMN https://docs.proceed-labs.org/xsd/XSD-PROCEED.xsd
                         http://www.omg.org/spec/BPMN/20100524/MODEL https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd"
-    id="_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8"
-
-    proceed:userDefinedId="Proc 123"
     
+    id="_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8"
+    proceed:userDefinedId="Proc 123"
     name="My First PROCEED Process"
+
+    proceed:processVersionId="_2db7b808-1cc0-499d-b6bc-4eba603155e2" 
+    proceed:processVersionName="v2" 
+    proceed:processVersionDescription="version 2" 
+    proceed:processVersionBasedOn="_5bfb32f1-8554-42d9-bc2d-f75fc2f60634" proceed:processVersionCreatedOn="2025-04-01-15-04-33-881"
+
     targetNamespace="https://docs.proceed-labs.org/_e292e6c4-4d7f-4aff-b91f-c102d5ea4ae8" 
     exporter="PROCEED Management System" 
     exporterVersion="1.0"
@@ -41,9 +46,11 @@
         - the 'xsi:schemaLocation' will not be considered by the tools
         - but it will be considered by VSCode Addon "Xml Complete": https://marketplace.visualstudio.com/items?itemName=rogalmic.vscode-xml-complete
     -->
+    <import namespace="https://docs.proceed-labs.org/_17c6fed0-8a8c-4722-a62f-86ebf1324c33" location="_17c6fed0-8a8c-4722-a62f-86ebf1324c33" importType="http://www.omg.org/spec/BPMN/20100524/MODEL" />
 
 
-<process id="_09abb321-f819-480a-9827-66264d17b4df" name="PROCEED Main Process" processType="Private" isExecutable="true" proceed:deploymentMethod="static">
+
+  <process id="_09abb321-f819-480a-9827-66264d17b4df" name="PROCEED Main Process" processType="Private" isExecutable="true" proceed:deploymentMethod="static">
 
     <extensionElements>
         <proceed:meta>
@@ -329,6 +336,6 @@
 
     
     <proceed:genericResource name="Erna" iconType="User" />
-</process>
+  </process>
     
 </definitions>

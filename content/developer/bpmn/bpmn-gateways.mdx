@@ -24,12 +24,11 @@ It goes on if all tokens have arrived.
 The exclusive (XOR) and inclusive (OR) gateways for splitting a process flow are supported.
 
 The conditions are part of the outgoing sequence flows inside a `conditionExpression`.
-The condition needs to be single-line JavaScript code (see [Script Tasks](bpmn-script-task) which evaluates to a boolean.
-On the engine, the code is taken and a `return` is put in front of it to get the result.
-An outgoing sequence flow is only allowed to have _no_ condition, if the `default` attribute inside the gateway element is pointing to this sequence flow.
+The condition needs to be single-line JavaScript code (see [Script Tasks](bpmn-script-task)) which evaluates to a boolean. In difference to Script Tasks, it is not necessary to use `variable.get()`. All process variables are directly accessable, e.g. `cost > 500`.
 
-- the attribute `language` is optional because the `expressionLanguage` attribute in the overall process should already point to JavaScript
-- the `name` of the sequence flow should give an explanation about the condition in natural language
+- It is possible that exactly one outgoing sequence flow has _no_ condition, if the `default` attribute inside the gateway element is pointing to this sequence flow.
+- The attribute `language` is optional because the `expressionLanguage` attribute in the overall process should already point to JavaScript
+- The `name` of the sequence flow should give an explanation about the condition in natural language
 
 ```
 ...
@@ -39,13 +38,13 @@ An outgoing sequence flow is only allowed to have _no_ condition, if the `defaul
 
 <bpmn:sequenceFlow id="Flow_16ilr5i" name="Path 1" sourceRef="Gateway_0sa28ep" targetRef="Gateway_0yeglea">
     <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">
-        variable.get('cost') > 500
+        cost > 500
     </bpmn:conditionExpression>
 </bpmn:sequenceFlow>
 
 <bpmn:sequenceFlow id="Flow_0vwvh4d" name="Path 2" sourceRef="Gateway_0sa28ep" targetRef="Gateway_0yeglea">
     <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="https://ecma-international.org/ecma-262/8.0/">
-        variable.get('cost') == 200
+        cost == 200
     </bpmn:conditionExpression>
 </bpmn:sequenceFlow>
 

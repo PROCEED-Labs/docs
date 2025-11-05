@@ -197,11 +197,10 @@ Tasklist](/images/tasklist/submit-variables.png)
 Existing variables of the processInstance can be retrieved to be shown inside
 the User Task.
 
-For this, the HTML Code of the User Task must make use of the [Whiskers template
-syntax](https://github.com/gsf/whiskers.js) to access and use process variables.
-It is easy and keeps templates readable by limiting tags to variables,
-statements ("for", "if", and "else"), partials, and comments. Usually you only
-need { } for accessing the desired variable.
+For this, the HTML Code of the User Task must make use of placeholders to access and use process variables.
+It is easy and keeps templates readable by limiting tags to variables and
+statements ("for" and "if"). Usually you only
+need {% %} for accessing the desired variable.
 
 In this example, the variables `firstname` and `surname` are shown inside this
 User Task
@@ -209,7 +208,7 @@ User Task
 ```
 <form class="form">
   <div id="i3jcu">
-  <b id="i4m1">Hello, {firstname} {surname}!
+  <b id="i4m1">Hello, {%firstname%} {%surname%}!
   </b>
   </div>
   <img id="inmmd" src="https://cdn.pixabay.com/photo/2015/07/02/10/40/writing-828911_1280.jpg"/>

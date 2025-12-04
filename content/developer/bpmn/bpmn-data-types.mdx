@@ -1,30 +1,62 @@
-import { Callout } from "nextra/components";
+import { Callout } from 'nextra/components';
 
-<Callout type="info">
-  Process variables and objects are **not** yet serialized in the BPMN files of
-  PROCEED. There is no `itemDefinition`, `dataObject` or `ioSpecification`
-  considered during execution of the process.
+# Process Data
+
+Process data can be stored in _Variables_. Variables are currently created on the process level within the _Automation_ of the Property panel or directly from within the UserTask Editor.
+The specification of a Process Variable is serialized into BPMN.
+
+<Callout type='info'>
+  The serialization of Process Variables in PROCEED is not yet BPMN conform. There is no `itemDefinition`, `dataObject`
+  or `ioSpecification` created at design time and this elements are also not considered during execution of the process
+  at runtime.
 </Callout>
 
-## Behavior of Process Data
+Variables are serializes as follows:
 
-Process objects are currently created within _user_ or _script tasks_. The [user
-guide](/user-guide/modelling/process-data) describes how to do it. Created process
-objects are stored within a named variable. The value of the variable is a [JSON
-data
-type](https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf),
-which is either a `string, number, boolean, null/empty, object`, or `array`.
+```xml
+...
+<process id="_09abb321-f819-480a-9827-66264d17b4df" name="PROCEED Main Process" processType="Private" isExecutable="true">
 
-A process object is accessible within the process level and all of its
-sub-processes or tasks. If two activities write in parallel to the same
-variable, the latest executions wins and overrides the value. This is a little
-bit different with a running _call activity_, because it is started as a
+  <extensionElements>
+      <proceed:variables>
+          <!--
+          name: required, unique
+          dataType: required, one of: string, number, boolean, object, array, null
+          description: optional, free text
+          requiredAtInstanceStartup: optional, boolean, default false
+          defaultValue: optional, set at design time
+          enum: optional, array of strings seperated by semicolon, the value must be one of these
+          const: optional, boolean, default false, non-changeable value after set for the first time
+
+          dataType similar to JSON Schema: https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-00#section-6.1.1
+          - string: "Text" -> optional: textFormat="email|url" (default: not present, means: no string contraints)
+          - number: "Number"
+          - boolean: "On/Off"
+          - object: "Combined Structure" -> no defaultValue and no enum in UI yet
+          - array: "List" -> no defaultValue and no enum in UI yet
+          -->
+
+          <proceed:variable name="Maschinen Typ" dataType="string" textFormat="url" description="Gibt den Typ einer Maschine an" requiredAtInstanceStartup="true" defaultValue="https://machine-type.de/3d-printer" enum="https://machine-type.de/3d-printer;https://machine-type.de/cnc;https://machine-type.de/grinder" const="false" />
+
+
+      </proceed:variables>
+  </extensionElements>
+  ...
+```
+
+A process variable is accessible within the process level and all of its sub-processes or tasks.
+
+During execution, _Activities/Tasks_ usually first **write** into local Task variables. After finishing the Tasks, the Engine writes the local variable states into the global variable states of the process instance.
+(_Exception:_ Script Tasks have a function to directly change the state of a global variable.)
+If two Activities/Tasks write in parallel to the same global variable, the latest executions wins and overrides the global variable value.
+
+This behaviour is a little bit different with a running _call activity_, because it is started as a
 completely separated process. Therefore, the current process variables are
 copied into the call activity execution at its start. After its execution, all
 _changed_ or _new_ variables from the call activity process are copied into the
 parent process. So, this maybe overrides a process variable at the end of the
 execution.
 
-Moreover, within PROCEED it can happen that parts of the process are executed on
+_Advanced:_ Moreover, within PROCEED it can happen that parts of the process are executed on
 another Machine. When two parts are _merged_ on one Machine, newer variables
 changes override older values.

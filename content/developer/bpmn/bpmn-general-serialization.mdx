@@ -35,9 +35,10 @@ https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd"` for schema validation
 - `exporterVersion` contains the version number of the Management System
 
 {/* PROCEED specific attributes */}
-{/* - `proceed:version` contains the version of the process as a date in milliseconds. It changes if something changes in the process. [See here](versioning)
 
-- `proceed:versionBasedOn` if the process was created from another one, it references the version of the original process \*/}
+- `proceed:version` contains the version of the process as a date in milliseconds. It changes if something changes in the process. [See here](versioning)
+
+- `proceed:versionBasedOn` if the process was created from another one, it references the version of the original process
 
 - `proceed:originalId`: (optional) if the process was imported into PROCEED's
   Management System, this contains the original definition _id_
@@ -64,6 +65,7 @@ Main Process"`
 - `isExecutable`: true
 - `proceed:deploymentMethod`: attribute for changing the deployment method. Can
   have the values `static` or `dynamic` for the [respective methods](concepts/deployment/_index)
+- `proceed:uiForNontypedStartEventsFileName`: attribute with a reference to the UI which should be shown if someone starts a process instance. Usually used for defining process variables at the process start.
 
 ## Flow Nodes inside a `process`
 
@@ -172,13 +174,11 @@ data : - `name` attribute is required and a string : - can be used on every
 level, i.e. on `<process>` or every flow node : - the value is specified inside
 the content of the element
 
-{/* ## Versioning
+## Versioning
 
 Process artifacts (User Task, Scripts, etc.) will be versioned with the attribute `proceed:version`.
 
 ## Monitoring
-
-*/}
 
 ### Example
 
@@ -217,8 +217,10 @@ Process artifacts (User Task, Scripts, etc.) will be versioned with the attribut
 
     <process id="Process_1wqd8fv"
         name="PROCEED Main Process"
-        processType="Private" isExecutable="true"
-        proceed:deploymentMethod="static">
+        processType="Private"
+        isExecutable="true"
+        proceed:deploymentMethod="static"
+        proceed:uiForNontypedStartEventsFileName="Process_Start_0jgl7kx">
 
         <extensionElements>
             <proceed:meta>
@@ -230,6 +232,9 @@ Process artifacts (User Task, Scripts, etc.) will be versioned with the attribut
                 <proceed:overviewImage>data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAB3BAMAAAAeDIOYAAAAD1BMVEUAAABZWVlgYGBmZmZsbGy1A1kgAAAAAXRSTlMAQObYZgAAAAlwSFlzAAC4jAAAuIwBzPa7LwAAAWRJREFUaN7tmu0NgzAMRMPHAEAYAFoGCBsA+w/VDQqW41wSLv8tWSfn9ZHaudvTj+qzONXZ1Q14XQOtPoJD18GqbmCGR+DQESjHsFE3MOkaqOEmKiPo9BEEwogwIozKh9FJGNUAo4C+iRthtKAjIIwyhFH3uT3BFkayEgMYnbKS+GbUy0oM5HCXlcSHUScrMYDRKioxgFErKznRERjASBgBYWRgRoTRk8keCKOsYNQTRi81o29lMBp0ZmTwZrQTRjQjmtGTyfa2MEJrQXI3nOQzcJjOwAoegTb1JfCZkTA5CCfdHYz+dSL0gfg/hg8idZZG1KWG0Ph6CAXx/5K2b8ayACqAkJLChBAggM0UQhfahtEyXIAJeZqQ5deIEEIXGkKIAOo2oQd2Hfd5cMpNBApbZooPocJ2SC5wAPA9oiY6hArbJYOv9q6EEDYAQggdQFs+hWdCiBDCBkATogkRQlgR+AOhHxPPunGOG5/7AAAAAElFTkSuQmCC</proceed:overviewImage>
                 <proceed:property name="lastAuthor">Max Mustermann</proceed:property>
             </proceed:meta>
+            <proceed:variables>
+                <proceed:variable name="Maschinen Typ" dataType="string" textFormat="url" description="Gibt den Typ einer Maschine an" requiredAtInstanceStartup="true" defaultValue="https://machine-type.de/3d-printer" enum="https://machine-type.de/3d-printer;https://machine-type.de/cnc;https://machine-type.de/grinder" const="false" />
+            </proceed:variables>
         </extensionElements>
 
         <startEvent id="Event_141ngxf" proceed:machineId="6bd9c3cf-8164-453a-a039-e8aaf138f192">

@@ -50,6 +50,7 @@
   <xsd:attribute name="originalCreatorUsername" type="xsd:string" />
 
   <!-- for extension in the BPMN 'process' element -->
+  <xsd:attribute name="uiForNontypedStartEventsFileName" type="xsd:string" />
   <xsd:attribute name="deploymentMethod" type="tDeploymentMethod" />
   <xsd:simpleType name="tDeploymentMethod">
     <xsd:restriction base="xsd:string">
@@ -160,6 +161,26 @@
     <xsd:attribute name="areaRef" type="xsd:NMTOKEN" use="optional"/>
     <xsd:attribute name="factoryRef" type="xsd:NMTOKEN" use="optional"/>
     <xsd:attribute name="companyRef" type="xsd:NMTOKEN" use="optional"/>
+  </xsd:complexType>
+
+
+
+  <!-- Variable definition-->
+  <xsd:element name="variables" type="tVariables" />
+  <xsd:complexType name="tVariables">
+    <xsd:sequence>
+      <xsd:element name="variable" type="tVariable" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="tVariable">
+    <xsd:attribute name="name" type="xsd:normalizedString" use="required"/>
+    <xsd:attribute name="dataType" type="xsd:normalizedString" use="required"/>
+    <xsd:attribute name="textFormat" type="xsd:normalizedString" use="optional"/>
+    <xsd:attribute name="description" type="xsd:string" use="optional"/>
+    <xsd:attribute name="requiredAtInstanceStartup" type="xsd:boolean" use="optional"/>
+    <xsd:attribute name="defaultValue" type="xsd:string" use="optional"/>
+    <xsd:attribute name="enum" type="xsd:string" use="optional"/>
+    <xsd:attribute name="const" type="xsd:boolean" use="optional"/>
   </xsd:complexType>
 
   <!-- Meta Information: cost, time, probability, property -->

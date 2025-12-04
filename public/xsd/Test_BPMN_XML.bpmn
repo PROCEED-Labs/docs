@@ -54,7 +54,7 @@
 
 
 
-  <process id="_09abb321-f819-480a-9827-66264d17b4df" name="PROCEED Main Process" processType="Private" isExecutable="true" proceed:deploymentMethod="static">
+  <process id="_09abb321-f819-480a-9827-66264d17b4df" name="PROCEED Main Process" processType="Private" isExecutable="true" proceed:deploymentMethod="static" proceed:uiForNontypedStartEventsFileName="Process_Start_0jgl7kx">
 
     <extensionElements>
         <proceed:meta>
@@ -66,6 +66,27 @@
             <proceed:overviewImage>data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAB3BAMAAAAeDIOYAAAAD1BMVEUAAABZWVlgYGBmZmZsbGy1A1kgAAAAAXRSTlMAQObYZgAAAAlwSFlzAAC4jAAAuIwBzPa7LwAAAWRJREFUaN7tmu0NgzAMRMPHAEAYAFoGCBsA+w/VDQqW41wSLv8tWSfn9ZHaudvTj+qzONXZ1Q14XQOtPoJD18GqbmCGR+DQESjHsFE3MOkaqOEmKiPo9BEEwogwIozKh9FJGNUAo4C+iRthtKAjIIwyhFH3uT3BFkayEgMYnbKS+GbUy0oM5HCXlcSHUScrMYDRKioxgFErKznRERjASBgBYWRgRoTRk8keCKOsYNQTRi81o29lMBp0ZmTwZrQTRjQjmtGTyfa2MEJrQXI3nOQzcJjOwAoegTb1JfCZkTA5CCfdHYz+dSL0gfg/hg8idZZG1KWG0Ph6CAXx/5K2b8ayACqAkJLChBAggM0UQhfahtEyXIAJeZqQ5deIEEIXGkKIAOo2oQd2Hfd5cMpNBApbZooPocJ2SC5wAPA9oiY6hArbJYOv9q6EEDYAQggdQFs+hWdCiBDCBkATogkRQlgR+AOhHxPPunGOG5/7AAAAAElFTkSuQmCC</proceed:overviewImage>
             <proceed:property name="lastAuthor">Max Mustermann</proceed:property>
         </proceed:meta>
+        <proceed:variables>
+            <!--
+            name: required, unique
+            dataType: required, one of: string, number, boolean, object, array, null
+            description: optional, free text
+            requiredAtInstanceStartup: optional, boolean, default false
+            defaultValue: optional, set at design time
+            enum: optional, array of strings seperated by semicolon, the value must be one of these
+            const: optional, boolean, default false, non-changeable value after set for the first time
+
+            dataType similar to JSON Schema: https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-00#section-6.1.1
+            - string: "Text" -> optional: textFormat="email|url" (default: not present, means: no string contraints)
+            - number: "Number"
+            - boolean: "On/Off"
+            - object: "Combined Structure" -> no defaultValue and no enum in UI yet
+            - array: "List" -> no defaultValue and no enum in UI yet
+            -->
+
+            <proceed:variable name="Maschinen Typ" dataType="string" textFormat="url" description="Gibt den Typ einer Maschine an" requiredAtInstanceStartup="true" defaultValue="https://machine-type.de/3d-printer" enum="https://machine-type.de/3d-printer;https://machine-type.de/cnc;https://machine-type.de/grinder" const="false" />
+
+        </proceed:variables>
     </extensionElements>
 
 

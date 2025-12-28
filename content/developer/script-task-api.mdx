@@ -1,11 +1,28 @@
-## BPMN Script Tasks and their API
+import { Callout } from 'nextra/components';
+
+# BPMN Script Tasks
 
 An executable BPMN diagram can contain Script Tasks.
-In PROCEED, you can use pure JavaScript to write functionalities for the process.
-Therewith, you also have access to APIs for accessing process variables or to trigger network requests.
+In PROCEED, you can use Blockly or pure JavaScript (JS) to create an executable Script Task.
+The programming in Blockly is limited to the usage of the predefined blocks which resemble many JavaScript possibilities.
+The programming in JavaScript is more versatile but -- compared to Blockly -- for advanced Users.
 
-At the end of the script there can be a `return`, ending the script.
-The `return` may return an object with properties/value pairs which will update process variables.
+The code of a script task is executed within a sandboxed JavaScript environment, so that it is not able to influence the PROCEED Engine, the Operation System or other process instances.
+
+The following page describes the available JavaScript possibilities and libraries usable in Script Tasks.
+
+## JavaScript and PROCEED Libraries
+
+A Script Task can be defined with pure JavaScript. Currently PROCEED supports the **ECMAScript 2020** version.
+Moreover, there are several library functions that can be used for accessing global data, process variables or to trigger network requests.
+
+### Ending Scripts: optional `return` and `Error`
+
+Scripts can end without a `return` statement.
+Optionally, it can also end with `return`.
+In this case, you should only return an `Object`.
+Its properties (_key_ and _value_) will write and update the process variables.
+
 A Script Task can also end by a semantic error, which will be
 caught by an attached boundary _Error_ or _Escalation_ event. This is done by
 throwing an `BpmnError` or an `BpmnEscalation`.
@@ -14,12 +31,7 @@ If an error is thrown but not caught within the BPMN process, or if the script
 itself has an error (e.g. syntax error), the token will end its execution.
 (This only stops the running token, not the whole process.)
 
-The code of a script task is usually executed within a sandboxed JavaScript
-environment, so that it is not able to influence the PROCEED Engine.  
-The supported ECMAScript version depends on the used Node.js version which runs
-the PROCEED Engine, but at least ECMAScript Version 8 is supported.
-
-## Example
+### Example
 
 The following example is a BPMN process describing the workflow of an online
 shop which offers to ship products to their customers: The process starts with a
@@ -56,131 +68,255 @@ if (amount > 100) {
 }
 ```
 
-## API
+## PROCEED Library: Script API
 
-#### `variable`
+### `variable`
 
-In a Script Task it is possible to read and modify the process variables. This
-can be done via the object `variable`.
+In a Script Task it is possible to read and modify data of the _process_.
+This can be done with the object `variable`.
+It is recommended to predefine process variables in the _Automation_ tab of the _Property Panel_ before using them inside a Script Task.
 
-When setting variables, it is required to use only _data types_ which are
-supported by _JSON_. Variables are not allowed to contain `undefined`, functions
-or cyclical objects. Not following these requirements, the Script Task will
-throw an error. Due to this, setting of a variable should be done in a try-catch
-block.
+<Callout type='info'>
+  Of course, it is also possible to use JS' capability to define variables with `let, const, var`. These variables are
+  only local to the Script Task and will be deleted after its execution.
+</Callout>
 
-| API                         | Access to the process variables.                      |
-| --------------------------- | ----------------------------------------------------- |
-| `.set( "<name>", <value> )` | Updates the value of a variable                       |
-| `.get( "<name>" )`          | Returns the value of a variable                       |
-| `.getAll()`                 | Returns an object containing all variables and values |
+When setting _process_ variables, use the serializable JSON _data types_: `string`, `number`, `boolean`, `object`, `array`.
+Functions or cyclical objects are automatically converted to `undefined`.
 
-#### `log`
+Process variables usually exist in two different scopes: inside the Script Task (_local_) and _outside_ the Script Task on the level of the entire process.
+At the start of each Script Task, the process variables are once copied into the local scope of the task.
+After the Script Task execution ended, the local process variables automatically update (override) the process variables outside of the task.
+
+<Callout type='warning'>
+  Although we recommend to usually read and write in the local scope, there are also methods for accessing the outside
+  scope. But keep in mind that writing into the outside scope can lead to concurrency problem if other (parallel) tasks
+  also write into these process variables at the same time.
+</Callout>
+
+| API                                       | Access to the process variables.                                                                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.get( "<var-name>" )`                    | Returns the value of a variable from the local scope.                                                                                       |
+| `.getGlobal( "<var-name>" )`              | Returns the value of a variable from the global scope.                                                                                      |
+| `.getAll()`                               | Returns an object containing all local variables and their values.                                                                          |
+| `.getAllGlobal()`                         | Returns an object containing all global variables and their values.                                                                         |
+| `.getWithLogs()`                          | Returns an object containing all local variables, their values and their log (array) about the modification time points.                    |
+| `.getWithLogsGlobal()`                    | Returns an object containing all global variables, their values and their log (array) about the modification time points plus the modifier. |
+| `.set( "<var-name>", <var-value> )`       | Updates the value of a local variable.                                                                                                      |
+| `.setGlobal( "<var-name>", <var-value> )` | Updates the value of a global process variable.                                                                                             |
+
+**Example Code**
+
+```js
+log.info("\nget('var1'): " + variable.get('var1'));
+log.info("\ngetGlobal('var1'): " + variable.getGlobal('var1'));
+log.info('\ngetAll(): ' + JSON.stringify(variable.getAll(), null, 2));
+log.info('\ngetAllGlobal(): ' + JSON.stringify(variable.getAllGlobal(), null, 2));
+log.info('\ngetWithLogs(): ' + JSON.stringify(variable.getWithLogs(), null, 2));
+log.info('\ngetWithLogsGlobal(): ' + JSON.stringify(variable.getWithLogsGlobal(), null, 2));
+
+variable.set('var1', 123);
+
+log.info("\nget('var1'): " + variable.get('var1'));
+log.info("\ngetGlobal('var1'): " + variable.getGlobal('var1'));
+log.info('\ngetAll(): ' + JSON.stringify(variable.getAll(), null, 2));
+log.info('\ngetAllGlobal(): ' + JSON.stringify(variable.getAllGlobal(), null, 2));
+log.info('\ngetWithLogs(): ' + JSON.stringify(variable.getWithLogs(), null, 2));
+log.info('\ngetWithLogsGlobal(): ' + JSON.stringify(variable.getWithLogsGlobal(), null, 2));
+
+variable.setGlobal('var1', 456);
+
+log.info("\nget('var1'): " + variable.get('var1'));
+log.info("\ngetGlobal('var1'): " + variable.getGlobal('var1'));
+log.info('\ngetAll(): ' + JSON.stringify(variable.getAll(), null, 2));
+log.info('\ngetAllGlobal(): ' + JSON.stringify(variable.getAllGlobal(), null, 2));
+log.info('\ngetWithLogs(): ' + JSON.stringify(variable.getWithLogs(), null, 2));
+log.info('\ngetWithLogsGlobal(): ' + JSON.stringify(variable.getWithLogsGlobal(), null, 2));
+```
+
+### `log`
 
 Logging in the PROCEED Engine can be done via the object `log`. Depending on the
 log level and the Engine configuration, the logged message will maybe shown in
 the console.
 
-| API                     | Write a message to the logging system of the Engine. |
-| ----------------------- | ---------------------------------------------------- |
-| `.trace( "<message>" )` |                                                      |
-| `.debug( "<message>" )` |                                                      |
-| `.info( "<message>" )`  |                                                      |
-| `.warn( "<message>" )`  |                                                      |
-| `.error( "<message>" )` |                                                      |
+| API                     | Write a message to the logging system of the Engine.                 |
+| ----------------------- | -------------------------------------------------------------------- |
+| `.trace( "<message>" )` | Logging with timestamp in log level _trace_ (deactivated by default) |
+| `.debug( "<message>" )` | Logging with timestamp in log level _debug_ (deactivated by default) |
+| `.info( "<message>" )`  | Logging with timestamp in log level _info_                           |
+| `.warn( "<message>" )`  | Logging with timestamp in log level _warn_                           |
+| `.error( "<message>" )` | Logging with timestamp in log level _error_                          |
 
-#### `console`
+**Example Code**
 
-Logging can also done via the object `console`. Using this way, the message will
-be redirected to the logging system of the engine and potentially shown in the
-console. Furthermore, `console` supports a few other functions:
+```js
+log.trace('Hello PROCEED - trace()');
+log.debug('Hello PROCEED - debug()');
+log.info('Hello PROCEED - info()');
+log.warn('Hello PROCEED - warn()');
+log.error('Hello PROCEED - error()');
+```
+
+### `console`
+
+Logging can also done via the object `console`.
+Using this way, the message _will be redirected_ to the logging system of the engine and is essentially nearly the same as the logging functions.
+`console` just supports a few other functions:
 
 | API                     | Write a message to the logging system of the Engine.                       |
 | ----------------------- | -------------------------------------------------------------------------- |
-| `.log( "<message>" )`   |                                                                            |
-| `.trace( "<message>" )` |                                                                            |
-| `.debug( "<message>" )` |                                                                            |
-| `.info( "<message>" )`  |                                                                            |
-| `.warn( "<message>" )`  |                                                                            |
-| `.error( "<message>" )` |                                                                            |
+| `.log( "<message>" )`   | Logging without timestamp.                                                 |
+| `.trace( "<message>" )` | Logging with timestamp in log level _trace_ (deactivated by default)       |
+| `.debug( "<message>" )` | Logging with timestamp in log level _debug_ (deactivated by default)       |
+| `.info( "<message>" )`  | Logging with timestamp in log level _info_                                 |
+| `.warn( "<message>" )`  | Logging with timestamp in log level _warn_                                 |
+| `.error( "<message>" )` | Logging with timestamp in log level _error_                                |
 | `.time( "<label>" )`    | Starts a timer containing label parameter                                  |
 | `.timeEnd( "<label>" )` | Ends a timer with given label parameter and displays the result in console |
 
-#### `setProgress(<number between 0 - 100>)`
+**Example Code**
 
-The engine holds information about the current progress of a flow Node. Inside
-of a Script Task, the current progress can be set via the function
-`setProgress`, which accepts a value between 0 and 100 describing the
-percentage.
+```js
+console.time('L1');
+console.log('Hello PROCEED - log()');
+console.trace('Hello PROCEED - trace()');
+console.debug('Hello PROCEED - debug()');
+console.info('Hello PROCEED - info()');
+console.warn('Hello PROCEED - warn()');
+console.error('Hello PROCEED - error()');
+console.timeEnd('L1');
+```
 
-| API                       |                                                           |
-| ------------------------- | --------------------------------------------------------- |
-| `setProgress(<progress>)` | Set progress of a Script Task, progress between 0 and 100 |
+### `wait( <number in milliseconds> )`
 
-#### `await setIntervalAsync( <clb>, <number in milliseconds> )`
+An timeout function which stops the Script execution.
+It is similar to the conventional _setTimeout()_, which is not available in a Script Task.
 
-An interval function which repeatedly calls a _callback_ function after a
-timeout. It is similar to the conventional _setInterval()_, which is not
-available in a Script Task. The `setIntervalAsync` function returns a `Promise`,
-so you need to call it with `await`.
+**OPEN TODO:** The `wait`function returns an integer: it returns `1` if the process was paused (externally by the MS) during the process execution. Else it returns `0`.
+This information is useful since a pausing of the process has an undefined timespan, so the defined _waiting_ time is not reliable anymore.
 
-There are three possibilities for `setIntervalAsync` after the callback was
-executed:
+| API                              |                                                   |
+| -------------------------------- | ------------------------------------------------- |
+| `wait(<number in milliseconds>)` | timeout for pausing the the Script Task execution |
 
-- The interval continues, if the callback function returns with `false` (any
-  falsy value).
-- The interval ends, if the callback function returns with `true`.
-- Interval ends with an `Error` (use `try-catch`), if the callback function
-  throws an error.
+**Example Code**
 
-| API                                                       |                                                                                                                                                                                                          |
-| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `await setIntervalAsync(<clb>, <number in milliseconds>)` | `clb`: callback function which can return `false` (continue interval), `true` (stop interval), or throws an `Error` (stop with error). <br /> Interval timeout in milliseconds before re-executing `clb` |
+```js
+let hasBeenPaused = wait(10000);
+if (hasBeenPaused) {
+  log.warn(
+    'Attention: wait() has been interrupted by a process pause command (likely triggered by the User in the MS)',
+  );
+} else {
+  log.info('sucessfully waited ');
+}
+```
 
-#### `await setTimeoutAsync( <clb>, <number in milliseconds> )`
+### `setInterval( <clb>, <ms> )` and `clearInterval( <id> )`
 
-An timeout function which executes a _callback_ function after a timeout expired. It is similar to the conventional _setTimeout()_, which is not available in a Script Task.
-The `setTimeoutAsync` function returns a `Promise`, so you need to call it with `await`.
+{/*
+TODO:
+Currently there is a Bug that makes the usage of setInterval synchronous.
+If bug is resolved and true asynchronous programming is possible, then include this Warning.
 
-| API                                                      |                                                                                             |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `await setTimeoutAsync(<clb>, <number in milliseconds>)` | `clb` function is executed after timeout expired. Returns the result of the `clb` function. |
+<Callout type='warning'>
+  The use of `setInterval()` is only suitable for advanced users. It can make code execution asynchronous. This allows
+  you to achieve multiple semi-parallel code executions.
+</Callout>
 
-### Services
+*/}
 
-There are special functionalities for accessing system resources. They can be
-accessed via _services_ by calling `getService( 'service' )`. Services are
-provided by the PROCEED Engine. The following services are currently offered:
+An interval function which repeatedly calls a _callback_ function (`clb`) after a timeout (`ms`).
+It is similar to the conventional `setInterval()` of the Node.js and the Web API.
+_Hint:_ the interval timer starts counting after the last interval execution has ended.
 
-#### `getService('network')`
+The `setInterval()` function returns an _id_ that is used to stop the interval with `clearInterval( <id> )`.
+A Script Task can only end when all started intervals have finished.
 
-Inside of a Script Task it is possible to send HTTP requests to a given URL. The
-network functions are asynchronous, meaning a Promise is returned.
-**Attention:** The `async/await` pattern should be used to handle this, **not**
-the `.then()` and `.catch()`.
+`setInterval()` is synchronous, i.e. if multiple intervals have been started, one interval execution 
+blocks other the code execution of other intervals. 
+If you need to run parallel code executions, you currently have to use multiple Script Tasks connected by a parallel Gateway.
 
-| API                                                                      | Send network requests                                       |
-| ------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| `.get( "<url>", [<{options}>])` _(async)_                                | Send GET-Request to a URL                                   |
-| `.post( "<url>", <{body}>, ["<content-type>"], [<{options}>])` _(async)_ | Send POST-Request to a URL with a `body` (Object or String) |
-| `.put( "<url>", <{body}>, ["<content-type>"], [<{options}>])` _(async)_  | Send PUT-Request to URL with a `body` (Object or String)    |
-| `.delete( "<url>", [<{options}>])` _(async)_                             | Send DELETE-Request to URL with given options               |
-| `.head( "<url>", [<{options}>])` _(async)_                               | Send HEAD-Request to URL with given options                 |
 
-The `content-type` is an optional string parameter. It sets the correct [Mime
+{/*
+TODO:
+Currently there is a Bug that starts the timer for the next interval only after the last execution ended.
+If bug is resolved, then include this info.
+
+<Callout type='info'>
+  It is important to ensure that code execution duration of your interval is shorter than the interval frequency. Else,
+  the timing is quite unreliable. _Hint:_ the interval timer starts counting after the last interval call has ended.
+</Callout>
+*/}
+| API                                                                  |                                                                                                                                     |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `setInterval(<clb: function>, <milliseconds: number>): <id: number>` | the `clb` function is repeatly called after the given interval timeout `milliseconds` ended. Return the `id` of the interval timer. |
+| `clearInterval( <id: number> )`                                      | stops the interval timer.                                                                                                           |
+
+**Example Code**
+
+```js
+let id;
+let counter;
+
+let f = function (intervalId, startValue) {
+    counter = counter ?? startValue ?? 0;
+    counter++;
+    log.info('Interval-Id: ' + intervalId + ' Counter: ' + counter);
+    if (counter > 5) {
+        log.info('Cancel Interval-Id: ' + intervalId);
+        clearInterval(intervalId);
+    }
+};
+
+/* 
+Calling setInterval() with a callback function and timeout.
+You can directly have function f as the first parameter.
+In this case, we put f into another arrow function, because 
+id1 is used as the first parameter of f().  
+*/
+id = setInterval(() => f(id, 2), 1000);
+```
+
+### HTTP Network Requests and Server
+
+#### `networkRequest`: sychronous functions
+
+Inside of a Script Task it is possible to send HTTP(S) requests to a given URL.
+The prefered way of using `networkRequest` is with its synchronous methods, i.e. the functions wait until an answer is is received.
+Since this are network requests, the completion of the methods sometimes need a while until the response is received.
+
+| API                                                                                 | Explanation                                                    |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `.get( "<url>", [<{options}>]): { response, body }`                                 | Sends a GET-Request to a URL                                   |
+| `.post( "<url>", <{body}>, ["<content-type>"], [<{options}>]): { response, body } ` | Sends a POST-Request to a URL with a `body` (Object or String) |
+| `.put( "<url>", <{body}>, ["<content-type>"], [<{options}>]): { response, body }`   | Sends PUT-Request to URL with a `body` (Object or String)      |
+| `.delete( "<url>", [<{options}>]): { response, body }`                              | Sends a DELETE-Request to a URL                                |
+| `.head( "<url>", [<{options}>]): { response, body }`                                | Sends a HEAD-Request to a URL                                  |
+
+`"<url>"` is a required parameter defining the endpoint of the network request.
+It has the format: `<protocol>://[<user>:<password>@]<address>:[<port>]/[<path>]?[<query>]`
+- `<protocol>`: required, needs to be `http` or `https`.
+- `[<user>:<password>@]`: optional, used for _Basic_ HTTP authentification (Base64 encoding into `Authorization:` header)
+- `<address>` is required and needs to be a DNS domain name or an IP address.
+- `[<port>]` and `[<path>]` and `[<query>]` are optional.  
+- Example: `"https://user:pass@app.example.com:8000/path/to/resource?compressed=true&limit=10"`
+
+The `["<content-type>"]` is an optional string parameter. Set it to the correct [Mime
 type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
-for the transmitted data. It defaults to `"text/plain"` if body is a string, and
+of the transmitted data. It defaults to `"text/plain"` if body is a string, and
 to `"application/json"` if body is a JS object (because it will automatically be
 transformed to JSON before sending).
 
-The `[<{options}>]` object is optional. It resembles the [Node.js options object
-for
-`http.request`](https://nodejs.org/api/http.html#http_http_request_url_options_callback).
-The most important variable is probably the `headers` object. (Some other will
-be automatically filled, e.g.`host`, `method`, `path`.)
+The `[<{options}>]` object is optional.
+For unsecured HTTP requests, there are two usable properties: 
+- `headers: {}`: An object of strings containing additional request headers.
+- `setHost: true|false`: Specifies whether or not to automatically add the `Host` header. Defaults to `true`.
 
-The functions resolve if the request was successful (meaning HTTP statusCode
-2xx) with a returned object that looks as follows: `{ response, body }`
+In case of a secure HTTPS connection, the `options` object has some [additional attributes from `https.request`](https://nodejs.org/api/https.html#httpsrequesturl-options-callback).
+
+The network functions only return if the _response_ has a HTTP 2xx status code. The methods return an object that contains two properties: `{ response, body }`
 
 - `response`: is an object that contains meta information about the response,
   including `.headers`, `.httpVersion`, `.method`, `.statusCode`,
@@ -190,14 +326,60 @@ The functions resolve if the request was successful (meaning HTTP statusCode
   for more information.
 - `body`: Body of the response
 
-The functions throw an error (`try-catch` should be used) either if:
+The functions throw an [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) if:
 
-- the response has a **non**-2xx statusCode: `{ response, body }` will be
-  returned as well
-- any error is encountered during the request (e.g. DNS resolution, TCP level
-  errors, or actual HTTP parse errors): an
-  [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)
-  object is returned.
+- if the response has a **non**-2xx statusCode: `{ response, body }` will be
+  returned inside the `Error` object
+- if any error is encountered during the request (e.g. DNS resolution, TCP level
+  errors, or actual HTTP parse errors)
+
+That's why `try-catch` must be used around network requests.
+
+**Example Code**
+
+```js
+try {
+  let { response, body } = networkRequest.put(
+    'https://localhost:8080/path/to/resource?compressed=true&limit=10',
+    {
+      api: '2.0',
+      data: 'Test data',
+      id: 1,
+    },
+    undefined,
+    {
+      headers: {
+        'X-PROCEED-Example-Header': '33029',
+      },
+      rejectUnauthorized: false,
+    },
+  );
+
+  log.info(JSON.stringify(response, null, 2));
+  log.info(JSON.stringify(body, null, 2));
+} catch (e) {
+  log.error('-----------PROBLEM------------');
+  log.error(JSON.stringify(e, null, 2));
+}
+```
+
+#### `networkRequest`: asychronous functions
+
+The network functions are asynchronous, meaning a Promise is returned.
+**Attention:** The `async/await` pattern should be used to handle this, **not**
+the `.then()` and `.catch()`.
+
+Inside of a Script Task it is possible to send HTTP(S) requests to a given URL.
+The prefered way of using `networkRequest` is with its synchronous methods, i.e. the functions wait until an answer is is received.
+Since this are network requests, the completion of the methods sometimes need a while until the response is received.
+
+| API                                                                                 | Explanation                                                    |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `.get( "<url>", [<{options}>]): { response, body }`                                 | Sends a GET-Request to a URL                                   |
+| `.post( "<url>", <{body}>, ["<content-type>"], [<{options}>]): { response, body } ` | Sends a POST-Request to a URL with a `body` (Object or String) |
+| `.put( "<url>", <{body}>, ["<content-type>"], [<{options}>]): { response, body }`   | Sends PUT-Request to URL with a `body` (Object or String)      |
+| `.delete( "<url>", [<{options}>]): { response, body }`                              | Sends a DELETE-Request to a URL                                |
+| `.head( "<url>", [<{options}>]): { response, body }`                                | Sends a HEAD-Request to a URL                                  |
 
 ### Trigger Events
 

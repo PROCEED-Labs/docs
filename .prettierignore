@@ -1,0 +1,3 @@
+# Prettier should ignore all mdx files, because there is a Bug with multi-line JSX comments 
+# currently (1.1.26) not possible with prettier: {/* ... */} comments in mdx files
+**/*.mdx

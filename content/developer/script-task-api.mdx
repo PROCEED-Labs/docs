@@ -188,20 +188,36 @@ console.error('Hello PROCEED - error()');
 console.timeEnd('L1');
 ```
 
-### `wait( <number in milliseconds> )`
+### `wait( <ms> )` [#wait]
 
-An timeout function which stops the Script execution.
-It is similar to the conventional _setTimeout()_, which is not available in a Script Task.
+A timeout function which pauses/postpones the script execution.
+It is synchronous and blocks the execution until the timeout is passed.
+_Hint:_ the popular `setTimeout()` is not available in a Script Task.
 
-**OPEN TODO:** The `wait`function returns an integer: it returns `1` if the process was paused (externally by the MS) during the process execution. Else it returns `0`.
+If the _entire process_ is paused from the Management System, all script code is also paused until the process is resumed. 
+If a _pause_ occurs during a `wait()`, the system stores the original expiration time of `wait()`. 
+If the process resumes before this original expiration time, the script waits for the remaining time before continuing with the next instructions. 
+If the original expiration time has passed after the process resumes, it immediately continues with the next instructions after `wait()`. 
+
+{/* -> uncomment when Bug is solved
+**OPEN Bug:** The `wait`function returns an integer: it returns `1` if the process was paused (externally by the MS) during the process execution. Else it returns `0`.
 This information is useful since a pausing of the process has an undefined timespan, so the defined _waiting_ time is not reliable anymore.
+*/}
 
 | API                              |                                                   |
 | -------------------------------- | ------------------------------------------------- |
-| `wait(<number in milliseconds>)` | timeout for pausing the the Script Task execution |
+| `wait(<milliseconds: number>)` | `milliseconds` for pausing the the Script Task execution |
 
 **Example Code**
 
+```js
+// log with time:
+log.info("Before wait()");
+wait(10000); // 10s
+log.info("After wait()");
+```
+
+{/* -> uncomment when Bug is solved
 ```js
 let hasBeenPaused = wait(10000);
 if (hasBeenPaused) {
@@ -211,6 +227,29 @@ if (hasBeenPaused) {
 } else {
   log.info('sucessfully waited ');
 }
+```
+*/}
+
+### `waitAsync( <ms> ): Promise` [#wait]
+
+<Callout type='warning'>
+  The use of `waitAsync( <ms> ): Promise` is only suitable for advanced users. 
+  It makes code execution asynchronous. 
+  This allows you to achieve multiple semi-parallel code executions.
+</Callout>
+
+Like [`wait()`](#wait) but asynchronous, so it immediately continues with the next code instructions and does not block the specified timeout is finished. 
+In this sense, it is similar to the usual `setTimeout()` but only with a Promise. So, you can use `await` or `then()`.
+Pausing behavior is the same as for `wait()`.
+
+| API                              |                                                   |
+| -------------------------------- | ------------------------------------------------- |
+| `waitAsync(<milliseconds: number>): Promise` | `milliseconds` for pausing the the Script Task execution. Returns a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). |
+
+**Example Code**
+
+```js
+ waitAsync(10000).then( () => console.info("Finished waiting 10s") );
 ```
 
 ### `setInterval( <clb>, <ms> )` and `clearInterval( <id> )`

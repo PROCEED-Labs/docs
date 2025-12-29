@@ -238,8 +238,9 @@ if (hasBeenPaused) {
   This allows you to achieve multiple semi-parallel code executions.
 </Callout>
 
-Like [`wait()`](#wait) but asynchronous, so it immediately continues with the next code instructions and does not block the specified timeout is finished. 
-In this sense, it is similar to the usual `setTimeout()` but only with a Promise. So, you can use `await` or `then()`.
+Like [`wait()`](#wait) but asynchronous. So, it immediately continues with the next code instructions and does not block the execution. 
+In this sense, it is similar to the usual `setTimeout()` but instead of callbacks, it returns a _Promise_. 
+Therefore, you can use `await` or `then()`.
 Pausing behavior is the same as for `wait()`.
 
 | API                              |                                                   |
@@ -320,14 +321,17 @@ id = setInterval(() => f(id, 2), 1000);
 
 ### HTTP Network Requests and Server
 
-#### `networkRequest`: sychronous functions
+#### `networkRequest`: sychronous functions [#networkRequest]
 
 Inside of a Script Task it is possible to send HTTP(S) requests to a given URL.
 The prefered way of using `networkRequest` is with its synchronous methods, i.e. the functions wait until an answer is is received.
 Since this are network requests, the completion of the methods sometimes need a while until the response is received.
 
-| API                                                                                 | Explanation                                                    |
-| ----------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+If the entire process is paused from the Management System, all script code is also paused until the process is resumed. If a pause occurs during a `networkRequest.X()`, the system stores the response and returns it when the process is resumed.
+
+
+| API                              |                                                   |
+| -------------------------------- | ------------------------------------------------- |
 | `.get( "<url>", [<{options}>]): { response, body }`                                 | Sends a GET-Request to a URL                                   |
 | `.post( "<url>", <{body}>, ["<content-type>"], [<{options}>]): { response, body } ` | Sends a POST-Request to a URL with a `body` (Object or String) |
 | `.put( "<url>", <{body}>, ["<content-type>"], [<{options}>]): { response, body }`   | Sends PUT-Request to URL with a `body` (Object or String)      |
@@ -357,12 +361,7 @@ In case of a secure HTTPS connection, the `options` object has some [additional 
 
 The network functions only return if the _response_ has a HTTP 2xx status code. The methods return an object that contains two properties: `{ response, body }`
 
-- `response`: is an object that contains meta information about the response,
-  including `.headers`, `.httpVersion`, `.method`, `.statusCode`,
-  `.statusMessage`, and `.url`. Because it resembles _IncomingMessage_, see the
-  [Node.js API about
-  IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
-  for more information.
+- `response`: is an object that contains meta information about the response. It includes the following properties: `.rawHeaders`, `.rawTrailers`, `.httpVersionMajor`, `.httpVersionMinor`, `httpVersion`, `.method`, `.statusCode`, `.statusMessage`, `.url`, `.complete`, `.aborted`, `.upgrade`
 - `body`: Body of the response
 
 The functions throw an [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) if:
@@ -404,21 +403,76 @@ try {
 
 #### `networkRequest`: asychronous functions
 
-The network functions are asynchronous, meaning a Promise is returned.
-**Attention:** The `async/await` pattern should be used to handle this, **not**
-the `.then()` and `.catch()`.
+<Callout type='warning'>
+  The use of the asynchronous `networkRequest.X()` functions is only suitable for advanced users. 
+  It makes code execution asynchronous. 
+  This allows you to achieve multiple semi-parallel code executions.
+</Callout>
 
-Inside of a Script Task it is possible to send HTTP(S) requests to a given URL.
-The prefered way of using `networkRequest` is with its synchronous methods, i.e. the functions wait until an answer is is received.
-Since this are network requests, the completion of the methods sometimes need a while until the response is received.
+Like the synchronous [`networkRequest.X()`](#networkRequest) functions but asynchronous. So, it immediately continues with the next code instructions and does not block the execution. 
+The functions return a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) with `{ response, body}` object. 
+Therefore, you can use `await`, `then()`, `catch()` or `finally()`.  
+Pausing behavior is the same as for `networkRequest.X()`.
 
-| API                                                                                 | Explanation                                                    |
-| ----------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `.get( "<url>", [<{options}>]): { response, body }`                                 | Sends a GET-Request to a URL                                   |
-| `.post( "<url>", <{body}>, ["<content-type>"], [<{options}>]): { response, body } ` | Sends a POST-Request to a URL with a `body` (Object or String) |
-| `.put( "<url>", <{body}>, ["<content-type>"], [<{options}>]): { response, body }`   | Sends PUT-Request to URL with a `body` (Object or String)      |
-| `.delete( "<url>", [<{options}>]): { response, body }`                              | Sends a DELETE-Request to a URL                                |
-| `.head( "<url>", [<{options}>]): { response, body }`                                | Sends a HEAD-Request to a URL                                  |
+| API                              |                                                   |
+| -------------------------------- | ------------------------------------------------- |
+| `.getAsync( "<url>", [<{options}>]): Promise<{ response, body }>`                                 | Sends a GET-Request to a URL                                   |
+| `.postAsync( "<url>", <{body}>, ["<content-type>"], [<{options}>]): Promise<{ response, body }>` | Sends a POST-Request to a URL with a `body` (Object or String) |
+| `.putAsync( "<url>", <{body}>, ["<content-type>"], [<{options}>]): Promise<{ response, body }>`   | Sends PUT-Request to URL with a `body` (Object or String)      |
+| `.deleteAsync( "<url>", [<{options}>]): Promise<{ response, body }>`                              | Sends a DELETE-Request to a URL                                |
+| `.headAsync( "<url>", [<{options}>]): Promise<{ response, body }>`                                | Sends a HEAD-Request to a URL                                  |
+
+
+**Example Code**
+
+```js
+networkRequest.getAsync(
+    'https://www.proceed-labs.org/',
+    {
+        headers: {
+            'user-agent': 'PROCEED-ENGINE/1.0.0'
+        },
+        rejectUnauthorized: true,
+    },
+).then(
+    ({ response, body }) => {
+        console.info("Request successful: " + body.slice(-7));
+        console.log(response);
+    }
+).catch(({ response, body }) => {
+    console.info("Request NOT successful: " + body.slice(-7));
+    console.log(response);
+}).finally(() => {
+    console.info("\n\nRequest FINAL\n\n");
+});
+```
+
+#### `networkServer`: create a listening HTTP Server
+
+TODO
+
+| API                              |                                                   |
+| -------------------------------- | ------------------------------------------------- |
+| `.get( "path" ): { req, res }` | TODO |
+| `.post( "path" ): { req, res }` | TODO |
+| `.put( "path" ): { req, res }` | TODO |
+| `.delete( "path" ): { req, res }` | TODO |
+| `.getAsync( "path" ): Promise<{ req, res }>` | TODO |
+| `.postAsync( "path" ): Promise<{ req, res }>` | TODO |
+| `.putAsync( "path" ): Promise<{ req, res }>` | TODO |
+| `.deleteAsync( "path" ): Promise<{ req, res }>` | TODO |
+| `.get( "path", [<clb()>] ): void` | TODO |
+| `.post( "path", [<clb()>] ): void` | TODO |
+| `.put( "path", [<clb()>] ): void` | TODO |
+| `.delete( "path", [<clb()>] ): void` | TODO |
+| `.close(): void` | TODO |
+
+
+
+**Example Code**
+
+```js
+```
 
 ### Trigger Events
 

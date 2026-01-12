@@ -201,7 +201,7 @@ For this, the HTML Code of the User Task must make use of placeholders to access
 It is easy and keeps templates readable by limiting tags to variables and
 statements ("for" and "if").
 
-Usually you only need `\{%[variable-name]%\}` for accessing the desired variable.
+Usually you only need `{%[variable-name]%}` for accessing the desired variable.
 
 In this example, the variables `firstname` and `surname` are shown inside this
 User Task
@@ -223,9 +223,8 @@ This is what is shown in the tasklist of the engine when encountering the User T
 ![User Task in Tasklist](/images/tasklist/show-variables.png)
 
 For more complex object types variables of the form `{ [attribute-name]: [attribute-value], ... }` subscripts can be used to access nested values.
-To do that use a placeholder of the form:
-\
-`\{%[variable-name].[attribute-name]%\}`
+To do that use a placeholder of the form:  
+`{%[variable-name].[attribute-name]%}`
 
 In this example the entry `name` of the variable `user` which has the value `{ name: 'Max Mustermann' }` is shown inside the user task.
 The ouput is the same as for the previous example.
@@ -245,15 +244,12 @@ The ouput is the same as for the previous example.
 
 For more complex cases if and for statements are supported.
 
-If part of the html should only be shown when a specific variable is true or has a value you can use if statements of the form:
-\
-`\{%if [variable-name]%\}[conditional-part]\{%/if%}`
+If part of the html should only be shown when a specific variable is true or has a value you can use if statements of the form:  
+`{%if [variable-name]%}[conditional-part]{%/if%}`
 
-You can also use comparisons to show parts of the html only if a variable has (or does not have) a specific value:
-\
-`\{%if [variable-name] == '[string-value]'%\}[conditional-part]\{%/if%\}`
-\
-`\{%if [variable-name] != '[string-value]'%\}[conditional-part]\{%/if%\}`
+You can also use comparisons to show parts of the html only if a variable has (or does not have) a specific value:  
+`{%if [variable-name] == '[string-value]'%}[conditional-part]{%/if%}`  
+`{%if [variable-name] != '[string-value]'%}[conditional-part]{%/if%}`
 
 In this example the text `Hello Max!` is shown when the variable `firstname` has the value `Max`.
 Otherwise the text `Welcome` is shown.
@@ -279,9 +275,8 @@ This is what will be the output html when the value of `firstname` is `Max`.
 </form>
 ```
 
-If a part of the html should shown for every entry in an array typed variable you can use a for statement of the form:
-\
-`\{%for [loop-variable] in [variable-name]%\}[html part]\{%/for%\}`
+If a part of the html should shown for every entry in an array typed variable you can use a for statement of the form:  
+`{%for [loop-variable] in [variable-name]%}[html part]{%/for%}`
 
 Inside the loop you can then use `loop-variable` to access the values of the entry.
 

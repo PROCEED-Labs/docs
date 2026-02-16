@@ -4,7 +4,7 @@ const meta: MetaRecord = {
   'ms-interface-overview': 'Overview',
   'process-list': 'Process List',
   'process-editor': 'Process Editor',
-  'automation': { title: 'Process Automation', display: 'hidden' },
+  'automation': { title: 'Process Automation', display: 'normal' },
   'shortcuts': 'Keyboard Shortcuts',
 };
 

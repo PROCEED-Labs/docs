@@ -72,67 +72,174 @@ if (amount > 100) {
 
 ### `variable`
 
-In a Script Task it is possible to read and modify data of the _process_.
-This can be done with the object `variable`.
-It is recommended to predefine process variables in the _Automation_ tab of the _Property Panel_ before using them inside a Script Task.
+In a Script Task it is possible to read and modify data of the running _Process Instance_ or in the global _Data Store_.
+This can be done via the `variable` object and its _setter_ and _getter_ functions.
+
+#### Data Types and Scopes of Data Objects
+
+_Data Objects_ have at least a _name_ and a _value_. 
+Because the _value_ is usually changeable, we also call them sometimes _"Variables"_. 
+They can be simple data types like `string`, `number`, `boolean` or more complex data types like `object` and `array`.
 
 <Callout type='info'>
-  Of course, it is also possible to use JS' capability to define variables with `let, const, var`. These variables are
-  only local to the Script Task and will be deleted after its execution.
+When creating Data Objects, use the serializable JSON data types: `string`, `number`, `boolean` , `object` or `array`. Functions or cyclical objects are automatically converted to `undefined`.
 </Callout>
 
-When setting _process_ variables, use the serializable JSON _data types_: `string`, `number`, `boolean`, `object`, `array`.
-Functions or cyclical objects are automatically converted to `undefined`.
+---
 
-Process variables usually exist in two different scopes: inside the Script Task (_local_) and _outside_ the Script Task on the level of the entire process.
-At the start of each Script Task, the process variables are once copied into the local scope of the task.
-After the Script Task execution ended, the local process variables automatically update (override) the process variables outside of the task.
+Data Objects exist in different scopes: 
+  - _Local Scope_: inside a (Script) Task 
+  - _Process Instance Scope_: outside the Script Task on the level of the entire process instances
+  - _Global Scope_: outside the process instance, read and written into the global data store (currently located inside the MS)
+
+Scopes separate Variables from each other, so that the same Variable _names_ can exist in different scopes at the same time. 
+The _Local Scope_ and the _Process Instance Scope_ automatically transfer some Variables into the other scope:
+  - At the start of each Script Task, the _Process Instance_ variables are once copied into the _Local_ scope of the Script Task.
+  - After the Script Task execution ended, the _Local_ variables automatically update/override the _Process Instance_ variables outside of the task.
 
 <Callout type='warning'>
-  Although we recommend to usually read and write in the local scope, there are also methods for accessing the outside
-  scope. But keep in mind that writing into the outside scope can lead to concurrency problem if other (parallel) tasks
-  also write into these process variables at the same time.
+  Although we recommend to usually read and write in the _Local_ scope, there are also methods for accessing the outside
+  scopes directly. But pay attention: writing directly into the outside scope can lead to concurrency problem if other (parallel) tasks also write into these process variables at the same time.
 </Callout>
 
-| API                                       | Access to the process variables.                                                                                                            |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.get( "<var-name>" )`                    | Returns the value of a variable from the local scope.                                                                                       |
-| `.getGlobal( "<var-name>" )`              | Returns the value of a variable from the global scope.                                                                                      |
-| `.getAll()`                               | Returns an object containing all local variables and their values.                                                                          |
-| `.getAllGlobal()`                         | Returns an object containing all global variables and their values.                                                                         |
-| `.getWithLogs()`                          | Returns an object containing all local variables, their values and their log (array) about the modification time points.                    |
-| `.getWithLogsGlobal()`                    | Returns an object containing all global variables, their values and their log (array) about the modification time points plus the modifier. |
-| `.set( "<var-name>", <var-value> )`       | Updates the value of a local variable.                                                                                                      |
-| `.setGlobal( "<var-name>", <var-value> )` | Updates the value of a global process variable.                                                                                             |
 
-**Example Code**
+#### Creation of Data Objects
+
+There are multiple ways of creating Data Objects:
+  - **Recommended - use of the UI during process design**: it is recommended to define all Data Objects in the _Automation_ tab of the _Property Panel_ while ceating a process in our BPMN Editor. If the Script Task works with a Data Object from the global Data Store, you have to predefine it inside the _Data view_ in the user interface. (For now, it is not possible to dynamically create new Data Objects in the global Data Store at process runtime -- it is only allowed to update existing Data Objects which were defined within the UI.)
+  - use `variable.set(...)` or `variable.setProcess(...)` to dynamically create new Data Objects at process runtime. All Data Objects defined with `variable.set(...)` are inside the Local scope and will be automatically transferred to the Process Instance scope after the Script Task ended.
+  - use `return <obj>` to end a Script Task. The properties (key and value) of the returned `<obj>` object will write and update the Variables inside the Process Instance scope.
+
+Of course, it is also possible to define JavaScript variables with `let, const, var`. **Attention:** These variables are only temporary to the Script Task and will be deleted after its execution! They will not be automatically transferred to the Process Instance scope.
+
+<Callout type='info'>
+  JavaScript variables defined with `let, const, var` are only temporary and will be deleted when the Script Task ends.
+</Callout>
+
+
+#### Reading Data Objects
+
+There are different getter functions to read the Variables, like `variable.get( "<variable-name>" )` (see table). You just specify a _variable-name_. Some functions allow to read directly from the different scopes and some functions return more details like some meta data.
+
+Global Data Objects from the global Data Store have a more advanced object structure. For example, there are properties like `name, value, id, description, displayName, subParameters`.
+There are two different functions for reading the global Data Objects: `.getGlobal( ... )` just returns the value as a string or integer and `.getGlobalFull( ... )` returns the full object with all properties.
+
+Global Data Objects also can have nested child objects which are stored in the property `subParameters`.
+These child Data Objects can have the same _name_ as their parent object, so addressing a global Variable must be done with the full hierachical path separated by a dot `.`, e.g. `variable.getGlobal("vacation.vacation-days")`.
+
+Moreover, global Data Objects are separated into organizational and user data. The former is data belonging to the whole organization space and the latter is data belonging just to a user.   
+By default, the functions `.getGlobal( ... )` and `.getGlobalFull( ... )` search for a Data Object inside the user section of the user that has started the process instance, i.e. the process initiator. 
+An explicit way to mark the same request is to use the modifier `@process-initiator.` in front of the variable name, e.g. `variable.getGlobal("@process-initiator.vacations.remainingDays")`.  
+If you want to request (or update) organizational data, you can either use the functions `.getGlobalOrg( ... )` and `.getGlobalOrgFull( ... )` or you prepend `@organization.` before the variable name, e.g. `variable.getGlobal("@organization.it.incidents.amount")`.
+
+| Read-API                                 | Access to the process variables. |
+| ----------------------------------- | -------------------------------- |
+| `.get( "<var-name>" )`              | Returns the value of a variable from the _Local_ scope. |
+| `.getAll()`                         | Returns an object containing all local variables and their values. |
+| `.getWithLogs()`                    | Returns an object containing all local variables, their values and their log (array) about the modification time points. |
+| `.getProcess( "<var-name>" )`       | Returns the value of a variable from the _Process Instance_ scope. |
+| `.getAllProcess()`                  | Returns an object containing all process instance variables and their values. |
+| `.getWithLogsProcess()`             | Returns an object containing all global variables, their values and their log (array) about the modification time points plus the modifier. |
+| `.getGlobal( "<var-name>.<child-var-name>" )` | Returns the _value_ property of a Data Object from the global Data Store. By default, it searches in the user space of the _Process Initiator_ for the variable name. The modifiers `@organization.` in the front of the variable name can be used to explicitly request data from the organization space. (The modifier `@user.` can also be used to explicitly mark the searched scope, but this is the same as the default behaviour.) |
+| `.getGlobalFull( "<var-name>.<child-var-name>" )` | Returns the full Data Object from the global Data Store with the properties `name, value, id, description, displayName, subParameters`. <br/> Search scope: see `.getGlobal()` |
+| `.getGlobalOrg( "<var-name>.<child-var-name>" )` | Returns the _value_ property of a Data Object from the organizational space inside the global Data Store. |
+| `.getGlobalOrgFull( "<var-name>.<child-var-name>" )` | Returns the full Data Object from the organizational space inside the global Data Store. |
+
+
+
+
+
+#### Setting and Updating Data Objects
+
+There are different setter functions to write/update the Variables, like `variable.set( "<variable-name>", <value> )` (see table). You specify a _variable-name_ and the _value_. There are functions that allow to write directly to the different scopes. 
+
+Global Data Objects can only be updated, i.e. a global Data Object must have been created in the UI of the Management System before you try to write something into it -- creating a new one at runtime via Script Tasks is not possible. 
+Global Data Objects work as described in the "Reading Data Objects" section by addressing a variable with the dot-notation.
+Within a Script Task, it is only possible to update the `value` property and not the other properties of the full object. 
+
+
+
+| Write-API                                 | Access to the process variables. |
+| ----------------------------------- | -------------------------------- |
+| `.set( "<var-name>", <var-value> )` | Updates the value of a Variable in the local Script Task scope.|
+| `.setProcess( "<var-name>", <var-value> )` | Updates the value of a Variable directly inside the process instance. |
+| `.setGlobal( "<var-name>.<child-var-name>", <var-value> )` | Updates `value` of an existing global Data Object directly inside the user space of the _Process Initiator_ in the global Data Store (just `value`, the other attributes are not are not updateable). The modifiers `@organization.` and `@user.` in the front of the variable name can be used to explicitly update a Variable inside the user or organization space. <br/><br/> Throws an _Error_, if the Variable does not yet exist in the global Data Store.<br/> Throws an _Error_, if `<var-value>` is not a simple datatype (e.g. _object_ and _array_ are not allowed). |
+| `.setGlobalOrg( "<var-name>.<child-var-name>", <var-value> )` | Updates `value` of an existing global Data Object directly inside the organization space in the global Data Store (just `value`, the other attributes are not are not updateable).<br/><br/> Throws an _Error_, if the Variable does not yet exist in the global Data Store.<br/> Throws an _Error_, if `<var-value>` is not a simple datatype (e.g. _object_ and _array_ are not allowed). |
+
+#### Example Code: Process Instance Data
+
+`var1` **can** be predefined outside the ScriptTask.
 
 ```js
 log.info("\nget('var1'): " + variable.get('var1'));
-log.info("\ngetGlobal('var1'): " + variable.getGlobal('var1'));
+log.info("\ngetProcess('var1'): " + variable.getProcess('var1'));
 log.info('\ngetAll(): ' + JSON.stringify(variable.getAll(), null, 2));
-log.info('\ngetAllGlobal(): ' + JSON.stringify(variable.getAllGlobal(), null, 2));
+log.info('\ngetAllProcess(): ' + JSON.stringify(variable.getAllProcess(), null, 2));
 log.info('\ngetWithLogs(): ' + JSON.stringify(variable.getWithLogs(), null, 2));
-log.info('\ngetWithLogsGlobal(): ' + JSON.stringify(variable.getWithLogsGlobal(), null, 2));
+log.info('\ngetWithLogsProcess(): ' + JSON.stringify(variable.getWithLogsProcess(), null, 2));
 
 variable.set('var1', 123);
 
 log.info("\nget('var1'): " + variable.get('var1'));
-log.info("\ngetGlobal('var1'): " + variable.getGlobal('var1'));
+log.info("\ngetProcess('var1'): " + variable.getProcess('var1'));
 log.info('\ngetAll(): ' + JSON.stringify(variable.getAll(), null, 2));
-log.info('\ngetAllGlobal(): ' + JSON.stringify(variable.getAllGlobal(), null, 2));
+log.info('\ngetAllProcess(): ' + JSON.stringify(variable.getAllProcess(), null, 2));
 log.info('\ngetWithLogs(): ' + JSON.stringify(variable.getWithLogs(), null, 2));
-log.info('\ngetWithLogsGlobal(): ' + JSON.stringify(variable.getWithLogsGlobal(), null, 2));
+log.info('\ngetWithLogsProcess(): ' + JSON.stringify(variable.getWithLogsProcess(), null, 2));
 
-variable.setGlobal('var1', 456);
+variable.setProcess('var1', 456);
 
 log.info("\nget('var1'): " + variable.get('var1'));
-log.info("\ngetGlobal('var1'): " + variable.getGlobal('var1'));
+log.info("\ngetProcess('var1'): " + variable.getProcess('var1'));
 log.info('\ngetAll(): ' + JSON.stringify(variable.getAll(), null, 2));
-log.info('\ngetAllGlobal(): ' + JSON.stringify(variable.getAllGlobal(), null, 2));
+log.info('\ngetAllProcess(): ' + JSON.stringify(variable.getAllProcess(), null, 2));
 log.info('\ngetWithLogs(): ' + JSON.stringify(variable.getWithLogs(), null, 2));
-log.info('\ngetWithLogsGlobal(): ' + JSON.stringify(variable.getWithLogsGlobal(), null, 2));
+log.info('\ngetWithLogsProcess(): ' + JSON.stringify(variable.getWithLogsProcess(), null, 2));
 ```
+
+#### Example Code: global Data Objects
+
+`@organization.it.incidents.amount` and `@process-initiator.vacations.remainingDays` **must** be predefined in the global Data Store (i.e. im Management System)
+
+```js
+log.info("\ngetGlobal('vacations.remainingDays'): " + variable.getGlobal('vacations.remainingDays'));
+log.info("\ngetGlobal('@process-initiator.vacations.remainingDays'): " + variable.getGlobal('@process-initiator.vacations.remainingDays')); // the same as before
+log.info("\ngetGlobalFull('vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('vacations.remainingDays'), null, 2)));
+log.info("\ngetGlobalFull('@process-initiator.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('@process-initiator.vacations.remainingDays'), null, 2))); // the same as before
+
+log.info('\ngetGlobalOrg('it.incidents.amount'): ' + variable.getGlobalOrg('it.incidents.amount'));
+log.info('\ngetGlobal('@organization.it.incidents.amount'): ' + variable.getGlobal('@organization.it.incidents.amount')); // the same as before
+log.info('\ngetGlobalOrgFull('it.incidents.amount'): ' + JSON.stringify(variable.getGlobalOrgFull('it.incidents.amount'), null, 2));
+log.info('\ngetGlobalFull('@organization.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalFull('@organization.it.incidents.amount'), null, 2)); // the same as before
+
+variable.setGlobal('vacations.remainingDays', 20);
+variable.setGlobalOrg('it.incidents.amount', 123);
+
+log.info("\ngetGlobal('vacations.remainingDays'): " + variable.getGlobal('vacations.remainingDays'));
+log.info("\ngetGlobal('@process-initiator.vacations.remainingDays'): " + variable.getGlobal('@process-initiator.vacations.remainingDays')); // the same as before
+log.info("\ngetGlobalFull('vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('vacations.remainingDays'), null, 2)));
+log.info("\ngetGlobalFull('@process-initiator.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('@process-initiator.vacations.remainingDays'), null, 2))); // the same as before
+
+log.info('\ngetGlobalOrg('it.incidents.amount'): ' + variable.getGlobalOrg('it.incidents.amount'));
+log.info('\ngetGlobal('@organization.it.incidents.amount'): ' + variable.getGlobal('@organization.it.incidents.amount')); // the same as before
+log.info('\ngetGlobalOrgFull('it.incidents.amount'): ' + JSON.stringify(variable.getGlobalOrgFull('it.incidents.amount'), null, 2));
+log.info('\ngetGlobalFull('@organization.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalFull('@organization.it.incidents.amount'), null, 2)); // the same as before
+
+variable.setGlobal('@process-initiator.vacations.remainingDays', 10);
+variable.setGlobal('@organization.it.incidents.amount', 321);
+
+log.info("\ngetGlobal('vacations.remainingDays'): " + variable.getGlobal('vacations.remainingDays'));
+log.info("\ngetGlobal('@process-initiator.vacations.remainingDays'): " + variable.getGlobal('@process-initiator.vacations.remainingDays')); // the same as before
+log.info("\ngetGlobalFull('vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('vacations.remainingDays'), null, 2)));
+log.info("\ngetGlobalFull('@process-initiator.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('@process-initiator.vacations.remainingDays'), null, 2))); // the same as before
+
+log.info('\ngetGlobalOrg('it.incidents.amount'): ' + variable.getGlobalOrg('it.incidents.amount'));
+log.info('\ngetGlobal('@organization.it.incidents.amount'): ' + variable.getGlobal('@organization.it.incidents.amount')); // the same as before
+log.info('\ngetGlobalOrgFull('it.incidents.amount'): ' + JSON.stringify(variable.getGlobalOrgFull('it.incidents.amount'), null, 2));
+log.info('\ngetGlobalFull('@organization.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalFull('@organization.it.incidents.amount'), null, 2)); // the same as before
+```
+
+
 
 ### `log`
 

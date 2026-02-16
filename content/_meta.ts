@@ -35,8 +35,8 @@ const meta: MetaRecord = {
   'user-guide': {
     title: 'User Guide',
   },
-  'developer': {
-    title: 'Developer Information',
+  'reference': {
+    title: 'Reference',
   },
   'adv-process-deployment': {
     title: 'Advanced Process Deployment',

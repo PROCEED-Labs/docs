@@ -146,23 +146,20 @@ typically a user or a role.
 
 ## Access to variables
 
-Within an User Task it is possible to retrieve and set variables of the
-processinstance. This requires certain changes inside the HTML Code of the User
-Task.
+Within a User Task it is possible to retrieve and set variables of the process instance and within the global Data Store. (For a better description of the existing types of Variables/Data Objects, have a look into [the `variable.XYZ()` library description for Script Tasks](../script-task-api#variable) )
+This is accomplished by modifying the HTML Code of the User Task.
 
-Given this BPMN-process, the User Tasks will interact with the variables by
-first entering a user's full name. The set variables can then be retrieved to be
-shown in the next User Task.
+As an example for explaining the writing and retrieving of variables, we use the following BPMN-process where the UserTasks will interact with the variables by first entering a user's full name. 
+The set variables can then be retrieved to be shown in the next User Task.
 
 ![BPMN Process](/images/bpmn/BPMN_User_Task.png)
 
 ### Set variables
 
-User input can be used to set variables. Setting process variables is done like
-in a normal form. You can use every usual form element. Typically this is done
-with `<input type="..." name="variableName" value="initialValue" ...>` where
-`name` is the name of the process variable and value the
-inserted/changed/default value in the input field.
+User input can be used to set variables. 
+Setting process variables is done like in a normal HTML forms, so the UserTask can use every usual form element. 
+
+Typically, this is done with `<input type="..." name="variableName" value="initialValue" ...>` where `name` is the name of the process variable and value the inserted/changed/default value in the input field.
 
 In this example, the variables `firstname` and `surname` are set by the Users
 input
@@ -191,6 +188,9 @@ input
 This is what is shown in the tasklist of the engine when encountering the User
 Task `Enter full name`: ![User Task in
 Tasklist](/images/tasklist/submit-variables.png)
+
+
+
 
 ### Retrieve variables
 
@@ -313,6 +313,24 @@ The resulting html is:
   <button type="submit" class="button">Submit</button>
 </form>
 ```
+
+### Global Data Objects
+
+Addressing global Data Objects in the global Data Store uses the same dot-notation syntax as explained [in Script Tasks](../script-task-api#reading-data-objects), but the modifier `@global.` must be prepended to the _variable-name_ to tell that this is not a process variable.
+For example:
+- For setting: `<input type="text" name="@global.vacations.remainingDays">` 
+- For retrieving: `<b>Hello, {%@global.vacations.remainingDays%}</b>`
+
+By default, this notation requests/updates Data Objects in the user section of the user who is currently working on the UserTask. The same behaviour can also be described explicitly with the `@worker.` modifier, e.g. `<b>Hello, {%@global.@worker.vacations.remainingDays%}</b>`.
+
+With the modifier `@process-initiator.` it is possible to access the Data Objects of the person who started the process instance, e.g. `<b>Hello, {%@global.@process-initiator.vacations.remainingDays%}</b>`.
+
+With the `@organization.` modifier it is possible to request Data Objects from the organization, e.g. `<b>Hello, {%@global.@organization.it.incidents.amount%}</b>`.
+
+
+
+
+
 
 {/*
 

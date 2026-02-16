@@ -1,11 +1,10 @@
 import type { MetaRecord } from "nextra";
 
 const meta: MetaRecord = {
-  "arch-overview": "Architectural Overview",
-  "create-executable-processes": "Creation of Executable Processes",
-  "moni-and-admin": "Monitoring",
-  "process-deployment": "Deployment",
-  "process-execution": "Execution",
+  "arch-overview": { title: "Architectural Overview", display: "hidden" },
+  "create-executable-processes": "Creation of Automatable Processes",
+  "deployment": "Process Deployment",
+  "execution-and-monitoring": "Process Start and Monitoring",
 };
 
 export default meta;

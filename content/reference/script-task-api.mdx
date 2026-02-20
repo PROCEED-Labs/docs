@@ -125,12 +125,12 @@ Global Data Objects from the global Data Store have a more advanced object struc
 There are two different functions for reading the global Data Objects: `.getGlobal( ... )` just returns the value as a string or integer and `.getGlobalFull( ... )` returns the full object with all properties.
 
 Global Data Objects also can have nested child objects which are stored in the property `subParameters`.
-These child Data Objects can have the same _name_ as their parent object, so addressing a global Variable must be done with the full hierachical path separated by a dot `.`, e.g. `variable.getGlobal("vacation.vacation-days")`.
+These child Data Objects can have the same _name_ as their parent object, so addressing a global Variable must be done with the full hierachical path separated by a dot `.`, e.g. `variable.getGlobal("data.vacation.vacation-days")`.
 
 Moreover, global Data Objects are separated into organizational and user data. The former is data belonging to the whole organization space and the latter is data belonging just to a user.   
 By default, the functions `.getGlobal( ... )` and `.getGlobalFull( ... )` search for a Data Object inside the user section of the user that has started the process instance, i.e. the process initiator. 
-An explicit way to mark the same request is to use the modifier `@process-initiator.` in front of the variable name, e.g. `variable.getGlobal("@process-initiator.vacations.remainingDays")`.  
-If you want to request (or update) organizational data, you can either use the functions `.getGlobalOrg( ... )` and `.getGlobalOrgFull( ... )` or you prepend `@organization.` before the variable name, e.g. `variable.getGlobal("@organization.it.incidents.amount")`.
+An explicit way to mark the same request is to use the modifier `@process-initiator.` in front of the variable name, e.g. `variable.getGlobal("@process-initiator.data.vacations.remainingDays")`.  
+If you want to request (or update) organizational data, you can either use the functions `.getGlobalOrg( ... )` and `.getGlobalOrgFull( ... )` or you prepend `@organization.` before the variable name, e.g. `variable.getGlobal("@organization.data.it.incidents.quantity")`.
 
 | Read-API                                 | Access to the process variables. |
 | ----------------------------------- | -------------------------------- |
@@ -163,7 +163,7 @@ Within a Script Task, it is only possible to update the `value` property and not
 | ----------------------------------- | -------------------------------- |
 | `.set( "<var-name>", <var-value> )` | Updates the value of a Variable in the local Script Task scope.|
 | `.setProcess( "<var-name>", <var-value> )` | Updates the value of a Variable directly inside the process instance. |
-| `.setGlobal( "<var-name>.<child-var-name>", <var-value> )` | Updates `value` of an existing global Data Object directly inside the user space of the _Process Initiator_ in the global Data Store (just `value`, the other attributes are not are not updateable). The modifiers `@organization.` and `@user.` in the front of the variable name can be used to explicitly update a Variable inside the user or organization space. <br/><br/> Throws an _Error_, if the Variable does not yet exist in the global Data Store.<br/> Throws an _Error_, if `<var-value>` is not a simple datatype (e.g. _object_ and _array_ are not allowed). |
+| `.setGlobal( "<var-name>.<child-var-name>", <var-value> )` | Updates `value` of an existing global Data Object directly inside the user space of the _Process Initiator_ in the global Data Store (just `value`, the other attributes are not are not updateable). The modifiers `@organization.` and `@process-initiator.` in the front of the variable name can be used to explicitly update a Variable inside the user or organization space. <br/><br/> Throws an _Error_, if the Variable does not yet exist in the global Data Store.<br/> Throws an _Error_, if `<var-value>` is not a simple datatype (e.g. _object_ and _array_ are not allowed). |
 | `.setGlobalOrg( "<var-name>.<child-var-name>", <var-value> )` | Updates `value` of an existing global Data Object directly inside the organization space in the global Data Store (just `value`, the other attributes are not are not updateable).<br/><br/> Throws an _Error_, if the Variable does not yet exist in the global Data Store.<br/> Throws an _Error_, if `<var-value>` is not a simple datatype (e.g. _object_ and _array_ are not allowed). |
 
 #### Example Code: Process Instance Data
@@ -199,44 +199,44 @@ log.info('\ngetWithLogsProcess(): ' + JSON.stringify(variable.getWithLogsProcess
 
 #### Example Code: global Data Objects
 
-`@organization.it.incidents.amount` and `@process-initiator.vacations.remainingDays` **must** be predefined in the global Data Store (i.e. im Management System)
+`@organization.data.it.incidents.amount` and `@process-initiator.data.vacations.remainingDays` **must** be predefined in the global Data Store (i.e. im Management System)
 
 ```js
-log.info("\ngetGlobal('vacations.remainingDays'): " + variable.getGlobal('vacations.remainingDays'));
-log.info("\ngetGlobal('@process-initiator.vacations.remainingDays'): " + variable.getGlobal('@process-initiator.vacations.remainingDays')); // the same as before
-log.info("\ngetGlobalFull('vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('vacations.remainingDays'), null, 2)));
-log.info("\ngetGlobalFull('@process-initiator.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('@process-initiator.vacations.remainingDays'), null, 2))); // the same as before
+log.info("\ngetGlobal('data.vacations.remainingDays'): " + variable.getGlobal('data.vacations.remainingDays'));
+log.info("\ngetGlobal('@process-initiator.data.vacations.remainingDays'): " + variable.getGlobal('@process-initiator.data.vacations.remainingDays')); // the same as before
+log.info("\ngetGlobalFull('data.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('data.vacations.remainingDays'), null, 2)));
+log.info("\ngetGlobalFull('@process-initiator.data.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('@process-initiator.data.vacations.remainingDays'), null, 2))); // the same as before
 
-log.info('\ngetGlobalOrg('it.incidents.amount'): ' + variable.getGlobalOrg('it.incidents.amount'));
-log.info('\ngetGlobal('@organization.it.incidents.amount'): ' + variable.getGlobal('@organization.it.incidents.amount')); // the same as before
-log.info('\ngetGlobalOrgFull('it.incidents.amount'): ' + JSON.stringify(variable.getGlobalOrgFull('it.incidents.amount'), null, 2));
-log.info('\ngetGlobalFull('@organization.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalFull('@organization.it.incidents.amount'), null, 2)); // the same as before
+log.info('\ngetGlobalOrg('data.it.incidents.amount'): ' + variable.getGlobalOrg('data.it.incidents.amount'));
+log.info('\ngetGlobal('@organization.data.it.incidents.amount'): ' + variable.getGlobal('@organization.data.it.incidents.amount')); // the same as before
+log.info('\ngetGlobalOrgFull('data.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalOrgFull('data.it.incidents.amount'), null, 2));
+log.info('\ngetGlobalFull('@organization.data.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalFull('@organization.data.it.incidents.amount'), null, 2)); // the same as before
 
-variable.setGlobal('vacations.remainingDays', 20);
-variable.setGlobalOrg('it.incidents.amount', 123);
+variable.setGlobal('data.vacations.remainingDays', 20);
+variable.setGlobalOrg('data.it.incidents.amount', 123);
 
-log.info("\ngetGlobal('vacations.remainingDays'): " + variable.getGlobal('vacations.remainingDays'));
-log.info("\ngetGlobal('@process-initiator.vacations.remainingDays'): " + variable.getGlobal('@process-initiator.vacations.remainingDays')); // the same as before
-log.info("\ngetGlobalFull('vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('vacations.remainingDays'), null, 2)));
-log.info("\ngetGlobalFull('@process-initiator.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('@process-initiator.vacations.remainingDays'), null, 2))); // the same as before
+log.info("\ngetGlobal('data.vacations.remainingDays'): " + variable.getGlobal('data.vacations.remainingDays'));
+log.info("\ngetGlobal('@process-initiator.data.vacations.remainingDays'): " + variable.getGlobal('@process-initiator.data.vacations.remainingDays')); // the same as before
+log.info("\ngetGlobalFull('data.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('data.vacations.remainingDays'), null, 2)));
+log.info("\ngetGlobalFull('@process-initiator.data.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('@process-initiator.data.vacations.remainingDays'), null, 2))); // the same as before
 
-log.info('\ngetGlobalOrg('it.incidents.amount'): ' + variable.getGlobalOrg('it.incidents.amount'));
-log.info('\ngetGlobal('@organization.it.incidents.amount'): ' + variable.getGlobal('@organization.it.incidents.amount')); // the same as before
-log.info('\ngetGlobalOrgFull('it.incidents.amount'): ' + JSON.stringify(variable.getGlobalOrgFull('it.incidents.amount'), null, 2));
-log.info('\ngetGlobalFull('@organization.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalFull('@organization.it.incidents.amount'), null, 2)); // the same as before
+log.info('\ngetGlobalOrg('data.it.incidents.amount'): ' + variable.getGlobalOrg('data.it.incidents.amount'));
+log.info('\ngetGlobal('@organization.data.it.incidents.amount'): ' + variable.getGlobal('@organization.data.it.incidents.amount')); // the same as before
+log.info('\ngetGlobalOrgFull('data.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalOrgFull('data.it.incidents.amount'), null, 2));
+log.info('\ngetGlobalFull('@organization.data.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalFull('@organization.data.it.incidents.amount'), null, 2)); // the same as before
 
-variable.setGlobal('@process-initiator.vacations.remainingDays', 10);
-variable.setGlobal('@organization.it.incidents.amount', 321);
+variable.setGlobal('@process-initiator.data.vacations.remainingDays', 10);
+variable.setGlobal('@organization.data.it.incidents.amount', 321);
 
-log.info("\ngetGlobal('vacations.remainingDays'): " + variable.getGlobal('vacations.remainingDays'));
-log.info("\ngetGlobal('@process-initiator.vacations.remainingDays'): " + variable.getGlobal('@process-initiator.vacations.remainingDays')); // the same as before
-log.info("\ngetGlobalFull('vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('vacations.remainingDays'), null, 2)));
-log.info("\ngetGlobalFull('@process-initiator.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('@process-initiator.vacations.remainingDays'), null, 2))); // the same as before
+log.info("\ngetGlobal('data.vacations.remainingDays'): " + variable.getGlobal('data.vacations.remainingDays'));
+log.info("\ngetGlobal('@process-initiator.data.vacations.remainingDays'): " + variable.getGlobal('@process-initiator.data.vacations.remainingDays')); // the same as before
+log.info("\ngetGlobalFull('data.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('data.vacations.remainingDays'), null, 2)));
+log.info("\ngetGlobalFull('@process-initiator.data.vacations.remainingDays'): " + JSON.stringify(variable.getGlobalFull('@process-initiator.data.vacations.remainingDays'), null, 2))); // the same as before
 
-log.info('\ngetGlobalOrg('it.incidents.amount'): ' + variable.getGlobalOrg('it.incidents.amount'));
-log.info('\ngetGlobal('@organization.it.incidents.amount'): ' + variable.getGlobal('@organization.it.incidents.amount')); // the same as before
-log.info('\ngetGlobalOrgFull('it.incidents.amount'): ' + JSON.stringify(variable.getGlobalOrgFull('it.incidents.amount'), null, 2));
-log.info('\ngetGlobalFull('@organization.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalFull('@organization.it.incidents.amount'), null, 2)); // the same as before
+log.info('\ngetGlobalOrg('data.it.incidents.amount'): ' + variable.getGlobalOrg('data.it.incidents.amount'));
+log.info('\ngetGlobal('@organization.data.it.incidents.amount'): ' + variable.getGlobal('@organization.data.it.incidents.amount')); // the same as before
+log.info('\ngetGlobalOrgFull('data.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalOrgFull('data.it.incidents.amount'), null, 2));
+log.info('\ngetGlobalFull('@organization.data.it.incidents.amount'): ' + JSON.stringify(variable.getGlobalFull('@organization.data.it.incidents.amount'), null, 2)); // the same as before
 ```
 
 

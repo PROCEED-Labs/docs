@@ -318,14 +318,14 @@ The resulting html is:
 
 Addressing global Data Objects in the global Data Store uses the same dot-notation syntax as explained [in Script Tasks](../script-task-api#reading-data-objects), but the modifier `@global.` must be prepended to the _variable-name_ to tell that this is not a process variable.
 For example:
-- For setting: `<input type="text" name="@global.vacations.remainingDays">` 
-- For retrieving: `<b>Hello, {%@global.vacations.remainingDays%}</b>`
+- For setting: `<input type="text" name="@global.data.vacations.remainingDays">` 
+- For retrieving: `<b>Hello, {%@global.data.vacations.remainingDays%}</b>`
 
-By default, this notation requests/updates Data Objects in the user section of the user who is currently working on the UserTask. The same behaviour can also be described explicitly with the `@worker.` modifier, e.g. `<b>Hello, {%@global.@worker.vacations.remainingDays%}</b>`.
+By default, this notation requests/updates Data Objects in the user section of the user who is currently working on the UserTask. The same behaviour can also be described explicitly with the `@worker.` modifier, e.g. `<b>Hello, {%@global.@worker.data.vacations.remainingDays%}</b>`.
 
-With the modifier `@process-initiator.` it is possible to access the Data Objects of the person who started the process instance, e.g. `<b>Hello, {%@global.@process-initiator.vacations.remainingDays%}</b>`.
+With the modifier `@process-initiator.` it is possible to access the Data Objects of the person who started the process instance, e.g. `<b>Hello, {%@global.@process-initiator.data.vacations.remainingDays%}</b>`.
 
-With the `@organization.` modifier it is possible to request Data Objects from the organization, e.g. `<b>Hello, {%@global.@organization.it.incidents.amount%}</b>`.
+With the `@organization.` modifier it is possible to request Data Objects from the organization, e.g. `<b>Hello, {%@global.@organization.data.it.incidents.quantity%}</b>`.
 
 
 

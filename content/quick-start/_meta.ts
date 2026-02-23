@@ -5,7 +5,7 @@ const meta: MetaRecord = {
     title: 'Create a Process',
     display: 'normal', //hidden
   },
-  'qs-share': 'Copy and Share the Process',
+  'qs-share': 'Share and Download a Process',
   'qs-organize-processes': 'Organize multiple Processes',
 };
 

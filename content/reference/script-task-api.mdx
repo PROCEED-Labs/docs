@@ -579,6 +579,27 @@ TODO
 **Example Code**
 
 ```js
+console.info("Server öffnen");
+
+/* let { req, res } = networkServer.getAsync('hallo-test');
+console.info(JSON.stringify(req, null, 2));
+console.info(JSON.stringify(res, null, 2));
+res.send('Hello KAAAAAIIII');
+console.info("Request beantwortet");
+ */
+
+console.info(networkServer.getProcessInstanceListeningPath());
+console.info(networkServer.path())
+
+networkServer.getAsync('hallo-test').then(({ req, res }) => {
+    console.info("Server geöffnet in Then()");
+    console.info(JSON.stringify(req, null, 2));
+    console.info(JSON.stringify(res, null, 2));
+    res.send('Hello PROCEED User');
+});
+
+console.info("Server geöffnet");
+
 ```
 
 ### Trigger Events

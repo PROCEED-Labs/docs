@@ -1,8 +1,7 @@
 import type { MetaRecord } from 'nextra';
 
 const meta: MetaRecord = {
-  'process-editor-manage': 'Create, Manage, Delete',
-  'process-export-import': 'Import and Export',
+  'process-editor-manage': 'Create and Manage Processes',
   'process-editor': 'Process Editor',
   'process-property-panel': 'Property Panel',
   'process-subprocesses': 'Subprocesses',
